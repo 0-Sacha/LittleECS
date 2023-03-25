@@ -1,0 +1,20 @@
+
+# VS
+.vs
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+Makefile
+*.make
+
+# VSCode
+.vscode
+
+# VSCode
+bin
+bin-int
+
+# Asset
+Asset
