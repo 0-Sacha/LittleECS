@@ -4,5 +4,5 @@
 int main()
 {
 	ProjectCore::Tester::TestSuitesManager::Verbose = false;
-	ProjectCore::Tester::TestSuitesManager::ExecAllTestSuites();
+	return ProjectCore::Tester::TestSuitesManager::ExecAllTestSuites();
 }
