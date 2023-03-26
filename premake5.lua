@@ -27,6 +27,12 @@ project "LittleECS"
 
 if (LittleECSTestsEnable)
 then
+
+LittleECSTestLaunch = {}
+LittleECSTestLaunch.project = "LittleECSTests"
+
+Solution.Launch["LittleECSTests"] = LittleECSTestLaunch
+
 project "LittleECSTests"
 	kind "ConsoleApp"
 	language "C++"

@@ -17,7 +17,7 @@ namespace LittleECS
             : Id(id)
         {}
 
-        inline operator Type ()
+        inline operator Type () const
         {
             return Id;
         }
