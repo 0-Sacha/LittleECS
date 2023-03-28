@@ -51,3 +51,41 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
 }
+
+PCT_TEST_FUNC(REGISTRY, ADD_MANY_COMPONENT)
+{
+    LittleECS::Registry registry;
+
+    std::vector<LittleECS::EntityId> entities;
+
+    for (int i = 0; i < 10'000; ++i)
+    {
+        entities.emplace_back(registry.CreateEntity());
+    }
+
+    for (int entityX = 0; entityX < 10'000; ++entityX)
+    {
+        for (int entityY = entityX + 1; entityY < 10'000; ++entityY)
+        {
+            PCT_NEQ(entities[entityX], entities[entityY]);
+        }
+    }
+
+    for (int i = 0; i < 10'000; ++i)
+    {
+		registry.AddComponentToEntity<BasicIntComponent>(entities[i], i);
+		PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);
+    }
+
+    for (int i = 0; i < 10'000; ++i)
+    {
+        PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);
+    }
+
+    for (int i = 0; i < 10'000; ++i)
+    {
+        PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entities[i]));
+        PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entities[i]) == false);
+    }
+}
+

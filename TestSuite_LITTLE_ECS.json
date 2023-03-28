@@ -1,0 +1,165 @@
+{
+    "displayTimeUnit": "",
+    "traceEvents": [
+        {
+            "name": "TestSuite_LITTLE_ECS",
+            "cat": "Profiler",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671670.79,
+            "dur": 6479003.10,
+            "id": 0
+        },
+        {
+            "name": "BASIC_GLOBAL_ID_GEN",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672102.20,
+            "dur": 5.79,
+            "id": 0
+        },
+        {
+            "name": "Tests",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672100.20,
+            "dur": 158.59,
+            "id": 0
+        },
+        {
+            "name": "Groups",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672261.89,
+            "dur": 0.20,
+            "id": 0
+        },
+        {
+            "name": "LITTLE_ECS::DETAIL::COMPONENT_ID",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672098.29,
+            "dur": 163.90,
+            "id": 0
+        },
+        {
+            "name": "Tests",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671962.39,
+            "dur": 0.30,
+            "id": 0
+        },
+        {
+            "name": "Groups",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671964.70,
+            "dur": 419.00,
+            "id": 0
+        },
+        {
+            "name": "LITTLE_ECS::DETAIL",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671960.60,
+            "dur": 423.39,
+            "id": 0
+        },
+        {
+            "name": "ADD_COMPONENT",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672578.10,
+            "dur": 97.19,
+            "id": 0
+        },
+        {
+            "name": "ADD_MANY_COMPONENT",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672727.79,
+            "dur": 6477453.10,
+            "id": 0
+        },
+        {
+            "name": "Tests",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672576.29,
+            "dur": 6477780.80,
+            "id": 0
+        },
+        {
+            "name": "Groups",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15698150361.10,
+            "dur": 0.29,
+            "id": 0
+        },
+        {
+            "name": "LITTLE_ECS::REGISTRY",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691672574.50,
+            "dur": 6477787.00,
+            "id": 0
+        },
+        {
+            "name": "Tests",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671886.29,
+            "dur": 0.40,
+            "id": 0
+        },
+        {
+            "name": "Groups",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671888.60,
+            "dur": 6478589.29,
+            "id": 0
+        },
+        {
+            "name": "LITTLE_ECS",
+            "cat": "Profile",
+            "ph": "X",
+            "pid": 20728,
+            "tid": 6724461734125830436,
+            "ts": 15691671884.39,
+            "dur": 6478593.80,
+            "id": 0
+        }
+    ]
+}

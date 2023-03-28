@@ -17,12 +17,14 @@ namespace LittleECS
     };
 }
 
+#define LECS_LOGGER_ENABLE
+
 #ifdef LECS_LOGGER_ENABLE
-#define LECS_TRACE(...)	ProjectCore::LoggerManager::BasicLogger::GetCoreInstance().Trace(__VA_ARGS__)
-#define LECS_INFO(...)	ProjectCore::LoggerManager::BasicLogger::GetCoreInstance().Info(__VA_ARGS__)
-#define LECS_WARN(...)	ProjectCore::LoggerManager::BasicLogger::GetCoreInstance().Warn(__VA_ARGS__)
-#define LECS_ERROR(...)	ProjectCore::LoggerManager::BasicLogger::GetCoreInstance().Error(__VA_ARGS__)
-#define LECS_FATAL(...)	ProjectCore::LoggerManager::BasicLogger::GetCoreInstance().Fatal(__VA_ARGS__)
+#define LECS_TRACE(...)	    LittleECS::Core::Logger().Trace(__VA_ARGS__)
+#define LECS_INFO(...)	    LittleECS::Core::Logger().Info(__VA_ARGS__)
+#define LECS_WARN(...)	    LittleECS::Core::Logger().Warn(__VA_ARGS__)
+#define LECS_ERROR(...)	    LittleECS::Core::Logger().Error(__VA_ARGS__)
+#define LECS_FATAL(...)	    LittleECS::Core::Logger().Fatal(__VA_ARGS__)
 #else
 #define LECS_TRACE(...)
 #define LECS_INFO(...)
@@ -32,4 +34,4 @@ namespace LittleECS
 #endif
 
 
-#define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}", #x); }
+#define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}", #x); __debugbreak(); }

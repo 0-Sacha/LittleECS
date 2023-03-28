@@ -16,6 +16,10 @@ namespace LittleECS
         using ComponentsStoragesContainer = std::map<ComponentId::Type, ComponentStorageRef>;
         using ComponentIdGenerator = Detail::GlobalComponentIdGenerator;
 
+    protected:
+        ComponentsStoragesContainer m_ComponentsStoragesContainer;
+        Detail::EntityIdGenerator m_EntityIdGenerator;
+
     // Entity Management
     public:
         EntityId CreateEntity()
@@ -24,7 +28,7 @@ namespace LittleECS
         }
 
     // Entity's Components Management
-    public:
+    private:
         template <typename ComponentType>
         Detail::ComponentStorage<ComponentType>* GetComponentStorageOrCreateIt()
         {
@@ -33,8 +37,7 @@ namespace LittleECS
             // TODO : fix this crap
             if (m_ComponentsStoragesContainer.contains(componentId))
             {
-                ComponentStorageRef& componentStorageRef = m_ComponentsStoragesContainer[componentId];
-                Detail::BasicComponentStorage* componentStorageBasic = componentStorageRef.get();
+                Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
                 return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
             }
             else
@@ -47,6 +50,19 @@ namespace LittleECS
             return nullptr;
         }
 
+        template <typename ComponentType>
+        Detail::ComponentStorage<ComponentType>* GetComponentStorage()
+        {
+            ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
+
+            if (m_ComponentsStoragesContainer.contains(componentId) == false)
+                return nullptr;
+            
+            Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
+            return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
+        }
+
+    public:
         template <typename ComponentType, typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
@@ -58,25 +74,18 @@ namespace LittleECS
         template <typename ComponentType>
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
-            // TODO : must not create the container
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "Got a nullptr ComponentStorage");
+            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This Component is not part of this registry");
             return componentStorage->GetComponentOfEntity(entity);
         }
 
         template <typename ComponentType>
         bool EntityHasComponent(EntityId entity)
         {
-            // TODO : must not create the container
             Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "Got a nullptr ComponentStorage");
-
+            LECS_ASSERT(componentStorage != nullptr, "This Component is not part of this registry");
             return componentStorage->EntityHasThisComponent(entity);
         }
-
-    protected:
-        ComponentsStoragesContainer m_ComponentsStoragesContainer;
-        Detail::EntityIdGenerator m_EntityIdGenerator;
     };
 
 }

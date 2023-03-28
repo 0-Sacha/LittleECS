@@ -49,7 +49,7 @@ project "LittleECSTests"
 		"Tests/**.cpp",
 	}
 	
-	Solution.IncludeAndLinkProject("LittleECS")
+	Solution.IncludeProject("LittleECS")
 	Solution.IncludeAndLinkProject("ProjectCore")
 end
 	
