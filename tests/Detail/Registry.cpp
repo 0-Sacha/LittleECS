@@ -1,9 +1,12 @@
-    #include "../BaseLittleECSTest.h"
+#include "../BaseLittleECSTest.h"
 
 #include "LittleECS/Registry/Registry.h"
 
-PCT_TEST_GROUP(LITTLE_ECS, REGISTRY);
+#include "ProjectCore/Instrumentation/ProfilerManger/ProfilerManger.h"
 
+#include <set>
+
+PCT_TEST_GROUP(LITTLE_ECS, REGISTRY);
 
 struct BasicIntComponent
 {
@@ -54,6 +57,8 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
 
 PCT_TEST_FUNC(REGISTRY, ADD_MANY_COMPONENT)
 {
+    ProjectCore::Instrumentation::Profiler profiler("ADD_MANY_COMPONENT");
+
     LittleECS::Registry registry;
 
     std::vector<LittleECS::EntityId> entities;
@@ -63,29 +68,71 @@ PCT_TEST_FUNC(REGISTRY, ADD_MANY_COMPONENT)
         entities.emplace_back(registry.CreateEntity());
     }
 
-    for (int entityX = 0; entityX < 10'000; ++entityX)
     {
-        for (int entityY = entityX + 1; entityY < 10'000; ++entityY)
+        bool uid = true;
+
+		for (int i = 0; i < 10'000; ++i)
+		{
+            if (entities[i].Id != i)
+            {
+                uid = false;
+                break;
+            }
+		}
+
+        if (uid == false)
         {
-            PCT_NEQ(entities[entityX], entities[entityY]);
+            uid = true;
+
+            std::set<typename LittleECS::EntityId::Type> setUID;
+
+			for (int i = 0; i < 10'000; ++i)
+			{
+				if (setUID.contains(entities[i].Id))
+				{
+					uid = false;
+					break;
+				}
+                setUID.insert(entities[i].Id);
+			}
+
+            if (uid)
+            {
+                LECS_WARN("Index are not contigus from 0");
+            }
+        }
+
+        PCT_ASSERT(uid);
+    }
+
+    {
+        ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Add Component");
+
+        for (int i = 0; i < 10'000; ++i)
+        {
+		    registry.AddComponentToEntity<BasicIntComponent>(entities[i], i);
         }
     }
 
-    for (int i = 0; i < 10'000; ++i)
     {
-		registry.AddComponentToEntity<BasicIntComponent>(entities[i], i);
-		PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);
+		ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Get Component");
+
+		for (int i = 0; i < 10'000; ++i)
+		{
+			PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);
+		}
     }
 
-    for (int i = 0; i < 10'000; ++i)
     {
-        PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);
+		ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Has Component");
+
+        for (int i = 0; i < 10'000; ++i)
+        {
+            PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entities[i]));
+            PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entities[i]) == false);
+        }
     }
 
-    for (int i = 0; i < 10'000; ++i)
-    {
-        PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entities[i]));
-        PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entities[i]) == false);
-    }
+    ProjectCore::Instrumentation::ProfilerFactory::ToJson(profiler);
 }
 

@@ -82,8 +82,9 @@ namespace LittleECS
         template <typename ComponentType>
         bool EntityHasComponent(EntityId entity)
         {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This Component is not part of this registry");
+            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return false;
             return componentStorage->EntityHasThisComponent(entity);
         }
     };
