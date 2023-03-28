@@ -17,21 +17,33 @@ namespace LittleECS
     };
 }
 
-#define LECS_LOGGER_ENABLE
-
-#ifdef LECS_LOGGER_ENABLE
-#define LECS_TRACE(...)	    LittleECS::Core::Logger().Trace(__VA_ARGS__)
-#define LECS_INFO(...)	    LittleECS::Core::Logger().Info(__VA_ARGS__)
-#define LECS_WARN(...)	    LittleECS::Core::Logger().Warn(__VA_ARGS__)
-#define LECS_ERROR(...)	    LittleECS::Core::Logger().Error(__VA_ARGS__)
-#define LECS_FATAL(...)	    LittleECS::Core::Logger().Fatal(__VA_ARGS__)
-#else
-#define LECS_TRACE(...)
-#define LECS_INFO(...)
-#define LECS_WARN(...)
-#define LECS_ERROR(...)
-#define LECS_FATAL(...)
+#ifdef LECS_DEBUG
+    #define LECS_LOGGER_ENABLE
+    #define LECS_ASSERT_ENABLE
 #endif
 
 
-#define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}", #x); __debugbreak(); }
+#ifdef LECS_ASSERT_ENABLE
+    #define LECS_LOGGER_ENABLE
+#endif
+
+#ifdef LECS_LOGGER_ENABLE
+    #define LECS_TRACE(...)	    LittleECS::Core::Logger().Trace(__VA_ARGS__)
+    #define LECS_INFO(...)	    LittleECS::Core::Logger().Info(__VA_ARGS__)
+    #define LECS_WARN(...)	    LittleECS::Core::Logger().Warn(__VA_ARGS__)
+    #define LECS_ERROR(...)	    LittleECS::Core::Logger().Error(__VA_ARGS__)
+    #define LECS_FATAL(...)	    LittleECS::Core::Logger().Fatal(__VA_ARGS__)
+#else
+    #define LECS_TRACE(...)
+    #define LECS_INFO(...)
+    #define LECS_WARN(...)
+    #define LECS_ERROR(...)
+    #define LECS_FATAL(...)
+#endif
+
+
+#ifdef LECS_ASSERT_ENABLE
+    #define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}", #x); __debugbreak(); }
+#else
+    #define LECS_ASSERT(x, ...)
+#endif

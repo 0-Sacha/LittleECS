@@ -34,7 +34,6 @@ namespace LittleECS
         {
             ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-            // TODO : fix this crap
             if (m_ComponentsStoragesContainer.contains(componentId))
             {
                 Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();

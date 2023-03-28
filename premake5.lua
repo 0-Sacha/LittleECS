@@ -4,7 +4,7 @@ Solution.ProjectsInfo.Includes["LittleECS"] = {
 	"%{Solution.Projects.LittleECS}/src/LittleECS",
 }
 
-Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LITTLEECS"
+Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LECS"
 
 project "LittleECS"
 	kind "StaticLib"

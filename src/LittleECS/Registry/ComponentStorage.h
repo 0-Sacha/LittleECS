@@ -6,50 +6,44 @@
 #include "LittleECS/Detail/ComponentIdGenerator.h"
 
 #include <map>
+#include <set>
 #include <array>
+#include <any>
 
 namespace LittleECS::Detail
 {
     class BasicComponentStorage
     {
-    public:
-        using GlobalIntexOfComponent = std::size_t;
-        using PageIntexOfComponent = std::size_t;
-        using IntexOfPage = std::size_t;
+	public:
+        virtual ~BasicComponentStorage() = default;
+
+	public:
+        using GlobalIndexOfComponent = std::size_t;
+        using PageIndexOfComponent = std::size_t;
+        using IndexOfPage = std::size_t;
 
         struct IndexInfo
         {
-            PageIntexOfComponent PageIntexOfComponent;
-            IntexOfPage IndexOfPage;
+            PageIndexOfComponent PageIndexOfComponent;
+            IndexOfPage IndexOfPage;
         };
 
-        static constexpr GlobalIntexOfComponent PAGE_SIZE = 1024;
+        using EntityToComponent = std::map<typename EntityId::Type, GlobalIndexOfComponent>;
 
-    public:
-        using EntityToComponent = std::map<typename EntityId::Type, GlobalIntexOfComponent>;
 
-    protected:
-        inline IndexInfo GetIndexInfoOfEntity(EntityId entity) const
-        {
-            LECS_ASSERT(EntityHasThisComponent(entity));
+	public:
+		bool EntityHasThisComponent(EntityId entity) const
+		{
+			return m_EntityToComponent.contains(entity.Id);
+		}
 
-            GlobalIntexOfComponent indexToComponent = m_EntityToComponent.at(entity.Id);
+	public:
+		virtual void ForEach(std::any function) = 0;
+		virtual void ForEach(std::any function) const = 0;
 
-            IndexInfo indexInfo;
-            indexInfo.IndexOfPage = indexToComponent / PAGE_SIZE;
-            indexInfo.PageIntexOfComponent = indexToComponent % PAGE_SIZE;
-            return indexInfo;
-        }
-
-    public:
-        bool EntityHasThisComponent(EntityId entity) const
-        {
-            return m_EntityToComponent.contains(entity.Id);
-        }
-
-    protected:
-        EntityToComponent m_EntityToComponent;
-    };
+	protected:
+		EntityToComponent m_EntityToComponent;
+	};
 
     template <typename ComponentType, std::size_t PAGE_SIZE>
     requires (PAGE_SIZE % sizeof(std::size_t) == 0)
@@ -60,13 +54,28 @@ namespace LittleECS::Detail
         {
             union DataStorageType
             {
-                std::uint8_t Data[sizeof(ComponentType)]; 
-                ComponentType Type;
+                std::uint8_t StorageData[sizeof(ComponentType)];
+                ComponentType ComponentValue;
             };
             DataStorageType Data{};
         };
 
         static constexpr std::size_t NUMBER_OF_BLOCKS = PAGE_SIZE / sizeof(std::size_t);
+
+	private:
+        template <typename... Args>
+		inline ComponentType& ConstructAt(BasicComponentStorage::PageIndexOfComponent index, Args&&... args)
+		{
+			ComponentDataBuffer* buffer = &m_Page[index];
+			ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
+            return *component;
+		}
+
+        inline void DestroyAt(BasicComponentStorage::PageIndexOfComponent index)
+        {
+            ComponentType& component = m_Page[index].Data.ComponentValue;
+            component.~ComponentType();
+        }
 
     public:
         ComponentsStoragePage()
@@ -80,23 +89,33 @@ namespace LittleECS::Detail
                 *beginFreeListBlocks = std::numeric_limits<std::size_t>::max();
                 ++beginFreeListBlocks;
             }
+
+            for (std::size_t i = 0; i < PAGE_SIZE; ++i)
+                m_EntityIdLinked[i] = EntityId::NON_VALID;
         }
+
+		~ComponentsStoragePage()
+		{
+			ForEach([this](BasicComponentStorage::PageIndexOfComponent index) { this->DestroyAt(index); });
+		}
 
     protected:
         std::array<ComponentDataBuffer, PAGE_SIZE> m_Page;
-        std::size_t m_FreeComponent[PAGE_SIZE / sizeof(std::size_t)];
+		std::size_t m_FreeComponent[PAGE_SIZE / sizeof(std::size_t)];
+		EntityId m_EntityIdLinked[PAGE_SIZE];
         std::size_t m_CurrentSize;
 
-    private:
-        inline bool HasComponentAt(BasicComponentStorage::PageIntexOfComponent index)
+    public:
+        inline bool HasComponentAt(BasicComponentStorage::PageIndexOfComponent index) const
         {
             std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
-            std::size_t* block = m_FreeComponent + indexOfBlock;
+            std::size_t block = *(m_FreeComponent + indexOfBlock);
             std::size_t indexInBlock = index % (sizeof(std::size_t) * 8);
-            return *block & (static_cast<std::size_t>(1) << indexInBlock);
+            return block & (static_cast<std::size_t>(1) << indexInBlock);
         }
 
-        inline void SetHasComponentAt(BasicComponentStorage::PageIntexOfComponent index, bool set)
+    private:
+        inline void SetHasComponentAt(BasicComponentStorage::PageIndexOfComponent index, bool set)
         {
             std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
             std::size_t* block = m_FreeComponent + indexOfBlock;
@@ -108,10 +127,10 @@ namespace LittleECS::Detail
                 *block |= (static_cast<std::size_t>(1) << indexInBlock);
         }
 
-        BasicComponentStorage::PageIntexOfComponent GetNextIndex()
+        BasicComponentStorage::PageIndexOfComponent GetNextIndex() const
         {
-            std::size_t* beginFreeListBlocks = m_FreeComponent;
-            std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
+            const std::size_t* beginFreeListBlocks = m_FreeComponent;
+            const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
             while (beginFreeListBlocks < endFreeListBlocks)
             {
                 if (*beginFreeListBlocks != 0)
@@ -126,13 +145,11 @@ namespace LittleECS::Detail
 
             std::size_t block = *beginFreeListBlocks;
             std::size_t mask = 1;
-            uint8_t freeIndexInBlock = 0;
+            std::uint8_t freeIndexInBlock = 0;
             for(; freeIndexInBlock < sizeof(std::size_t) * 8; ++freeIndexInBlock)
             {
                 if (block & mask)
-                {
                     break;
-                }
                 mask = mask << 1;
             }
 
@@ -140,115 +157,218 @@ namespace LittleECS::Detail
 
             std::size_t foundIndex = freeIndexInBlock + (blockIndex * sizeof(std::size_t) * 8);
 
-			// LECS_ASSERT(HasComponentAt(foundIndex) == true, "Impl problem here");
-
             return foundIndex;
         }
+
+    public:
+        inline ComponentType& GetComponentAtIndex(BasicComponentStorage::PageIndexOfComponent index)
+        {
+            LECS_ASSERT(HasComponentAt(index));
+            return m_Page[index].Data.ComponentValue;
+        }
+
+		inline const ComponentType& GetComponentAtIndex(BasicComponentStorage::PageIndexOfComponent index) const
+		{
+			LECS_ASSERT(HasComponentAt(index));
+			return m_Page[index].Data.ComponentValue;
+		}
+
+		inline EntityId GetEntityIdAtIndex(BasicComponentStorage::PageIndexOfComponent index) const
+		{
+			return m_EntityIdLinked[index];
+        }
+
+        template <typename Function>
+		void ForEach(Function&& function) const
+		{
+			const std::size_t* beginFreeListBlocks = m_FreeComponent;
+            const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
+            while (beginFreeListBlocks < endFreeListBlocks)
+            {
+                if (*beginFreeListBlocks != std::numeric_limits<std::size_t>::max())
+                {
+                    std::size_t blockIndex = beginFreeListBlocks - m_FreeComponent;
+                    BasicComponentStorage::PageIndexOfComponent blockShift = (blockIndex * sizeof(std::size_t) * 8);
+
+                    std::size_t block = *beginFreeListBlocks;
+                    std::size_t mask = 1;
+                    std::uint8_t freeIndexInBlock = 0;
+                    for (; freeIndexInBlock < sizeof(std::size_t) * 8; ++freeIndexInBlock)
+                    {
+                        if ((block & mask) == 0)
+                        {
+                            BasicComponentStorage::PageIndexOfComponent index = freeIndexInBlock + blockShift;
+                            
+                            function(index);
+                        }
+                        mask = mask << 1;
+                    }
+
+                }
+                ++beginFreeListBlocks;
+            }
+		}
 
     public:
         inline bool CanAddComponent() const { return m_CurrentSize + 1 < PAGE_SIZE; }
 
         template<typename... Args>
-        std::pair<BasicComponentStorage::PageIntexOfComponent, ComponentType&> AddComponent(Args&&... args)
+        std::pair<BasicComponentStorage::PageIndexOfComponent, ComponentType&> AddComponent(EntityId entity, Args&&... args)
         {
             LECS_ASSERT(CanAddComponent(), "Can't add more component to this page");
 
-            BasicComponentStorage::PageIntexOfComponent index = GetNextIndex();
-
-            ComponentDataBuffer* buffer = &m_Page[index];
-            ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
-
+            BasicComponentStorage::PageIndexOfComponent index = GetNextIndex();
+            ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
             SetHasComponentAt(index, false);
+            m_EntityIdLinked[index] = entity;
             ++m_CurrentSize;
-
-            return { index, *component };
+            return { index, component };
         }
 
-        void RemoveComponentAt(BasicComponentStorage::PageIntexOfComponent index)
+        void RemoveComponentAt(BasicComponentStorage::PageIndexOfComponent index)
         {
             LECS_ASSERT(HasComponentAt(index) == false, "There are no component at this index");
-            ComponentDataBuffer* buffer = m_Page[index];
-            buffer->~ComponentType();
+
+            DestroyAt(index);
             SetHasComponentAt(index, true);
+            m_EntityIdLinked[index] = EntityId::NON_VALID;
             --m_CurrentSize;
         }
 
-        ComponentType& GetComponentAt(BasicComponentStorage::PageIntexOfComponent index)
+        ComponentType& GetComponentAt(BasicComponentStorage::PageIndexOfComponent index)
         {
             LECS_ASSERT(HasComponentAt(index) == false, "There are no component at this index");
-            return *reinterpret_cast<ComponentType*>(&m_Page[index]);
-        }
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "Not supposed to have a valid component linked to a non valid entityId");
 
-        const ComponentType& GetComponentAt(BasicComponentStorage::PageIntexOfComponent index) const
+            return *reinterpret_cast<ComponentType*>(&m_Page[index]);
+		}
+
+        const ComponentType& GetComponentAt(BasicComponentStorage::PageIndexOfComponent index) const
         {
             LECS_ASSERT(HasComponentAt(index) == false, "There are no component at this index");
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "Not supposed to have a valid component linked to a non valid entityId");
+
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
-        }
+		}
+    };
+
+	template <typename ComponentType>
+    struct ComponentStorageInfo
+    {
+		static constexpr BasicComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 1024;
     };
 
     template <typename ComponentType>
     class ComponentStorage : public BasicComponentStorage
     {
     public:
+		static constexpr GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
+
         using PageType = ComponentsStoragePage<ComponentType, PAGE_SIZE>;
         using PageTypeRef = std::unique_ptr<PageType>;
-        using PagesContainer = std::vector<PageTypeRef>;
+
+		using PagesContainer = std::vector<PageTypeRef>;
+        using FreePages = std::set<IndexOfPage>;
+
+	public:
+		~ComponentStorage() override
+        {
+        }
+
+	protected:
+		PagesContainer m_PageContainer;
+        FreePages m_FreePages;
+
+	protected:
+		inline IndexInfo GetIndexInfoOfEntity(EntityId entity) const
+		{
+			LECS_ASSERT(EntityHasThisComponent(entity));
+
+			GlobalIndexOfComponent indexToComponent = m_EntityToComponent.at(entity.Id);
+
+			IndexInfo indexInfo;
+			indexInfo.IndexOfPage = indexToComponent / PAGE_SIZE;
+			indexInfo.PageIndexOfComponent = indexToComponent % PAGE_SIZE;
+			return indexInfo;
+		}
 
     public:
+		void ForEach(std::any functionAliased) override
+        {
+            std::function<void(EntityId, ComponentType&)> function = std::any_cast<std::function<void(EntityId, ComponentType&)>>(functionAliased);
+
+            for (PageTypeRef& page : m_PageContainer)
+            {
+                page->ForEach([&page, &function](BasicComponentStorage::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
+            }
+        }
+
+		void ForEach(std::any functionAliased) const override
+		{
+			std::function<void(EntityId, const ComponentType&)> function = std::any_cast<std::function<void(EntityId, const ComponentType&)>>(functionAliased);
+
+			for (const PageTypeRef& page : m_PageContainer)
+			{
+				page->ForEach([&page, &function](BasicComponentStorage::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
+			}
+		}
+
+	private:
+        BasicComponentStorage::IndexOfPage GetFreePageIndexOrCreateIt()
+        {
+            if (m_FreePages.size() == 0)
+            {
+				m_PageContainer.emplace_back(new PageType);
+                IndexOfPage indexOfPage = m_PageContainer.size() - 1;
+                m_FreePages.insert(indexOfPage);
+				return indexOfPage;
+            }
+
+            IndexOfPage indexOfPage = *m_FreePages.begin();
+            return indexOfPage;
+        }
+
+	public:
         template <typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
             LECS_ASSERT(EntityHasThisComponent(entity) == false);
             
-            PageTypeRef* freePage = nullptr;
-            std::size_t pageIndex = 0;
-            for(PageTypeRef& page : m_PageContainer)
-            {
-                if (page->CanAddComponent())
-                {
-                    freePage = &page;
-                    break;
-                }
-                ++pageIndex;
-            }
-
-            if (freePage == nullptr)
-            {
-                PageTypeRef& newPage = m_PageContainer.emplace_back(new PageType);
-                freePage = &newPage;
-                LECS_ASSERT(pageIndex == m_PageContainer.size() - 1);
-            }
-
-            PageTypeRef& page = *freePage;
-            auto [index, component] = page->AddComponent(std::forward<Args>(args)...);
-            index += pageIndex * PAGE_SIZE;
+            IndexOfPage indexOfFreePage = GetFreePageIndexOrCreateIt();
+            PageTypeRef& page = m_PageContainer[indexOfFreePage];
+            auto [index, component] = page->AddComponent(entity, std::forward<Args>(args)...);
+            index += indexOfFreePage * PAGE_SIZE;
             m_EntityToComponent[entity] = index;
+
+            if (page->CanAddComponent() == false)
+                m_FreePages.erase(indexOfFreePage);
+
             return component;
         }
 
         void RemoveComponentOfEntity(EntityId entity)
         {
             IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            PageType* page = m_PageContainer[indexInfo.IndexOfPage].get();
-            return page->RemoveComponentAt(indexInfo.PageIntexOfComponent);
+            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            page->RemoveComponentAt(indexInfo.PageIndexOfComponent);
+
+			if (page->CanAddComponent() == true)
+				m_FreePages.insert(indexInfo.IndexOfPage);
         }
 
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
             IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
             PageType* page = m_PageContainer[indexInfo.IndexOfPage].get();
-            return page->GetComponentAt(indexInfo.PageIntexOfComponent);
+            return page->GetComponentAt(indexInfo.PageIndexOfComponent);
         }
 
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
             PageType* page = m_PageContainer[indexInfo.IndexOfPage].get();
-            return page->GetComponentAt(indexInfo.PageIntexOfComponent);
+            return page->GetComponentAt(indexInfo.PageIndexOfComponent);
         }
-
-    protected:
-        PagesContainer m_PageContainer;
     };
 }
  
