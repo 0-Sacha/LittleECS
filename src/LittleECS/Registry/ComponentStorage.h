@@ -6,6 +6,7 @@
 #include "LittleECS/Detail/ComponentIdGenerator.h"
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <array>
 #include <any>
@@ -28,8 +29,7 @@ namespace LittleECS::Detail
             IndexOfPage IndexOfPage;
         };
 
-        using EntityToComponent = std::map<typename EntityId::Type, GlobalIndexOfComponent>;
-
+        using EntityToComponent = std::unordered_map<typename EntityId::Type, GlobalIndexOfComponent>;
 
 	public:
 		bool EntityHasThisComponent(EntityId entity) const

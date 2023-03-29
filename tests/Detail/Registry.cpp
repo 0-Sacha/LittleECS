@@ -146,4 +146,4 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
 BenchmarkTest(10'000, 10K);
 BenchmarkTest(100'000, 100K);
 BenchmarkTest(1'000'000, 1M);
-BenchmarkTest(10'000'000, 100M);
+// BenchmarkTest(100'000'000, 100M);

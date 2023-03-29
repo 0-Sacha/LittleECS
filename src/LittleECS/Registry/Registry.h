@@ -4,6 +4,8 @@
 #include "LittleECS/Detail/EntityIdGenerator.h"
 
 #include <map>
+#include <unordered_map>
+#include <array>
 #include <memory>
 
 namespace LittleECS
@@ -13,12 +15,15 @@ namespace LittleECS
     {
     public:
         using ComponentStorageRef = std::unique_ptr<Detail::BasicComponentStorage>;
-        using ComponentsStoragesContainer = std::map<ComponentId::Type, ComponentStorageRef>;
+        using ComponentsStoragesContainer = std::array<ComponentStorageRef, 128>;
         using ComponentIdGenerator = Detail::GlobalComponentIdGenerator;
 
     protected:
         ComponentsStoragesContainer m_ComponentsStoragesContainer;
         Detail::EntityIdGenerator m_EntityIdGenerator;
+
+    public:
+        Registry() {}
 
     // Entity Management
     public:
@@ -34,7 +39,7 @@ namespace LittleECS
         {
             ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-            if (m_ComponentsStoragesContainer.contains(componentId))
+            if (m_ComponentsStoragesContainer[componentId] != nullptr)
             {
                 Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
                 return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
@@ -54,7 +59,7 @@ namespace LittleECS
         {
             ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-            if (m_ComponentsStoragesContainer.contains(componentId) == false)
+            if (m_ComponentsStoragesContainer[componentId] == nullptr)
                 return nullptr;
             
             Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
