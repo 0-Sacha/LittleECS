@@ -8,7 +8,7 @@ namespace LittleECS
     struct ComponentId
     {
     public:
-        using Type = std::uint32_t;
+        using Type = std::size_t;
         static constexpr Type NON_VALID = std::numeric_limits<Type>::max();
         static constexpr Type FIRST = 0;
     
@@ -17,12 +17,12 @@ namespace LittleECS
             : Id(id)
         {}
 
-        inline operator Type () const
+        inline constexpr operator Type () const
         {
             return Id;
         }
 
-        inline ComponentId& operator=(Type id)
+        inline constexpr ComponentId& operator=(Type id)
         {
             Id = id;
             return *this;
@@ -32,17 +32,17 @@ namespace LittleECS
         Type Id;
     };
 
-    inline bool operator==(ComponentId lhs, ComponentId rhs)
+    inline bool constexpr operator==(ComponentId lhs, ComponentId rhs)
     {
         return lhs.Id == rhs.Id;
     }
 
-    inline bool operator==(ComponentId lhs, ComponentId::Type rhs)
+    inline bool constexpr operator==(ComponentId lhs, ComponentId::Type rhs)
     {
         return lhs.Id == rhs;
     }
 
-    inline bool operator==(ComponentId::Type lhs, ComponentId rhs)
+    inline bool constexpr operator==(ComponentId::Type lhs, ComponentId rhs)
     {
         return lhs == rhs.Id;
     }

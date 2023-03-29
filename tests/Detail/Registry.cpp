@@ -29,7 +29,8 @@ struct BasicFloatComponent
 template <>
 struct LittleECS::Detail::ComponentStorageInfo<BasicIntComponent>
 {
-	static constexpr BasicComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 512;
+    using StorageType = FastComponentStorage<BasicIntComponent>;
+	static constexpr IComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 4096;
 };
 
 PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
@@ -143,7 +144,9 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
                                 ProjectCore::Instrumentation::ProfilerFactory::ToJson(profiler);                                \
                             }
 
+BenchmarkTest(1'000, 1K);
 BenchmarkTest(10'000, 10K);
 BenchmarkTest(100'000, 100K);
 BenchmarkTest(1'000'000, 1M);
-// BenchmarkTest(100'000'000, 100M);
+BenchmarkTest(10'000'000, 10M);
+BenchmarkTest(100'000'000, 100M);

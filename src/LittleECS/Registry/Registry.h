@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ComponentStorage.h"
 #include "LittleECS/Detail/EntityIdGenerator.h"
 
-#include <map>
+#include "CompressedComponentStorage/CompressedComponentStorage.h"
+#include "FastComponentStorage/FastComponentStorage.h"
+
 #include <unordered_map>
-#include <array>
 #include <memory>
 
 namespace LittleECS
@@ -14,8 +14,8 @@ namespace LittleECS
     class Registry
     {
     public:
-        using ComponentStorageRef = std::unique_ptr<Detail::BasicComponentStorage>;
-        using ComponentsStoragesContainer = std::array<ComponentStorageRef, 128>;
+        using ComponentStorageRef = std::unique_ptr<Detail::IComponentStorage>;
+        using ComponentsStoragesContainer = std::unordered_map<ComponentId::Type, ComponentStorageRef>;
         using ComponentIdGenerator = Detail::GlobalComponentIdGenerator;
 
     protected:
@@ -35,60 +35,71 @@ namespace LittleECS
     // Entity's Components Management
     private:
         template <typename ComponentType>
-        Detail::ComponentStorage<ComponentType>* GetComponentStorageOrCreateIt()
+        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt()
         {
             ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-            if (m_ComponentsStoragesContainer[componentId] != nullptr)
+            if (m_ComponentsStoragesContainer.contains(componentId) == true)
             {
-                Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
-                return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
+                Detail::IComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
+                return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
             }
             else
             {
-                ComponentStorageRef& componentStorageRef = m_ComponentsStoragesContainer[componentId] = std::make_unique<Detail::ComponentStorage<ComponentType>>();
-                Detail::BasicComponentStorage* componentStorageBasic = componentStorageRef.get();
-                return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
+                ComponentStorageRef& componentStorageRef = m_ComponentsStoragesContainer[componentId] = std::make_unique<typename Detail::ComponentStorageInfo<ComponentType>::StorageType>();
+                Detail::IComponentStorage* componentStorageBasic = componentStorageRef.get();
+                return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
             }
 
             return nullptr;
         }
 
         template <typename ComponentType>
-        Detail::ComponentStorage<ComponentType>* GetComponentStorage()
+        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage()
         {
             ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-            if (m_ComponentsStoragesContainer[componentId] == nullptr)
-                return nullptr;
-            
-            Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
-            return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
+            auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
+
+            LECS_ASSERT(m_ComponentsStoragesContainer.contains(componentId), "This ComponentStorage is not part of this registry");
+
+            Detail::IComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
+            return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
         }
 
     public:
         template <typename ComponentType, typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "Got a nullptr ComponentStorage");
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry");
             return componentStorage->AddComponentToEntity(entity, std::forward<Args>(args)...);
         }
 
         template <typename ComponentType>
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This Component is not part of this registry");
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry");
             return componentStorage->GetComponentOfEntity(entity);
         }
 
         template <typename ComponentType>
         bool EntityHasComponent(EntityId entity)
         {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
+            ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
+
+            auto componentStoragefound = m_ComponentsStoragesContainer.find(componentId);
+
+            if (componentStoragefound == m_ComponentsStoragesContainer.end())
+                return false;
+
+            Detail::IComponentStorage* componentStorageBasic = componentStoragefound->second.get();
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
+
             if (componentStorage == nullptr)
                 return false;
+
             return componentStorage->EntityHasThisComponent(entity);
         }
     };

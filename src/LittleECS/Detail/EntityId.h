@@ -9,7 +9,7 @@ namespace LittleECS
     class EntityId
     {
     public:
-        using Type = std::uint32_t;
+        using Type = std::size_t;
         static constexpr Type NON_VALID = std::numeric_limits<Type>::max();
         static constexpr Type FIRST = 0;
 
@@ -18,12 +18,12 @@ namespace LittleECS
             : Id(id)
         {}
 
-        inline operator Type () const
+        inline constexpr operator Type () const
         {
             return Id;
         }
 
-        inline EntityId& operator=(Type id)
+        inline constexpr EntityId& operator=(Type id)
         {
             Id = id;
             return *this;
@@ -33,17 +33,17 @@ namespace LittleECS
         Type Id;
     };
 
-    inline bool operator==(EntityId lhs, EntityId rhs)
+    inline bool constexpr operator==(EntityId lhs, EntityId rhs)
     {
         return lhs.Id == rhs.Id;
     }
 
-    inline bool operator==(EntityId lhs, EntityId::Type rhs)
+    inline bool constexpr operator==(EntityId lhs, EntityId::Type rhs)
     {
         return lhs.Id == rhs;
     }
 
-    inline bool operator==(EntityId::Type lhs, EntityId rhs)
+    inline bool constexpr operator==(EntityId::Type lhs, EntityId rhs)
     {
         return lhs == rhs.Id;
     }
