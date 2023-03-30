@@ -24,8 +24,8 @@ namespace LittleECS::Detail
         template <typename T>
         static ComponentId GetTypeId()
         {
-            static ComponentId id = ComponentId::NON_VALID;
-            if (id != ComponentId::NON_VALID)
+            static ComponentId id = ComponentId::INVALID;
+            if (id != ComponentId::INVALID)
                 return id;
             return id = Next();
         }

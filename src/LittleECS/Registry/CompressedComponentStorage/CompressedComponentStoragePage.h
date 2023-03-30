@@ -39,13 +39,15 @@ namespace LittleECS::Detail
         }
 
     public:
-        CompressedComponentStoragePage(std::size_t pageIndex)
+        CompressedComponentStoragePage()
         {
             for (std::size_t i = 0; i < NUMBER_OF_BLOCKS; ++i)
                 m_FreeComponent[i] = std::numeric_limits<std::size_t>::max();
 
+#ifdef LECS_DEBUG
             for (std::size_t i = 0; i < PAGE_SIZE; ++i)
-                m_EntityIdLinked[i] = EntityId::NON_VALID;
+                m_EntityIdLinked[i] = EntityId::INVALID;
+#endif
         }
 
 		~CompressedComponentStoragePage()
@@ -168,14 +170,14 @@ namespace LittleECS::Detail
 
             DestroyAt(index);
             SetHasComponentAtIndex(index, true);
-            m_EntityIdLinked[index] = EntityId::NON_VALID;
+            m_EntityIdLinked[index] = EntityId::INVALID;
             --m_CurrentSize;
         }
 
         ComponentType& GetComponentAtIndex(IComponentStorage::PageIndexOfComponent index)
         {
             LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index");
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "Not supposed to have a valid component linked to a non valid entityId");
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId");
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
@@ -183,7 +185,7 @@ namespace LittleECS::Detail
         const ComponentType& GetComponentAtIndex(IComponentStorage::PageIndexOfComponent index) const
         {
             LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index");
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "Not supposed to have a valid component linked to a non valid entityId");
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId");
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}

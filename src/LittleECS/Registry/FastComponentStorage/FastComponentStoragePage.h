@@ -40,7 +40,7 @@ namespace LittleECS::Detail
         FastComponentStoragePage()
         {
             for (std::size_t i = 0; i < PAGE_SIZE; ++i)
-                m_EntityIdLinked[i] = EntityId::NON_VALID;
+                m_EntityIdLinked[i] = EntityId::INVALID;
         }
 
 		~FastComponentStoragePage()
@@ -60,14 +60,14 @@ namespace LittleECS::Detail
 
         inline bool HasEntityAtIndex(IComponentStorage::PageIndexOfComponent index) const
 		{
-			return m_EntityIdLinked[index] != EntityId::NON_VALID;
+			return m_EntityIdLinked[index] != EntityId::INVALID;
         }
 
     public:
         template<typename... Args>
         ComponentType& AddComponent(EntityId entity, IComponentStorage::PageIndexOfComponent index, Args&&... args)
         {
-            LECS_ASSERT(m_EntityIdLinked[index] == EntityId::NON_VALID, "Can't add this entity to this because it has the same id as another one");
+            LECS_ASSERT(m_EntityIdLinked[index] == EntityId::INVALID, "Can't add this entity to this because it has the same id as another one");
 
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
             m_EntityIdLinked[index] = entity;
@@ -76,22 +76,22 @@ namespace LittleECS::Detail
 
         void RemoveComponentAtIndex(IComponentStorage::PageIndexOfComponent index)
         {
-            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "There are no component linked to this entity at this page");
+            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "There are no component linked to this entity at this page");
 
             DestroyAt(index);
-            m_EntityIdLinked[index] = EntityId::NON_VALID;
+            m_EntityIdLinked[index] = EntityId::INVALID;
         }
 
         ComponentType& GetComponentAtIndex(IComponentStorage::PageIndexOfComponent index)
         {
-            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "There are no component linked to this entity at this page");
+            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "There are no component linked to this entity at this page");
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
 
         const ComponentType& GetComponentAtIndex(IComponentStorage::PageIndexOfComponent index) const
         {
-            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::NON_VALID, "There are no component linked to this entity at this page");
+            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "There are no component linked to this entity at this page");
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}

@@ -9,7 +9,7 @@ namespace LittleECS
     {
     public:
         using Type = std::size_t;
-        static constexpr Type NON_VALID = std::numeric_limits<Type>::max();
+        static constexpr Type INVALID = std::numeric_limits<Type>::max();
         static constexpr Type FIRST = 0;
     
     public:

@@ -18,8 +18,18 @@ namespace LittleECS::Detail
 
         struct IndexInfo
         {
-            PageIndexOfComponent PageIndexOfComponent;
             IndexOfPage IndexOfPage;
+            PageIndexOfComponent PageIndexOfComponent;
+
+            inline bool IsValid()
+            {
+                return IndexOfPage != std::numeric_limits<std::size_t>::max();
+            }
+
+            inline bool SetInvalid()
+            {
+                return IndexOfPage = std::numeric_limits<std::size_t>::max();
+            }
         };
 
     public:
