@@ -3,6 +3,7 @@
 #include "EntityId.h"
 
 #include <queue>
+#include <set>
 
 namespace LittleECS::Detail
 {
@@ -12,14 +13,20 @@ namespace LittleECS::Detail
     public:
         EntityId GetNewEntityId()
         {
-            if (m_FreeEntityId.size() > 0)
+            typename EntityId::Type res;
+
+            if (m_FreeEntitiesId.size() > 0)
             {
-                EntityId res = m_FreeEntityId.front();
-                m_FreeEntityId.pop();
-                return res;
+                res = m_FreeEntitiesId.front();
+                m_FreeEntitiesId.pop();
+            }
+            else
+            {
+                res = m_CurrentIndex++;
             }
 
-            return m_CurrentIndex++;
+            m_AliveEntitiesId.insert(res);
+            return res;
         }
 
         void EntityIdDelete(EntityId entity)
@@ -31,12 +38,19 @@ namespace LittleECS::Detail
                 return;
             }
 
-            m_FreeEntityId.push(id);
+            m_FreeEntitiesId.push(id);
+            m_AliveEntitiesId.erase(id);
         }
+
+        const std::set<typename EntityId::Type>& GetAlivesEntities()
+        {
+            return m_AliveEntitiesId;
+        } 
 
     protected:
         typename EntityId::Type m_CurrentIndex = EntityId::FIRST;
-        std::queue<typename EntityId::Type> m_FreeEntityId;
+        std::queue<typename EntityId::Type> m_FreeEntitiesId;
+        std::set<typename EntityId::Type> m_AliveEntitiesId;
     };
 
 }

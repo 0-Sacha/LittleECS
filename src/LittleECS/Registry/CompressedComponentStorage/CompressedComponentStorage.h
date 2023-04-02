@@ -2,6 +2,10 @@
 
 #include "CompressedComponentStoragePage.h"
 
+#include "CompressedCSMapEntityToComponent.h"
+#include "CompressedCSInlineEntityToComponent.h"
+
+
 #include <memory>
 #include <any>
 #include <unordered_map>
@@ -11,109 +15,24 @@
 namespace LittleECS::Detail
 {
 
-
     template <typename ComponentType>
     class CompressedComponentStorage : public IComponentStorage
     {
     public:
-		static constexpr GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
+		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
 
         using PageType = CompressedComponentStoragePage<ComponentType, PAGE_SIZE>;
         using PageTypeRef = std::unique_ptr<PageType>;
 		using PagesContainer = std::vector<PageTypeRef>;
-        using FreePages = std::set<IndexOfPage>;
-        
-    protected:
-        class EntityToComponent
-        {
-        public:
-            using Bucket = std::array<IndexInfo, PAGE_SIZE>;
-            using BucketRef = std::unique_ptr<Bucket>;
-            using BucketContainer = std::vector<BucketRef>;
+        using FreePages = std::set<Index::IndexOfPage>;
 
-        private:
-            BucketContainer m_BucketContainer;
-
-        private:
-            inline IndexInfo GetBucketInfoOfEntity(EntityId entity) const
-            {
-                IndexInfo indexInfo;
-                indexInfo.IndexOfPage = entity.Id / PAGE_SIZE;
-                indexInfo.PageIndexOfComponent = entity.Id % PAGE_SIZE;
-                return indexInfo;
-            }
-
-        public:
-            inline bool HasEntity(EntityId entity) const
-            {
-                IndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
-
-                if (bucketInfo.IndexOfPage >= m_BucketContainer.size())
-                    return false;
-
-                const BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
-
-                if (bucketRef == nullptr)
-                    return false;
-
-                IndexInfo indexInfo = (*bucketRef)[bucketInfo.PageIndexOfComponent];
-
-                return indexInfo.IsValid();
-            }
-
-            inline IndexInfo GetIndexInfoOfEntity(EntityId entity) const
-            {
-                IndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
-             
-                LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity");
-
-                const BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
-
-                LECS_ASSERT(bucketRef != nullptr, "This container can have this entity");
-
-                return (*bucketRef)[bucketInfo.PageIndexOfComponent];
-            }
-
-            inline void AddIndexInfoForEntity(EntityId entity, IndexInfo indexInfo)
-            {
-                IndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
-
-                if (bucketInfo.IndexOfPage >= m_BucketContainer.size())
-                {
-                    m_BucketContainer.resize(bucketInfo.IndexOfPage + 1);
-                }
-
-                BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
-
-                if (bucketRef == nullptr)
-                {
-                    bucketRef = std::make_unique<Bucket>();
-                    Bucket& bucket = *bucketRef;
-                    for (std::size_t i = 0; i < PAGE_SIZE; ++i)
-                        bucket[i].SetInvalid();
-                }
-
-                (*bucketRef)[bucketInfo.PageIndexOfComponent] = indexInfo;
-            }
-
-            inline void RemoveIndexInfoForEntity(EntityId entity, IndexInfo indexInfo)
-            {
-                IndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
-
-                LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity");
-
-                BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
-
-                LECS_ASSERT(bucketRef != nullptr, "This container can have this entity");
-
-                (*bucketRef)[bucketInfo.PageIndexOfComponent].SetInvalid();
-            }
-        };
+        using CompressedCSInlineEntityToComponentType = CompressedCSInlineEntityToComponent<ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF, PAGE_SIZE>;
+        using EntityToComponent = std::conditional_t<ComponentStorageInfo<ComponentType>::USE_MAP_VERSION,
+                                                        CompressedCSMapEntityToComponent,
+                                                        CompressedCSInlineEntityToComponentType>;
 
 	public:
-		~CompressedComponentStorage() override
-        {
-        }
+		~CompressedComponentStorage() override {}
 
 	protected:
 		PagesContainer m_PageContainer;
@@ -132,7 +51,7 @@ namespace LittleECS::Detail
         //
         //    for (PageTypeRef& page : m_PageContainer)
         //    {
-        //        page->ForEach([&page, &function](IComponentStorage::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
+        //        page->ForEach([&page, &function](Index::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
         //    }
         }
 
@@ -142,22 +61,22 @@ namespace LittleECS::Detail
         // 
 		// 	for (const PageTypeRef& page : m_PageContainer)
 		// 	{
-		// 		page->ForEach([&page, &function](IComponentStorage::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
+		// 		page->ForEach([&page, &function](Index::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
 		// 	}
 		}
 
 	private:
-        IComponentStorage::IndexOfPage GetFreePageIndexOrCreateIt()
+        Index::IndexOfPage GetFreePageIndexOrCreateIt()
         {
             if (m_FreePages.size() == 0)
             {
 				m_PageContainer.emplace_back(new PageType);
-                IndexOfPage indexOfPage = m_PageContainer.size() - 1;
+                Index::IndexOfPage indexOfPage = m_PageContainer.size() - 1;
                 m_FreePages.insert(indexOfPage);
 				return indexOfPage;
             }
 
-            IndexOfPage indexOfPage = *m_FreePages.begin();
+            Index::IndexOfPage indexOfPage = *m_FreePages.begin();
             return indexOfPage;
         }
 
@@ -167,10 +86,10 @@ namespace LittleECS::Detail
         {
             LECS_ASSERT(EntityHasThisComponent(entity) == false);
             
-            IndexOfPage indexOfFreePage = GetFreePageIndexOrCreateIt();
+            Index::IndexOfPage indexOfFreePage = GetFreePageIndexOrCreateIt();
             PageTypeRef& page = m_PageContainer[indexOfFreePage];
             auto [pageIndexOfComponent, component] = page->AddComponent(entity, std::forward<Args>(args)...);
-            m_EntityToComponent.AddIndexInfoForEntity(entity, IndexInfo { .IndexOfPage = indexOfFreePage, .PageIndexOfComponent = pageIndexOfComponent });
+            m_EntityToComponent.AddIndexInfoForEntity(entity, Index::IndexInfo { .IndexOfPage = indexOfFreePage, .PageIndexOfComponent = pageIndexOfComponent });
 
             if (page->CanAddComponent() == false)
                 m_FreePages.erase(indexOfFreePage);
@@ -180,7 +99,7 @@ namespace LittleECS::Detail
 
         void RemoveComponentOfEntity(EntityId entity)
         {
-            IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
             m_EntityToComponent.RemoveIndexInfoForEntity(entity);
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
@@ -190,7 +109,7 @@ namespace LittleECS::Detail
 
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
-            IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
             
             LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component");
 
@@ -200,7 +119,7 @@ namespace LittleECS::Detail
 
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
-            IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
 
 			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component");
 

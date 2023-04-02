@@ -26,12 +26,11 @@ struct BasicFloatComponent
     float Value;
 };
 
-// template <>
-// struct LittleECS::Detail::ComponentStorageInfo<BasicIntComponent>
-// {
-//     using StorageType = CompressedComponentStorage<BasicIntComponent>;
-// 	static constexpr IComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 1024;
-// };
+template <>
+struct LittleECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultComponentStorageInfo<BasicIntComponent>::Default
+{
+	static constexpr bool HAS_ENTITIES_REF = false;
+};
 
 PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
 {
@@ -46,6 +45,8 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
 
     registry.AddComponentToEntity<BasicIntComponent>(entity1, 7);
     registry.AddComponentToEntity<BasicIntComponent>(entity2, 101);
+    registry.AddComponentToEntity<int>(entity2, 101);
+    registry.AddComponentToEntity<float>(entity2, 101);
 
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 7);
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);

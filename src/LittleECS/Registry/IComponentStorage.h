@@ -9,29 +9,38 @@
 
 namespace LittleECS::Detail
 {
-    class IComponentStorage
+    namespace Index
     {
-	public:
         using GlobalIndexOfComponent = std::size_t;
         using PageIndexOfComponent = std::size_t;
         using IndexOfPage = std::size_t;
+
+        using IndexInAliveList = std::size_t;
 
         struct IndexInfo
         {
             IndexOfPage IndexOfPage;
             PageIndexOfComponent PageIndexOfComponent;
 
-            inline bool IsValid()
+            [[nodiscard]] inline constexpr bool IsValid()
             {
                 return IndexOfPage != std::numeric_limits<std::size_t>::max();
             }
 
-            inline bool SetInvalid()
+            inline constexpr void SetInvalid()
             {
-                return IndexOfPage = std::numeric_limits<std::size_t>::max();
+                IndexOfPage = std::numeric_limits<std::size_t>::max();
             }
         };
 
+        [[nodiscard]] inline constexpr bool IsPowerOfTwo(const std::size_t value) noexcept
+        {
+            return value && ((value & (value - 1)) == 0);
+        }
+    };
+
+    class IComponentStorage
+    {
     public:
         virtual ~IComponentStorage() = default;
 
@@ -41,14 +50,45 @@ namespace LittleECS::Detail
 		virtual void ForEach(std::any function) const = 0;
 	};
 
+
     template <typename ComponentType>
     class FastComponentStorage;
 
+    template <typename ComponentType>
+    class CompressedComponentStorage;
+
+
 	template <typename ComponentType>
-    struct ComponentStorageInfo
+    struct DefaultComponentStorageInfo
     {
-        using StorageType = FastComponentStorage<ComponentType>;
-		static constexpr IComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 1024;
+        struct FastComponent
+        {
+            using StorageType = FastComponentStorage<ComponentType>;
+    		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
+            static constexpr bool HAS_ENTITIES_REF = true;
+            static constexpr bool USE_MAP_VERSION = false;
+        };
+
+        struct RareComponent
+        {
+            using StorageType = CompressedComponentStorage<ComponentType>;
+            static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 2048;
+            static constexpr bool HAS_ENTITIES_REF = true;
+            static constexpr bool USE_MAP_VERSION = false;
+        };
+
+        struct CommonComponent
+        {
+            using StorageType = CompressedComponentStorage<ComponentType>;
+            static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 4096;
+            static constexpr bool HAS_ENTITIES_REF = false;
+            static constexpr bool USE_MAP_VERSION = false;
+        };
+
+        using Default = FastComponent;
     };
+
+	template <typename ComponentType>
+    struct ComponentStorageInfo : public DefaultComponentStorageInfo<ComponentType>::Default{};
 
 }
