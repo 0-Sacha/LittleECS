@@ -45,27 +45,7 @@ namespace LittleECS::Detail
 			return m_EntityToComponent.HasEntity(entity);
 		}
 
-		void ForEach(std::any functionAliased) override
-        {
-        //    std::function<void(EntityId, ComponentType&)> function = std::any_cast<std::function<void(EntityId, ComponentType&)>>(functionAliased);
-        //
-        //    for (PageTypeRef& page : m_PageContainer)
-        //    {
-        //        page->ForEach([&page, &function](Index::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
-        //    }
-        }
-
-		void ForEach(std::any functionAliased) const override
-		{
-		// 	std::function<void(EntityId, const ComponentType&)> function = std::any_cast<std::function<void(EntityId, const ComponentType&)>>(functionAliased);
-        // 
-		// 	for (const PageTypeRef& page : m_PageContainer)
-		// 	{
-		// 		page->ForEach([&page, &function](Index::PageIndexOfComponent index) { function(page->GetEntityIdAtIndex(index), page->GetComponentAtIndex(index)); });
-		// 	}
-		}
-
-	private:
+    private:
         Index::IndexOfPage GetFreePageIndexOrCreateIt()
         {
             if (m_FreePages.size() == 0)
@@ -78,6 +58,17 @@ namespace LittleECS::Detail
 
             Index::IndexOfPage indexOfPage = *m_FreePages.begin();
             return indexOfPage;
+        }
+
+    public:
+        void RemoveComponentOfEntity(EntityId entity) override
+        {
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            m_EntityToComponent.RemoveIndexInfoForEntity(entity);
+            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
+
+			m_FreePages.insert(indexInfo.IndexOfPage);
         }
 
 	public:
@@ -95,16 +86,6 @@ namespace LittleECS::Detail
                 m_FreePages.erase(indexOfFreePage);
 
             return component;
-        }
-
-        void RemoveComponentOfEntity(EntityId entity)
-        {
-            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
-            m_EntityToComponent.RemoveIndexInfoForEntity(entity);
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-            page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
-
-			m_FreePages.insert(indexInfo.IndexOfPage);
         }
 
         ComponentType& GetComponentOfEntity(EntityId entity)
@@ -126,6 +107,81 @@ namespace LittleECS::Detail
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
+
+    public:
+    	void ForEachUniqueComponent(std::function<void(EntityId, ComponentType&)> function)
+        {
+            if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
+            {
+                if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
+                {
+                    for (EntityId entity : m_EntityToComponent.GetAliveContainer())
+                    {
+                        ComponentType& component = GetComponentOfEntity(entity);
+                        function(entity, component);
+                    }
+                }
+                else
+                {
+                    for (PageTypeRef& page : m_PageContainer)
+                    {
+                        page->ForEach([&function, &page](Index::PageIndexOfComponent index){
+                            ComponentType& component = page->GetComponentAtIndex(index);
+                            EntityId entity = page->GetEntityIdAtIndex(index);
+                            function(entity, component);
+                        });
+                    }
+                }
+            }
+            else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
+            {
+                // EntityId::Type, Index::IndexInfo
+                for (auto [entityIdType, indexInfo] : m_EntityToComponent.GetContainer())
+                {
+                    EntityId entity = entityIdType;
+                    PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+                    ComponentType& component = page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
+                    function(entity, component);
+                }
+            }
+        }
+
+		void ForEachUniqueComponent(std::function<void(EntityId, const ComponentType&)> function) const
+		{
+            if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
+            {
+                if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
+                {
+                    for (EntityId entity : m_EntityToComponent.GetAliveContainer())
+                    {
+                        const ComponentType& component = GetComponentOfEntity(entity);
+                        function(entity, component);
+                    }
+                }
+                else
+                {
+                    for (PageTypeRef& page : m_PageContainer)
+                    {
+                        page->ForEach([&function, &page](Index::PageIndexOfComponent index){
+                            const ComponentType& component = page->GetComponentAtIndex(index);
+                            EntityId entity = page->GetEntityIdAtIndex(index);
+                            function(entity, component);
+                        });
+                    }
+                }
+            }
+            else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
+            {
+                for (auto [entityIdType, indexInfo] : m_EntityToComponent.GetContainer())
+                {
+                    EntityId entity = entityIdType;
+                    PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+                    const ComponentType& component = page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
+                    function(entity, component);
+                }
+            }
+		}
+
     };
 }
  

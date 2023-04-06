@@ -106,6 +106,14 @@ namespace LittleECS::Detail
         }
 
     public:
+        inline void RemoveComponentAtIndex(Index::PageIndexOfComponent index)
+        {
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page");
+            DestroyAt(index);
+            m_EntitiesLinked[index].SetInvalid();
+        }
+
+    public:
         template<typename... Args>
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == true)
         ComponentType& AddComponent(EntityId entity, Index::PageIndexOfComponent index, Index::IndexInAliveList indexInAliveList, Args&&... args)
@@ -130,14 +138,6 @@ namespace LittleECS::Detail
             m_EntitiesLinked[index] = EntityLinked { .Entity = entity };
 
             return component;
-        }
-
-        void RemoveComponentAtIndex(Index::PageIndexOfComponent index)
-        {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page");
-
-            DestroyAt(index);
-            m_EntitiesLinked[index].SetInvalid();
         }
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)

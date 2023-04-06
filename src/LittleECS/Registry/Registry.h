@@ -4,6 +4,7 @@
 
 #include "CompressedComponentStorage/CompressedComponentStorage.h"
 #include "FastComponentStorage/FastComponentStorage.h"
+#include "BasicView.h"
 
 #include <unordered_map>
 #include <memory>
@@ -32,6 +33,19 @@ namespace LittleECS
             return m_EntityIdGenerator.GetNewEntityId();
         }
 
+        void DestroyEntity(EntityId entity)
+        {
+            for (auto& container : m_ComponentsStoragesContainer)
+            {
+                if (container.second->EntityHasThisComponent(entity))
+                {
+                    container.second->RemoveComponentOfEntity(entity);
+                }
+            }
+
+            m_EntityIdGenerator.EntityIdDelete(entity);
+        }
+
     // Entity's Components Management
     private:
         template <typename ComponentType>
@@ -54,6 +68,7 @@ namespace LittleECS
             return nullptr;
         }
 
+    public:
         template <typename ComponentType>
         typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage()
         {
@@ -102,6 +117,53 @@ namespace LittleECS
 
             return componentStorage->EntityHasThisComponent(entity);
         }
+
+    public:
+        template<typename... ComponentTypes>
+        BasicView<ComponentTypes...> View()
+        {
+            return BasicView<ComponentTypes...>(*this);
+        }
+
+        template<typename ComponentType>
+        void ForEachUniqueComponent(std::function<void(EntityId, ComponentType& component)> function)
+        {
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return;
+            
+            if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+            {
+                componentStorage->ForEachUniqueComponent(function);
+            }
+            else
+            {
+                componentStorage->ForEachUniqueComponent(function, m_EntityIdGenerator.GetAlivesEntities());
+            }
+        }
+
+        template<typename RangeComponent, typename... ComponentTypes>
+        void ForEach(std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)> function)
+        {
+            if constexpr (sizeof...(ComponentTypes) == 0)
+            {
+                return ForEachUniqueComponent<RangeComponent>(function);
+            }
+            else
+            {
+                BasicView<RangeComponent, ComponentTypes...> view(*this);
+                view.ForEach(function);
+            }
+        }
+
+        template<typename RangeComponent, typename... ComponentTypes, typename Function>
+        void ForEach(Function&& function)
+        {
+            std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)> functionCast = function;
+            return ForEach<RangeComponent, ComponentTypes...>(functionCast);
+        }
     };
 
 }
+
+#include "BasicView.inl"

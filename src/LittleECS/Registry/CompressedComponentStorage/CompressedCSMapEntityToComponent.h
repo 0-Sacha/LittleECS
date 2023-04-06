@@ -16,6 +16,11 @@ namespace LittleECS::Detail
         Container m_Container;
 
     public:
+        const Container& GetContainer()
+        {
+            return m_Container;
+        }
+
         inline bool HasEntity(EntityId entity) const
         {
             return m_Container.contains(entity.Id);

@@ -16,15 +16,11 @@ namespace LittleECS::Detail
             typename EntityId::Type res;
 
             if (m_FreeEntitiesId.size() > 0)
-            {
-                res = m_FreeEntitiesId.front();
-                m_FreeEntitiesId.pop();
-            }
+                res = m_FreeEntitiesId.extract(m_FreeEntitiesId.begin()).value();
             else
-            {
                 res = m_CurrentIndex++;
-            }
 
+            LECS_ASSERT(m_AliveEntitiesId.contains(res) == false, "Create an EntityId with an already assigned id");
             m_AliveEntitiesId.insert(res);
             return res;
         }
@@ -38,8 +34,10 @@ namespace LittleECS::Detail
                 return;
             }
 
-            m_FreeEntitiesId.push(id);
+            LECS_ASSERT(m_AliveEntitiesId.contains(id) == true, "Destroy an EntityId with an non assigned id");
+            
             m_AliveEntitiesId.erase(id);
+            m_FreeEntitiesId.insert(id);
         }
 
         const std::set<typename EntityId::Type>& GetAlivesEntities()
@@ -49,7 +47,7 @@ namespace LittleECS::Detail
 
     protected:
         typename EntityId::Type m_CurrentIndex = EntityId::FIRST;
-        std::queue<typename EntityId::Type> m_FreeEntitiesId;
+        std::set<typename EntityId::Type> m_FreeEntitiesId;
         std::set<typename EntityId::Type> m_AliveEntitiesId;
     };
 

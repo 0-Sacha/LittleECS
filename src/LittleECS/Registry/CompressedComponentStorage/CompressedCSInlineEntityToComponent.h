@@ -50,6 +50,12 @@ namespace LittleECS::Detail
         }
 
     public:
+        const AliveEntitiesContainer& GetAliveContainer()
+        {
+            return m_AliveEntitiesContainer;
+        }
+
+    public:
         inline bool HasEntity(EntityId entity) const
         {
             BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);

@@ -46,8 +46,7 @@ namespace LittleECS::Detail
 
 	public:
 		virtual bool EntityHasThisComponent(EntityId entity) const = 0;
-		virtual void ForEach(std::any function) = 0;
-		virtual void ForEach(std::any function) const = 0;
+		virtual void RemoveComponentOfEntity(EntityId entity) = 0;
 	};
 
 
@@ -67,6 +66,7 @@ namespace LittleECS::Detail
     		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
             static constexpr bool HAS_ENTITIES_REF = true;
             static constexpr bool USE_MAP_VERSION = false;
+            static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
         };
 
         struct RareComponent
@@ -75,6 +75,7 @@ namespace LittleECS::Detail
             static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 2048;
             static constexpr bool HAS_ENTITIES_REF = true;
             static constexpr bool USE_MAP_VERSION = false;
+            static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
         };
 
         struct CommonComponent
@@ -83,6 +84,7 @@ namespace LittleECS::Detail
             static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 4096;
             static constexpr bool HAS_ENTITIES_REF = false;
             static constexpr bool USE_MAP_VERSION = false;
+            static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
         };
 
         using Default = FastComponent;

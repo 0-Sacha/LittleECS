@@ -50,10 +50,7 @@ namespace LittleECS::Detail
 #endif
         }
 
-		~CompressedComponentStoragePage()
-		{
-			ForEach([this](Index::PageIndexOfComponent index) { this->DestroyAt(index); });
-		}
+		~CompressedComponentStoragePage() = default;
 
     protected:
         std::array<ComponentDataBuffer, PAGE_SIZE> m_Page;
