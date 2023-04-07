@@ -2,6 +2,8 @@
 
 #include "LittleECS/Registry/IComponentStorage.h"
 
+#include "LittleECS/Detail/TypeParameterPack.h"
+
 #include <array>
 
 namespace LittleECS
@@ -11,6 +13,10 @@ namespace LittleECS
     template <typename... ComponentTypes>
     class BasicView
     {
+
+    public:
+        template <std::size_t I>
+        using TypeAt = typename Detail::GetType<I, ComponentTypes...>::Type;
 
     public:
         BasicView(Registry& linkedRegistry)
@@ -34,9 +40,17 @@ namespace LittleECS
         }
 
     public:
-        void ForEach(std::function<void(EntityId, ComponentTypes&... components)> function)
+        template <typename... ComponentTypesEach, typename Function>
+        void ForEach(Function&& function)
         {
-
+            if constexpr (sizeof...(ComponentTypesEach) == 0)
+            {
+                return ForEach<ComponentTypes...>(function);
+            }
+            else
+            {
+                
+            }
         }
     };
 }

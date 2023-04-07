@@ -117,66 +117,26 @@ namespace LittleECS::Detail
         }
     
     public:
-        void ForEachUniqueComponent(std::function<void(EntityId, ComponentType&)> function)
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-        {
-            for (EntityId entity : m_AliveEntitiesContainer)
-            {
-                ComponentType& component = GetComponentOfEntity(entity);
-                function(entity, component);
-            }
-        }
+        // Function = std::function<void(EntityId, ComponentType&)>
+        template <typename Function>
+        void ForEachUniqueComponent(Function&& function)
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
-		void ForEachUniqueComponent(std::function<void(EntityId, const ComponentType&)> function) const
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-        {
-            for (EntityId entity : m_AliveEntitiesContainer)
-            {
-                const ComponentType& component = GetComponentOfEntity(entity);
-                function(entity, component);
-            }
-        }
-
+        // Function = std::function<void(EntityId, const ComponentType&)>
+        template <typename Function>
+		void ForEachUniqueComponent(Function&& function) const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
         
-        void ForEachUniqueComponent(std::function<void(EntityId, ComponentType&)> function, const std::set<typename EntityId::Type>& registryAliveEntities)
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
-        {
-            for (EntityId entity : registryAliveEntities)
-            {
-                Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+        // Function = std::function<void(EntityId, ComponentType&)>
+        template <typename Function, typename Container>
+        void ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities)
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
-                if (indexInfo.IndexOfPage >= m_PageContainer.size())
-                    continue;
-                if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
-                    continue;
-
-			    if (m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent) == false)
-                    continue;
-                
-                ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(entity);
-                function(entity, component);
-            }
-        }
-
-		void ForEachUniqueComponent(std::function<void(EntityId, const ComponentType&)> function, const std::set<typename EntityId::Type>& registryAliveEntities) const
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
-        {
-            for (EntityId entity : registryAliveEntities)
-            {
-                Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-
-                if (indexInfo.IndexOfPage >= m_PageContainer.size())
-                    continue;
-                if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
-                    continue;
-
-			    if (m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent) == false)
-                    continue;
-                
-                ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(entity);
-                function(entity, component);
-            }
-        }
+        // Function = std::function<void(EntityId, const ComponentType&)>
+        template <typename Function, typename Container>
+		void ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities) const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
     };
 }
  
+#include "FCSEach.h"

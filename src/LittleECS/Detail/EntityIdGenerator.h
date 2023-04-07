@@ -40,7 +40,7 @@ namespace LittleECS::Detail
             m_FreeEntitiesId.insert(id);
         }
 
-        const std::set<typename EntityId::Type>& GetAlivesEntities()
+        const std::set<typename EntityId::Type>& GetAlivesEntities() const
         {
             return m_AliveEntitiesId;
         } 

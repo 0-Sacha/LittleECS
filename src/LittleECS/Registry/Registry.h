@@ -4,7 +4,7 @@
 
 #include "CompressedComponentStorage/CompressedComponentStorage.h"
 #include "FastComponentStorage/FastComponentStorage.h"
-#include "BasicView.h"
+#include "Views/BasicView.h"
 
 #include <unordered_map>
 #include <memory>
@@ -76,11 +76,25 @@ namespace LittleECS
 
             auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
 
-            LECS_ASSERT(m_ComponentsStoragesContainer.contains(componentId), "This ComponentStorage is not part of this registry");
+            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry");
 
-            Detail::IComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
+            Detail::IComponentStorage* componentStorageBasic = componentStorage->second.get();
             return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
         }
+
+        template <typename ComponentType>
+        const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage() const
+        {
+            ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
+
+            const auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
+
+            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry");
+
+            const Detail::IComponentStorage* componentStorageBasic = componentStorage->second.get();
+            return reinterpret_cast<const typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
+        }
+
 
     public:
         template <typename ComponentType, typename... Args>
@@ -125,45 +139,30 @@ namespace LittleECS
             return BasicView<ComponentTypes...>(*this);
         }
 
-        template<typename ComponentType>
-        void ForEachUniqueComponent(std::function<void(EntityId, ComponentType& component)> function)
-        {
-            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            if (componentStorage == nullptr)
-                return;
-            
-            if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-            {
-                componentStorage->ForEachUniqueComponent(function);
-            }
-            else
-            {
-                componentStorage->ForEachUniqueComponent(function, m_EntityIdGenerator.GetAlivesEntities());
-            }
-        }
+    public:
+        // Function = std::function<void(EntityId)>
+        template<typename Function>
+        void ForEachEntities(Function&& function);
 
-        template<typename RangeComponent, typename... ComponentTypes>
-        void ForEach(std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)> function)
-        {
-            if constexpr (sizeof...(ComponentTypes) == 0)
-            {
-                return ForEachUniqueComponent<RangeComponent>(function);
-            }
-            else
-            {
-                BasicView<RangeComponent, ComponentTypes...> view(*this);
-                view.ForEach(function);
-            }
-        }
+        // Function = std::function<void(EntityId, ComponentType& component)>
+        template<typename ComponentType, typename Function>
+        void ForEachUniqueComponent(Function&& function);
 
+        // Function = std::function<void(EntityId, ComponentType& component)>
+        template<typename ComponentType, typename Function>
+        void ForEachUniqueComponent(Function&& function) const;
+
+        // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
         template<typename RangeComponent, typename... ComponentTypes, typename Function>
-        void ForEach(Function&& function)
-        {
-            std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)> functionCast = function;
-            return ForEach<RangeComponent, ComponentTypes...>(functionCast);
-        }
+        void ForEachComponents(Function&& function);
+
+        // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
+        template<typename RangeComponent, typename... ComponentTypes, typename Function>
+        void ForEachComponents(Function&& function) const;
     };
 
 }
 
-#include "BasicView.inl"
+#include "RegistryEach.h"
+
+#include "Views/BasicView.inl"

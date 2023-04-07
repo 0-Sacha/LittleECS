@@ -63,13 +63,13 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
 
-    registry.ForEach<BasicIntComponent, BasicFloatComponent>([](LittleECS::EntityId entity, BasicIntComponent& k, BasicFloatComponent& v)
+    registry.ForEachComponents<BasicIntComponent, BasicFloatComponent>([](LittleECS::EntityId entity, BasicIntComponent& k, BasicFloatComponent& v)
     {
         k = 325;
         v = 22.0f;
     });
 
-    registry.ForEach<BasicIntComponent>([](LittleECS::EntityId entity, BasicIntComponent& k)
+    registry.ForEachComponents<BasicIntComponent>([](LittleECS::EntityId entity, BasicIntComponent& k)
     {
         k = 85;
     });

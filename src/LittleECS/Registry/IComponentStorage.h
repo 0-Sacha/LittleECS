@@ -69,6 +69,15 @@ namespace LittleECS::Detail
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
         };
 
+        struct FastComponentWithoutREF
+        {
+            using StorageType = FastComponentStorage<ComponentType>;
+    		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
+            static constexpr bool HAS_ENTITIES_REF = false;
+            static constexpr bool USE_MAP_VERSION = false;
+            static constexpr bool SEND_ENTITIES_POOL_ON_EACH = true;
+        };
+
         struct RareComponent
         {
             using StorageType = CompressedComponentStorage<ComponentType>;
@@ -87,7 +96,7 @@ namespace LittleECS::Detail
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
         };
 
-        using Default = FastComponent;
+        using Default = CommonComponent;
     };
 
 	template <typename ComponentType>
