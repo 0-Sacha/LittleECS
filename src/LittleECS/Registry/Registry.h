@@ -81,7 +81,7 @@ namespace LittleECS
 
             auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
 
-            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry");
+            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry")
 
             Detail::IComponentStorage* componentStorageBasic = componentStorage->second.get();
             return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
@@ -94,7 +94,7 @@ namespace LittleECS
 
             const auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
 
-            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry");
+            LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry")
 
             const Detail::IComponentStorage* componentStorageBasic = componentStorage->second.get();
             return reinterpret_cast<const typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
@@ -106,7 +106,7 @@ namespace LittleECS
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
             typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry");
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
             return componentStorage->AddComponentToEntity(entity, std::forward<Args>(args)...);
         }
 
@@ -114,7 +114,7 @@ namespace LittleECS
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
             typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry");
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
             return componentStorage->GetComponentOfEntity(entity);
         }
 

@@ -20,7 +20,7 @@ namespace LittleECS::Detail
             else
                 res = m_CurrentIndex++;
 
-            LECS_ASSERT(m_AliveEntitiesId.contains(res) == false, "Create an EntityId with an already assigned id");
+            LECS_ASSERT(m_AliveEntitiesId.contains(res) == false, "Create an EntityId with an already assigned id")
             m_AliveEntitiesId.insert(res);
             return res;
         }
@@ -34,7 +34,7 @@ namespace LittleECS::Detail
                 return;
             }
 
-            LECS_ASSERT(m_AliveEntitiesId.contains(id) == true, "Destroy an EntityId with an non assigned id");
+            LECS_ASSERT(m_AliveEntitiesId.contains(id) == true, "Destroy an EntityId with an non assigned id")
             
             m_AliveEntitiesId.erase(id);
             m_FreeEntitiesId.insert(id);

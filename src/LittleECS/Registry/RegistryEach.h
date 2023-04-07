@@ -59,7 +59,7 @@ namespace LittleECS
         else
         {
             BasicView<ComponentTypes...> view(*this);
-            view.ForEach<ComponentTypes...>(function);
+            view.template ForEach<ComponentTypes...>(function);
         }
     }
 
@@ -74,7 +74,7 @@ namespace LittleECS
         else
         {
             BasicView<ComponentTypes...> view(*this);
-            view.ForEach<ComponentTypes...>(function);
+            view.template ForEach<ComponentTypes...>(function);
         }
     }
 }

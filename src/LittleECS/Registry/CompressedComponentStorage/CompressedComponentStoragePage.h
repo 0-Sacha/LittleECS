@@ -91,10 +91,10 @@ namespace LittleECS::Detail
                 ++beginFreeListBlocks;
             }
 
-			LECS_ASSERT(beginFreeListBlocks != endFreeListBlocks, "This page is full");
-			LECS_ASSERT(*beginFreeListBlocks != 0, "This page is full");
+			LECS_ASSERT(beginFreeListBlocks != endFreeListBlocks, "This page is full")
+			LECS_ASSERT(*beginFreeListBlocks != 0, "This page is full")
 
-			std::size_t blockIndex = beginFreeListBlocks - m_FreeComponent;
+			std::size_t blockIndex = static_cast<std::size_t>(beginFreeListBlocks - m_FreeComponent);
 
             std::size_t block = *beginFreeListBlocks;
             std::size_t mask = 1;
@@ -106,7 +106,7 @@ namespace LittleECS::Detail
                 mask = mask << 1;
             }
 
-            LECS_ASSERT(freeIndexInBlock != (sizeof(std::size_t) * 8), "The block found is full");
+            LECS_ASSERT(freeIndexInBlock != (sizeof(std::size_t) * 8), "The block found is full")
 
             std::size_t foundIndex = freeIndexInBlock + (blockIndex * sizeof(std::size_t) * 8);
 
@@ -126,7 +126,7 @@ namespace LittleECS::Detail
         template<typename... Args>
         std::pair<Index::PageIndexOfComponent, ComponentType&> AddComponent(EntityId entity, Args&&... args)
         {
-            LECS_ASSERT(CanAddComponent(), "Can't add more component to this page");
+            LECS_ASSERT(CanAddComponent(), "Can't add more component to this page")
 
             Index::PageIndexOfComponent index = GetNextIndex();
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
@@ -138,7 +138,7 @@ namespace LittleECS::Detail
 
         void RemoveComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index");
+            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
 
             DestroyAt(index);
             SetHasComponentAtIndex(index, true);
@@ -148,16 +148,16 @@ namespace LittleECS::Detail
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index");
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId");
+            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index");
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId");
+            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
+			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}

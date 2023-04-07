@@ -108,7 +108,7 @@ namespace LittleECS::Detail
     public:
         inline void RemoveComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page");
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
             DestroyAt(index);
             m_EntitiesLinked[index].SetInvalid();
         }
@@ -118,7 +118,7 @@ namespace LittleECS::Detail
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == true)
         ComponentType& AddComponent(EntityId entity, Index::PageIndexOfComponent index, Index::IndexInAliveList indexInAliveList, Args&&... args)
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == false, "Can't add this entity to this because it has the same id as another one");
+            LECS_ASSERT(HasEntityAtIndex(index) == false, "Can't add this entity to this because it has the same id as another one")
 
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
 
@@ -131,7 +131,7 @@ namespace LittleECS::Detail
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
         ComponentType& AddComponent(EntityId entity, Index::PageIndexOfComponent index, Args&&... args)
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == false, "Can't add this entity to this because it has the same id as another one");
+            LECS_ASSERT(HasEntityAtIndex(index) == false, "Can't add this entity to this because it has the same id as another one")
 
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
 
@@ -142,17 +142,16 @@ namespace LittleECS::Detail
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page");
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page");
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
     };
 }
- 

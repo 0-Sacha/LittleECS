@@ -75,7 +75,7 @@ namespace LittleECS::Detail
         template <typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
-            LECS_ASSERT(EntityHasThisComponent(entity) == false);
+            LECS_ASSERT(EntityHasThisComponent(entity) == false)
             
             Index::IndexOfPage indexOfFreePage = GetFreePageIndexOrCreateIt();
             PageTypeRef& page = m_PageContainer[indexOfFreePage];
@@ -92,7 +92,7 @@ namespace LittleECS::Detail
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
             
-            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component");
+            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
 
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
@@ -102,7 +102,7 @@ namespace LittleECS::Detail
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
 
-			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component");
+			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
 
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);

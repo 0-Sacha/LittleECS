@@ -74,14 +74,14 @@ namespace LittleECS
         ComponentType& GetComponentType(EntityId entity)
         {
 			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
-			LECS_ASSERT(storage, "This entity doesn't have this component");
+			LECS_ASSERT(storage, "This entity doesn't have this component")
 			return storage->GetComponentOfEntity(entity);
 		}
 		template <typename ComponentType>
 		const ComponentType& GetComponentType(EntityId entity) const
 		{
 			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
-            LECS_ASSERT(storage, "This entity doesn't have this component");
+            LECS_ASSERT(storage, "This entity doesn't have this component")
             return storage->GetComponentOfEntity(entity);
 		}
 
@@ -92,9 +92,19 @@ namespace LittleECS
             return std::tuple<ComponentTypes&...>(GetComponentType<ComponentTypes>(entity)...);
 		}
 
+        template <typename... ComponentTypes>
+		std::tuple<const ComponentTypes&...> GetComponentTuple(EntityId entity) const
+		{
+            return std::tuple<const ComponentTypes&...>(GetComponentType<ComponentTypes>(entity)...);
+		}
+
     public:
         // Function = std::function<void(EntityId, ComponentTypeEach& component, ComponentTypesEach&... components)>
         template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
         void ForEach(Function&& function);
+
+        // Function = std::function<void(EntityId, ComponentTypeEach& component, ComponentTypesEach&... components)>
+        template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
+        void ForEach(Function&& function) const;
     };
 }

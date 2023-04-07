@@ -17,7 +17,7 @@ namespace LittleECS::Detail
     requires (I > 0)
     struct GetTypeAt<I, CurrentType, RestTypes...>
     {
-        using Type = GetTypeAt<I - 1, RestTypes...>::Type;
+        using Type = typename GetTypeAt<I - 1, RestTypes...>::Type;
     };
 
     template <std::size_t I, typename CurrentType, typename... RestTypes>

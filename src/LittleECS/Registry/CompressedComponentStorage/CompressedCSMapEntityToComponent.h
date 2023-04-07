@@ -28,19 +28,19 @@ namespace LittleECS::Detail
 
         inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
         {
-            LECS_ASSERT(HasEntity(entity) == true);
+            LECS_ASSERT(HasEntity(entity) == true)
             return m_Container.at(entity.Id);
         }
 
         inline void AddIndexInfoForEntity(EntityId entity, Index::IndexInfo indexInfo)
         {
-            LECS_ASSERT(HasEntity(entity) == false);
+            LECS_ASSERT(HasEntity(entity) == false)
             m_Container[entity.Id] = indexInfo;
         }
 
         inline void RemoveIndexInfoForEntity(EntityId entity)
         {
-            LECS_ASSERT(HasEntity(entity) == true);
+            LECS_ASSERT(HasEntity(entity) == true)
             m_Container[entity.Id].SetInvalid();
         }
     };

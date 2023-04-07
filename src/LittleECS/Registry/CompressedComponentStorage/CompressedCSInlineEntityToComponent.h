@@ -77,11 +77,11 @@ namespace LittleECS::Detail
         {
             BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
             
-            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity");
+            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity")
 
             const BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
 
-            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity");
+            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity")
 
             return (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInfo;
         }
@@ -120,11 +120,11 @@ namespace LittleECS::Detail
         {
             BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
 
-            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity");
+            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity")
 
             BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
 
-            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity");
+            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity")
 
             if constexpr (HAS_ENTITIES_REF)
             {
