@@ -47,7 +47,7 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
     registry.AddComponentToEntity<BasicIntComponent>(entity1, 7);
     registry.AddComponentToEntity<BasicIntComponent>(entity2, 101);
     registry.AddComponentToEntity<int>(entity2, 101);
-    registry.AddComponentToEntity<float>(entity2, 101);
+    registry.AddComponentToEntity<float>(entity2, 101.0f);
 
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 7);
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);

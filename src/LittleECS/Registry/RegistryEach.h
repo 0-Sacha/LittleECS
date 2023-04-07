@@ -48,33 +48,33 @@ namespace LittleECS
         }
     }   
 
-    // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
-    template<typename RangeComponent, typename... ComponentTypes, typename Function>
+    // Function = std::function<void(EntityId, ComponentTypes&... components)>
+    template<typename... ComponentTypes, typename Function>
     void Registry::ForEachComponents(Function&& function)
     {
-        if constexpr (sizeof...(ComponentTypes) == 0)
+        if constexpr (sizeof...(ComponentTypes) == 1)
         {
-            return ForEachUniqueComponent<RangeComponent>(function);
+            return ForEachUniqueComponent<ComponentTypes...>(function);
         }
         else
         {
-            BasicView<RangeComponent, ComponentTypes...> view(*this);
-            view.ForEach(function);
+            BasicView<ComponentTypes...> view(*this);
+            view.ForEach<ComponentTypes...>(function);
         }
     }
 
     // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
-    template<typename RangeComponent, typename... ComponentTypes, typename Function>
+    template<typename... ComponentTypes, typename Function>
     void Registry::ForEachComponents(Function&& function) const
     {
-        if constexpr (sizeof...(ComponentTypes) == 0)
+        if constexpr (sizeof...(ComponentTypes) == 1)
         {
-            return ForEachUniqueComponent<RangeComponent>(function);
+            return ForEachUniqueComponent<ComponentTypes...>(function);
         }
         else
         {
-            BasicView<RangeComponent, ComponentTypes...> view(*this);
-            view.ForEach(function);
+            BasicView<ComponentTypes...> view(*this);
+            view.ForEach<ComponentTypes...>(function);
         }
     }
 }

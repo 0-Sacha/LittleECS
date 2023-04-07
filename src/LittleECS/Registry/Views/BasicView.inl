@@ -4,9 +4,9 @@
 
 namespace LittleECS
 {
-    template <typename... ComponentTypes>
+    template <typename... ViewComponentTypes>
     template <std::size_t I, typename Component, typename... ComponentRest>
-    void BasicView<ComponentTypes...>::CreateRegistryLinkImpl()
+    void BasicView<ViewComponentTypes...>::CreateRegistryLinkImpl()
     {
         m_LinkToComponentContainer[I] = m_LinkedRegistry.GetComponentStorage<Component>();
         if constexpr (I > 0)

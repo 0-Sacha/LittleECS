@@ -28,6 +28,11 @@ namespace LittleECS
 
     // Entity Management
     public:
+        const Detail::EntityIdGenerator& GetEntityIdGenerator()
+        {
+            return m_EntityIdGenerator;
+        }
+
         EntityId CreateEntity()
         {
             return m_EntityIdGenerator.GetNewEntityId();
@@ -152,12 +157,12 @@ namespace LittleECS
         template<typename ComponentType, typename Function>
         void ForEachUniqueComponent(Function&& function) const;
 
-        // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
-        template<typename RangeComponent, typename... ComponentTypes, typename Function>
+        // Function = std::function<void(EntityId, ComponentTypes&... components)>
+        template<typename... ComponentTypes, typename Function>
         void ForEachComponents(Function&& function);
 
-        // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
-        template<typename RangeComponent, typename... ComponentTypes, typename Function>
+        // Function = std::function<void(EntityId, ComponentTypes&... components)>
+        template<typename... ComponentTypes, typename Function>
         void ForEachComponents(Function&& function) const;
     };
 
@@ -166,3 +171,4 @@ namespace LittleECS
 #include "RegistryEach.h"
 
 #include "Views/BasicView.inl"
+#include "Views/BasicViewEach.h"
