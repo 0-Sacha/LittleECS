@@ -17,7 +17,7 @@ namespace LittleECS
     public:
         using ComponentStorageRef = std::unique_ptr<Detail::IComponentStorage>;
         using ComponentsStoragesContainer = std::unordered_map<ComponentId::Type, ComponentStorageRef>;
-        using ComponentIdGenerator = Detail::GlobalComponentIdGenerator;
+        using ComponentIdGenerator = Detail::CompilerComponentIdGenerator;
 
     protected:
         ComponentsStoragesContainer m_ComponentsStoragesContainer;

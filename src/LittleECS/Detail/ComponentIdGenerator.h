@@ -18,6 +18,16 @@
 
 namespace LittleECS::Detail
 {
+    class CompilerComponentIdGenerator
+    {
+    public:
+        template <typename T>
+        static constexpr ComponentId GetTypeId()
+        {
+            return typeid(T).hash_code();
+        }
+    };
+
     class GlobalComponentIdGenerator
     {
     public:

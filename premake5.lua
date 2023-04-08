@@ -32,8 +32,14 @@ then
 
 LittleECSTestLaunch = {}
 LittleECSTestLaunch.project = "LittleECSTests"
-
 Solution.Launch["LittleECSTests"] = LittleECSTestLaunch
+
+LittleECSTestLaunchPerf = {}
+LittleECSTestLaunchPerf.project = "LittleECSTests"
+LittleECSTestLaunchPerf.BuildCfg = "Release"
+LittleECSTestLaunchPerf.Platform = "x64"
+LittleECSTestLaunchPerf.PreLaunchTask = "RELEASEx64 build"
+Solution.Launch["LittleECSTests-PerfTest"] = LittleECSTestLaunchPerf
 
 project "LittleECSTests"
 	kind "ConsoleApp"

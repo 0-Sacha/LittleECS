@@ -46,7 +46,6 @@ namespace LittleECS
     {
         return lhs == rhs.Id;
     }
-    
 }
 
 namespace ProjectCore::FMT

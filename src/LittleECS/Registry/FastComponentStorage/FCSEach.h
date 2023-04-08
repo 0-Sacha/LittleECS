@@ -46,7 +46,7 @@ namespace LittleECS::Detail
             if (m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent) == false)
                 continue;
             
-            ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(entity);
+            ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
             function(entity, component);
         }
     }
