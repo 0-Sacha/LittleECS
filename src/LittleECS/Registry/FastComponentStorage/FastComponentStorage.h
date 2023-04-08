@@ -105,6 +105,7 @@ namespace LittleECS::Detail
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
@@ -112,8 +113,27 @@ namespace LittleECS::Detail
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
             const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
+        }
+
+        ComponentType* GetComponentOfEntityPtr(EntityId entity)
+        {
+            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+                return nullptr;
+            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+        }
+
+        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
+        {
+            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+                return nullptr;
+            const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
         }
     
     public:

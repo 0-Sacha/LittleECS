@@ -63,13 +63,13 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101ull);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
 
-    registry.ForEachComponents<BasicIntComponent, BasicFloatComponent>([](LittleECS::EntityId, BasicIntComponent& k, BasicFloatComponent& v)
+    registry.ForEachComponents<BasicIntComponent, BasicFloatComponent>([](BasicIntComponent& k, BasicFloatComponent& v)
     {
         k = 325ull;
         v = 22.0f;
     });
 
-    registry.ForEachComponents<BasicIntComponent>([](LittleECS::EntityId, BasicIntComponent& k)
+    registry.ForEachComponents<BasicIntComponent>([](BasicIntComponent& k)
     {
         k = 85ull;
     });
@@ -83,12 +83,12 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
 
     registry.DestroyEntity(entity2);
     
-    registry.ForEachUniqueComponent<BasicIntComponent>([](LittleECS::EntityId, BasicIntComponent& k)
+    registry.ForEachUniqueComponent<BasicIntComponent>([](LittleECS::EntityId entity, BasicIntComponent& k)
     {
-        k = 5ull;
+        k = static_cast<std::size_t>(entity.Id);
     });
 
-    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 5);
+    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, entity1.Id);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity2) == false);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
 }
@@ -185,8 +185,8 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
                             }
 
 BenchmarkTest(1'000, 1K);
-// BenchmarkTest(10'000, 10K);
+BenchmarkTest(10'000, 10K);
 BenchmarkTest(100'000, 100K);
-// BenchmarkTest(1'000'000, 1M);
+BenchmarkTest(1'000'000, 1M);
 // BenchmarkTest(10'000'000, 10M);
 // BenchmarkTest(100'000'000, 100M);

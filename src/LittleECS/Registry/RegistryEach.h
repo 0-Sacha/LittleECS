@@ -4,14 +4,6 @@
 
 namespace LittleECS
 {
-    // Function = std::function<void(EntityId)>
-    template<typename Function>
-    void Registry::ForEachEntities(Function&& function)
-    {
-        for (EntityId entity : m_EntityIdGenerator.GetAlivesEntities())
-            function(entity);
-    }
-
     // Function = std::function<void(EntityId, ComponentType& component)>
     template<typename ComponentType, typename Function>
     void Registry::ForEachUniqueComponent(Function&& function)
@@ -59,7 +51,7 @@ namespace LittleECS
         else
         {
             BasicView<ComponentTypes...> view(*this);
-            view.template ForEach<ComponentTypes...>(function);
+            view.template ForEachComponents<ComponentTypes...>(function);
         }
     }
 
@@ -74,7 +66,7 @@ namespace LittleECS
         else
         {
             BasicView<ComponentTypes...> view(*this);
-            view.template ForEach<ComponentTypes...>(function);
+            view.template ForEachComponents<ComponentTypes...>(function);
         }
     }
 }

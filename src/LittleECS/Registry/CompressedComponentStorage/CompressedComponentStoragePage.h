@@ -64,11 +64,11 @@ namespace LittleECS::Detail
             std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
             std::size_t block = *(m_FreeComponent + indexOfBlock);
             std::size_t indexInBlock = index % (sizeof(std::size_t) * 8);
-            return block & (static_cast<std::size_t>(1) << indexInBlock);
+            return (block & (static_cast<std::size_t>(1) << indexInBlock)) == 0;
         }
 
     private:
-        inline void SetHasComponentAtIndex(Index::PageIndexOfComponent index, bool set)
+        inline void SetHasComponentAtIndex(Index::PageIndexOfComponent index, bool has)
         {
             std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
             std::size_t* block = m_FreeComponent + indexOfBlock;
@@ -76,7 +76,7 @@ namespace LittleECS::Detail
 
             *block = *block & ~(static_cast<std::size_t>(1) << indexInBlock);
 
-            if (set)
+            if (has == false)
                 *block |= (static_cast<std::size_t>(1) << indexInBlock);
         }
 
@@ -114,13 +114,6 @@ namespace LittleECS::Detail
         }
 
     public:
-        template <typename Function>
-		void ForEach(Function&& function);
-
-        template <typename Function>
-		void ForEach(Function&& function) const;
-
-    public:
         inline bool CanAddComponent() const { return m_CurrentSize + 1 < PAGE_SIZE; }
 
         template<typename... Args>
@@ -129,8 +122,10 @@ namespace LittleECS::Detail
             LECS_ASSERT(CanAddComponent(), "Can't add more component to this page")
 
             Index::PageIndexOfComponent index = GetNextIndex();
+			LECS_ASSERT(HasComponentAtIndex(index) == false, "There are already a component at this index")
+
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
-            SetHasComponentAtIndex(index, false);
+            SetHasComponentAtIndex(index, true);
             m_EntityIdLinked[index] = entity;
             ++m_CurrentSize;
             return { index, component };
@@ -138,17 +133,17 @@ namespace LittleECS::Detail
 
         void RemoveComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
+            LECS_ASSERT(HasComponentAtIndex(index) == true, "There are no component at this index")
 
             DestroyAt(index);
-            SetHasComponentAtIndex(index, true);
+            SetHasComponentAtIndex(index, false);
             m_EntityIdLinked[index] = EntityId::INVALID;
             --m_CurrentSize;
         }
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
+            LECS_ASSERT(HasComponentAtIndex(index) == true, "There are no component at this index")
 			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
@@ -156,15 +151,50 @@ namespace LittleECS::Detail
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are no component at this index")
+            LECS_ASSERT(HasComponentAtIndex(index) == true, "There are no component at this index")
 			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
-            return *reinterpret_cast<ComponentType*>(&m_Page[index]);
+            return *reinterpret_cast<const ComponentType*>(&m_Page[index]);
+		}
+
+        ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index)
+        {
+            if (HasComponentAtIndex(index) == false)
+                return nullptr;
+            if (m_EntityIdLinked[index] != EntityId::INVALID)
+                return nullptr;
+            return reinterpret_cast<ComponentType*>(&m_Page[index]);
+		}
+
+        const ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index) const
+        {
+            if (HasComponentAtIndex(index) == false)
+                return nullptr;
+            if (m_EntityIdLinked[index] != EntityId::INVALID)
+                return nullptr;
+            return reinterpret_cast<const ComponentType*>(&m_Page[index]);
 		}
 
         inline EntityId GetEntityIdAtIndex(Index::PageIndexOfComponent index) const
 		{
 			return m_EntityIdLinked[index];
+        }
+
+    private:
+        template <typename Function, typename ComponentConstness>
+		void ForEachImpl(Function&& function);
+
+    public:
+        template <typename Function>
+		inline void ForEach(Function&& function)
+        {
+            return ForEachImpl<Function, ComponentType>(function);
+        }
+
+        template <typename Function>
+		void ForEach(Function&& function) const
+        {
+            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachImpl<Function, const ComponentType>(function);
         }
     };
 }

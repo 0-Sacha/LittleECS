@@ -5,18 +5,22 @@
 namespace LittleECS::Detail
 {
     template <typename ComponentType>
-    template <typename Function> // Function = std::function<void(EntityId, ComponentType&)>
-    void CompressedComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function)
+    template <typename Function, typename ComponentConstness> // Function = std::function<void(EntityId, ComponentType&)>
+    void CompressedComponentStorage<ComponentType>::ForEachUniqueComponentImpl(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
         if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
             {
-                for (EntityId entity : m_EntityToComponent.GetAliveContainer())
+                for (EntityId::Type entity : m_EntityToComponent.GetAliveContainer())
                 {
-                    ComponentType& component = GetComponentOfEntity(entity);
-                    function(entity, component);
+                    ComponentConstness& component = GetComponentOfEntity(entity);
+
+                    if constexpr (requires { function(entity, component); })
+                        function(entity, component);
+                    else if constexpr (requires { function(component); })
+                        function(component);
                 }
             }
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
@@ -24,9 +28,13 @@ namespace LittleECS::Detail
                 for (PageTypeRef& page : m_PageContainer)
                 {
                     page->ForEach([&function, &page](Index::PageIndexOfComponent index){
-                        ComponentType& component = page->GetComponentAtIndex(index);
                         EntityId entity = page->GetEntityIdAtIndex(index);
-                        function(entity, component);
+                        ComponentConstness& component = page->GetComponentAtIndex(index);
+
+                        if constexpr (requires { function(entity, component); })
+                            function(entity, component);
+                        else if constexpr (requires { function(component); })
+                            function(component);
                     });
                 }
             }
@@ -38,47 +46,12 @@ namespace LittleECS::Detail
             {
                 EntityId entity = entityIdType;
                 PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-                ComponentType& component = page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
-                function(entity, component);
-            }
-        }
-    }
+                ComponentConstness& component = page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
 
-    template <typename ComponentType>
-    template <typename Function> // Function = std::function<void(EntityId, const ComponentType&)>
-    void CompressedComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function) const
-    requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-    {
-        if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
-        {
-            if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-            {
-                for (EntityId entity : m_EntityToComponent.GetAliveContainer())
-                {
-                    const ComponentType& component = GetComponentOfEntity(entity);
+                if constexpr (requires { function(entity, component); })
                     function(entity, component);
-                }
-            }
-            else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
-            {
-                for (PageTypeRef& page : m_PageContainer)
-                {
-                    page->ForEach([&function, &page](Index::PageIndexOfComponent index){
-                        const ComponentType& component = page->GetComponentAtIndex(index);
-                        EntityId entity = page->GetEntityIdAtIndex(index);
-                        function(entity, component);
-                    });
-                }
-            }
-        }
-        else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
-        {
-            for (auto [entityIdType, indexInfo] : m_EntityToComponent.GetContainer())
-            {
-                EntityId entity = entityIdType;
-                PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-                const ComponentType& component = page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
-                function(entity, component);
+                else if constexpr (requires { function(component); })
+                    function(component);
             }
         }
     }

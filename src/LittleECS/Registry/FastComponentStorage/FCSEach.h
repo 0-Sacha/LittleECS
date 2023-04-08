@@ -12,7 +12,11 @@ namespace LittleECS::Detail
         for (EntityId entity : m_AliveEntitiesContainer)
         {
             ComponentType& component = GetComponentOfEntity(entity);
-            function(entity, component);
+            
+            if constexpr (requires { function(entity, component); })
+                function(entity, component);
+            else if constexpr (requires { function(component); })
+                function(component);
         }
     }
 
@@ -24,7 +28,11 @@ namespace LittleECS::Detail
         for (EntityId entity : m_AliveEntitiesContainer)
         {
             const ComponentType& component = GetComponentOfEntity(entity);
-            function(entity, component);
+            
+            if constexpr (requires { function(entity, component); })
+                function(entity, component);
+            else if constexpr (requires { function(component); })
+                function(component);
         }
     }
 
@@ -43,11 +51,15 @@ namespace LittleECS::Detail
             if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
                 continue;
 
-            if (m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent) == false)
+            ComponentType* component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+
+            if (component == nullptr)
                 continue;
-            
-            ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
-            function(entity, component);
+
+            if constexpr (requires { function(entity, *component); })
+                function(entity, *component);
+            else if constexpr (requires { function(*component); })
+                function(*component);
         }
     }
 
@@ -65,11 +77,15 @@ namespace LittleECS::Detail
             if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
                 continue;
 
-            if (m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent) == false)
+            const ComponentType* component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+
+            if (component == nullptr)
                 continue;
             
-            ComponentType& component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndex(entity);
-            function(entity, component);
+            if constexpr (requires { function(entity, *component); })
+                function(entity, *component);
+            else if constexpr (requires { function(*component); })
+                function(*component);
         }
     }
 }

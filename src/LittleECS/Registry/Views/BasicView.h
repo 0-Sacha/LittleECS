@@ -99,12 +99,20 @@ namespace LittleECS
 		}
 
     public:
-        // Function = std::function<void(EntityId, ComponentTypeEach& component, ComponentTypesEach&... components)>
-        template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
-        void ForEach(Function&& function);
+        // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
+        template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
+        void ForEachComponents(Function&& function);
 
-        // Function = std::function<void(EntityId, ComponentTypeEach& component, ComponentTypesEach&... components)>
-        template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
-        void ForEach(Function&& function) const;
+        // Function = std::function<void(EntityId, ComponentTypeEach& component)>
+        template <typename ComponentTypeEach, typename Function>
+        void ForEachUniqueComponent(Function&& function);
+
+        // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
+        template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
+        void ForEachComponents(Function&& function) const;
+
+        // Function = std::function<void(EntityId, ComponentTypeEach& component)>
+        template <typename ComponentTypeEach, typename Function>
+        void ForEachUniqueComponent(Function&& function) const;
     };
 }

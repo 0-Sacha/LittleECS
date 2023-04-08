@@ -43,7 +43,7 @@ namespace LittleECS
 
 
 #ifdef LECS_ASSERT_ENABLE
-    #define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}" #x __VA_ARGS__); __debugbreak(); }
+    #define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {} " #x __VA_ARGS__); __debugbreak(); }
 #else
     #define LECS_ASSERT(x, ...)
 #endif

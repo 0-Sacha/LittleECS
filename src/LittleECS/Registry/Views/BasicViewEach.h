@@ -4,73 +4,79 @@
 
 namespace LittleECS
 {
-    // Function = std::function<void(EntityId, ViewComponentTypesEach&... components)>
+    // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
-    template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
-    void BasicView<ViewComponentTypes...>::ForEach(Function&& function)
+    template <typename ComponentTypeEach, typename Function>
+    void BasicView<ViewComponentTypes...>::ForEachUniqueComponent(Function&& function)
     {
-        if constexpr (sizeof...(ComponentTypesEach) == 0)
-        {
-			if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-			{
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function);
-			}
-			else
-			{
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-			}
-        }
+        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
+            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function);
         else
-        {
-            auto dispatchFunction = [&](EntityId entity, ComponentTypeEach& componentRanged){
-                    if (EntityHasAll<ComponentTypesEach...>(entity) == false)
-                        return;
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeEach&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
-                };
-
-            if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-            {
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(dispatchFunction);
-            }
-            else
-            {
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(dispatchFunction, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }
-        }
+            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
     }
 
-    // Function = std::function<void(EntityId, ViewComponentTypesEach&... components)>
+    // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
-    template <typename ComponentTypeEach, typename... ComponentTypesEach, typename Function>
-    void BasicView<ViewComponentTypes...>::ForEach(Function&& function) const
+    template <typename ComponentTypeEach, typename Function>
+    void BasicView<ViewComponentTypes...>::ForEachUniqueComponent(Function&& function) const
+    {
+        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
+            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function);
+        else
+            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
+    }
+
+    // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
+    template <typename... ViewComponentTypes>
+    template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
+    void BasicView<ViewComponentTypes...>::ForEachComponents(Function&& function)
     {
         if constexpr (sizeof...(ComponentTypesEach) == 0)
-        {
-			if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-			{
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function);
-			}
-			else
-			{
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-			}
-        }
-        else
-        {
-            auto dispatchFunction = [&](EntityId entity, const ComponentTypeEach& componentRanged){
-                    if (EntityHasAll<ComponentTypesEach...>(entity) == false)
-                        return;
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeEach&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
-                };
+            return ForEachUniqueComponent<ComponentTypeRanged>(function);
+    
+        auto dispatchFunction = [&](EntityId entity, ComponentTypeRanged& componentRanged) {
+                if (EntityHasAll<ComponentTypesEach...>(entity) == false)
+                    return;
+                
+                if constexpr (std::is_invocable_v<Function, decltype(std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)))>)
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                }
+                else if constexpr (std::is_invocable_v<Function, decltype(std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)))>)
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                }
+            };
 
-            if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-            {
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(dispatchFunction);
-            }
-            else
-            {
-                GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachUniqueComponent(dispatchFunction, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }
-        }
+        return ForEachUniqueComponent<ComponentTypeRanged>(dispatchFunction);
+    }
+
+    // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
+    template <typename... ViewComponentTypes>
+    template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
+    void BasicView<ViewComponentTypes...>::ForEachComponents(Function&& function) const
+    {
+        if constexpr (sizeof...(ComponentTypesEach) == 0)
+            return ForEachUniqueComponent<ComponentTypeRanged>(function);
+
+        auto dispatchFunction = [&](EntityId entity, ComponentTypeRanged& componentRanged) {
+                if (EntityHasAll<ComponentTypesEach...>(entity) == false)
+                    return;
+                
+                if constexpr (requires {
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                })
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                }
+                else if constexpr (requires {
+                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                })
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                }
+            };
+
+        return ForEachUniqueComponent<ComponentTypeRanged>(dispatchFunction);
     }
 }

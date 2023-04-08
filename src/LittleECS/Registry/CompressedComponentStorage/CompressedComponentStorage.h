@@ -91,9 +91,7 @@ namespace LittleECS::Detail
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
-            
             LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
-
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
@@ -101,23 +99,52 @@ namespace LittleECS::Detail
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
-
 			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
-
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
+
+        ComponentType* GetComponentOfEntityPtr(EntityId entity)
+        {
+            // AAA
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+                return nullptr;
+            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+        }
+
+        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
+        {
+            Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
+            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+                return nullptr;
+            const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+        }
+
+    private:
+        // Function = std::function<void(EntityId, ComponentType&)>
+        template <typename Function, typename ComponentConstness>
+    	void ForEachUniqueComponentImpl(Function&& function)
+        requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
     public:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-    	void ForEachUniqueComponent(Function&& function)
-        requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+    	inline void ForEachUniqueComponent(Function&& function)
+        requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return ForEachUniqueComponentImpl<Function, ComponentType>(function);
+        }
         
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		void ForEachUniqueComponent(Function&& function) const
-        requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+		inline void ForEachUniqueComponent(Function&& function) const
+        requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachUniqueComponentImpl<Function, const ComponentType>(function);
+        }
     };
 }
 

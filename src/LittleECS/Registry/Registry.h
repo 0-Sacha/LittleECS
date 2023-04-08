@@ -11,7 +11,6 @@
 
 namespace LittleECS
 {
-
     class Registry
     {
     public:
@@ -100,7 +99,6 @@ namespace LittleECS
             return reinterpret_cast<const typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
         }
 
-
     public:
         template <typename ComponentType, typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
@@ -116,6 +114,32 @@ namespace LittleECS
             typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
             LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
             return componentStorage->GetComponentOfEntity(entity);
+        }
+
+        template <typename ComponentType>
+        const ComponentType& GetComponentOfEntity(EntityId entity) const
+        {
+            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
+            return componentStorage->GetComponentOfEntity(entity);
+        }
+
+        template <typename ComponentType>
+        ComponentType* GetComponentOfEntityPtr(EntityId entity)
+        {
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return nullptr;
+            return componentStorage->GetComponentOfEntityPtr(entity);
+        }
+
+        template <typename ComponentType>
+        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
+        {
+            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return nullptr;
+            return componentStorage->GetComponentOfEntityPtr(entity);
         }
 
         template <typename ComponentType>
@@ -145,10 +169,20 @@ namespace LittleECS
         }
 
     public:
+        const auto& EachEntities()
+        {
+            return m_EntityIdGenerator.GetAlivesEntities();
+        }
+
+    public:
         // Function = std::function<void(EntityId)>
         template<typename Function>
-        void ForEachEntities(Function&& function);
-
+        void ForEachEntities(Function&& function)
+        {
+            for (EntityId entity : m_EntityIdGenerator.GetAlivesEntities())
+                function(entity);
+        }
+        
         // Function = std::function<void(EntityId, ComponentType& component)>
         template<typename ComponentType, typename Function>
         void ForEachUniqueComponent(Function&& function);
@@ -165,7 +199,6 @@ namespace LittleECS
         template<typename... ComponentTypes, typename Function>
         void ForEachComponents(Function&& function) const;
     };
-
 }
 
 #include "RegistryEach.h"

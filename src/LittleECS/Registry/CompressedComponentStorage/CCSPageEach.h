@@ -6,8 +6,8 @@ namespace LittleECS::Detail
 {
     template <typename ComponentType, std::size_t PAGE_SIZE>
     requires (PAGE_SIZE % sizeof(std::size_t) == 0)
-    template <typename Function> // Function = std::function<void(Index::PageIndexOfComponent)>
-    void CompressedComponentStoragePage<ComponentType, PAGE_SIZE>::ForEach(Function&& function)
+    template <typename Function, typename ComponentConstness> // Function = std::function<void(Index::PageIndexOfComponent)>
+    void CompressedComponentStoragePage<ComponentType, PAGE_SIZE>::ForEachImpl(Function&& function)
     {
         const std::size_t* beginFreeListBlocks = m_FreeComponent;
         const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
@@ -36,38 +36,4 @@ namespace LittleECS::Detail
             ++beginFreeListBlocks;
         }
     }
-
-    template <typename ComponentType, std::size_t PAGE_SIZE>
-    requires (PAGE_SIZE % sizeof(std::size_t) == 0)
-    template <typename Function> // Function = std::function<void(Index::PageIndexOfComponent)>
-    void CompressedComponentStoragePage<ComponentType, PAGE_SIZE>::ForEach(Function&& function) const
-    {
-        const std::size_t* beginFreeListBlocks = m_FreeComponent;
-        const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
-        while (beginFreeListBlocks < endFreeListBlocks)
-        {
-            if (*beginFreeListBlocks != std::numeric_limits<std::size_t>::max())
-            {
-                std::size_t blockIndex = beginFreeListBlocks - m_FreeComponent;
-                Index::PageIndexOfComponent blockShift = (blockIndex * sizeof(std::size_t) * 8);
-
-                std::size_t block = *beginFreeListBlocks;
-                std::size_t mask = 1;
-                std::uint8_t freeIndexInBlock = 0;
-                for (; freeIndexInBlock < sizeof(std::size_t) * 8; ++freeIndexInBlock)
-                {
-                    if ((block & mask) == 0)
-                    {
-                        Index::PageIndexOfComponent index = freeIndexInBlock + blockShift;
-                        
-                        function(index);
-                    }
-                    mask = mask << 1;
-                }
-
-            }
-            ++beginFreeListBlocks;
-        }
-    }
-
 }

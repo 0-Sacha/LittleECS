@@ -142,16 +142,36 @@ namespace LittleECS::Detail
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
+			LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
+			LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
 		}
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
+			LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
+			LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
+		}
+
+        ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index)
+		{
+			if (index >= m_Page.size())
+				return nullptr;
+            if (HasEntityAtIndex(index) == false)
+                return nullptr;
+            return reinterpret_cast<ComponentType*>(&m_Page[index]);
+		}
+
+        const ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index) const
+        {
+			if (index >= m_Page.size())
+				return nullptr;
+            if (HasEntityAtIndex(index) == false)
+                return nullptr;
+            return reinterpret_cast<const ComponentType*>(&m_Page[index]);
 		}
     };
 }
