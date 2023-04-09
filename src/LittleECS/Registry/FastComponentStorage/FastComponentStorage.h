@@ -16,6 +16,8 @@ namespace LittleECS::Detail
     class FastComponentStorage : public IComponentStorage
     {
     public:
+        using M_Type = FastComponentStorage<ComponentType>;
+
 		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
 
         using PageType = FastComponentStoragePage<ComponentType, PAGE_SIZE>;
@@ -139,22 +141,53 @@ namespace LittleECS::Detail
     public:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-        void ForEachUniqueComponent(Function&& function)
+        void ForEachStorage(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		void ForEachUniqueComponent(Function&& function) const
+		void ForEachStorage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
         
         // Function = std::function<void(EntityId, ComponentType&)>
-        template <typename Function, typename Container>
-        void ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities)
+        template <typename Function>
+        void ForEachStorage(Function&& function, const auto& registryAliveEntities)
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
         // Function = std::function<void(EntityId, const ComponentType&)>
-        template <typename Function, typename Container>
-		void ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities) const
+        template <typename Function>
+		void ForEachStorage(Function&& function, const auto& registryAliveEntities) const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+
+    public:
+        decltype(auto) begin()
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return m_AliveEntitiesContainer.begin();
+        }
+        decltype(auto) end()
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return m_AliveEntitiesContainer.end();
+        }
+        decltype(auto) cbegin() const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return m_AliveEntitiesContainer.cbegin();
+        }
+        decltype(auto) cend() const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        {
+            return m_AliveEntitiesContainer.cend();
+        }
+
+        decltype(auto) begin(const auto& registryAliveEntities)
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+        decltype(auto) end(const auto& registryAliveEntities)
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+        decltype(auto) cbegin(const auto& registryAliveEntities) const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+        decltype(auto) cend(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
     };
 }

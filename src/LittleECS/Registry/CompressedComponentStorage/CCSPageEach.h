@@ -7,7 +7,7 @@ namespace LittleECS::Detail
     template <typename ComponentType, std::size_t PAGE_SIZE>
     requires (PAGE_SIZE % sizeof(std::size_t) == 0)
     template <typename Function, typename ComponentConstness> // Function = std::function<void(Index::PageIndexOfComponent)>
-    void CompressedComponentStoragePage<ComponentType, PAGE_SIZE>::ForEachImpl(Function&& function)
+    void CompressedComponentStoragePage<ComponentType, PAGE_SIZE>::ForEachPageImpl(Function&& function)
     {
         const std::size_t* beginFreeListBlocks = m_FreeComponent;
         const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;

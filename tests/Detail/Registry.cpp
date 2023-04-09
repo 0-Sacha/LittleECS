@@ -36,6 +36,7 @@ struct LittleECS::Detail::ComponentStorageInfo<BasicIntComponent> : public Defau
 PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
 {
     LittleECS::Registry registry;
+    const LittleECS::Registry& constRegistry = registry;
 
     LittleECS::EntityId entity1 = registry.CreateEntity();
     LittleECS::EntityId entity2 = registry.CreateEntity();
@@ -69,9 +70,21 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
         v = 22.0f;
     });
 
+    constRegistry.ForEachComponents<BasicIntComponent, BasicFloatComponent>([&link](const BasicIntComponent& k, const BasicFloatComponent& v)
+    {
+        PCT_EQ(k.Value, 325ull);
+        PCT_EQ(v.Value, 22.0f);
+    });
+
+
     registry.ForEachComponents<BasicIntComponent>([](BasicIntComponent& k)
     {
         k = 85ull;
+    });
+
+    constRegistry.ForEachComponents<BasicIntComponent>([&link](const BasicIntComponent& k)
+    {
+        PCT_EQ(k.Value, 85ull);
     });
 
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 85ull);

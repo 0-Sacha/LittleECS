@@ -6,7 +6,7 @@ namespace LittleECS::Detail
 {
     template <typename ComponentType>
     template <typename Function>
-    void FastComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function)
+    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
         for (EntityId entity : m_AliveEntitiesContainer)
@@ -22,7 +22,7 @@ namespace LittleECS::Detail
 
     template <typename ComponentType>
     template <typename Function>
-    void FastComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function) const
+    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
         for (EntityId entity : m_AliveEntitiesContainer)
@@ -38,8 +38,8 @@ namespace LittleECS::Detail
 
 
     template <typename ComponentType>
-    template <typename Function, typename Container>
-    void FastComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities)
+    template <typename Function>
+    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
         for (EntityId entity : registryAliveEntities)
@@ -64,8 +64,8 @@ namespace LittleECS::Detail
     }
 
     template <typename ComponentType>
-    template <typename Function, typename Container> // Function = std::function<void(EntityId, const ComponentType&)>
-    void FastComponentStorage<ComponentType>::ForEachUniqueComponent(Function&& function, const Container& registryAliveEntities) const
+    template <typename Function> // Function = std::function<void(EntityId, const ComponentType&)>
+    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
         for (EntityId entity : registryAliveEntities)

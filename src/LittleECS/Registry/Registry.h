@@ -27,7 +27,7 @@ namespace LittleECS
 
     // Entity Management
     public:
-        const Detail::EntityIdGenerator& GetEntityIdGenerator()
+        const Detail::EntityIdGenerator& GetEntityIdGenerator() const
         {
             return m_EntityIdGenerator;
         }
@@ -50,7 +50,6 @@ namespace LittleECS
             m_EntityIdGenerator.EntityIdDelete(entity);
         }
 
-    // Entity's Components Management
     private:
         template <typename ComponentType>
         typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt()
@@ -108,40 +107,7 @@ namespace LittleECS
             return componentStorage->AddComponentToEntity(entity, std::forward<Args>(args)...);
         }
 
-        template <typename ComponentType>
-        ComponentType& GetComponentOfEntity(EntityId entity)
-        {
-            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
-            return componentStorage->GetComponentOfEntity(entity);
-        }
-
-        template <typename ComponentType>
-        const ComponentType& GetComponentOfEntity(EntityId entity) const
-        {
-            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
-            return componentStorage->GetComponentOfEntity(entity);
-        }
-
-        template <typename ComponentType>
-        ComponentType* GetComponentOfEntityPtr(EntityId entity)
-        {
-            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            if (componentStorage == nullptr)
-                return nullptr;
-            return componentStorage->GetComponentOfEntityPtr(entity);
-        }
-
-        template <typename ComponentType>
-        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
-        {
-            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-            if (componentStorage == nullptr)
-                return nullptr;
-            return componentStorage->GetComponentOfEntityPtr(entity);
-        }
-
+    public:
         template <typename ComponentType>
         bool EntityHasComponent(EntityId entity)
         {
@@ -159,6 +125,76 @@ namespace LittleECS
                 return false;
 
             return componentStorage->EntityHasThisComponent(entity);
+        }
+
+        template <typename ComponentType, typename... ComponentTypes>
+        bool EntityHasAllComponents(EntityId entity)
+        {
+            if constexpr (sizeof...(ComponentTypes) == 0)
+                return EntityHasComponent<ComponentType>(entity);
+            else
+                return EntityHasComponent<ComponentType>(entity) && EntityHasAllComponents<ComponentTypes...>(entity);
+        }
+
+    public:
+        template <typename ComponentType>
+        ComponentType& GetComponentOfEntity(EntityId entity)
+        {
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
+            return componentStorage->GetComponentOfEntity(entity);
+        }
+        template <typename ComponentType>
+        const ComponentType& GetComponentOfEntity(EntityId entity) const
+        {
+            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            LECS_ASSERT(componentStorage != nullptr, "This ComponentStorage is not part of this registry")
+            return componentStorage->GetComponentOfEntity(entity);
+        }
+
+        template <typename ComponentType>
+        ComponentType* GetComponentOfEntityPtr(EntityId entity)
+        {
+            typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return nullptr;
+            return componentStorage->GetComponentOfEntityPtr(entity);
+        }
+        template <typename ComponentType>
+        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
+        {
+            const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+            if (componentStorage == nullptr)
+                return nullptr;
+            return componentStorage->GetComponentOfEntityPtr(entity);
+        }
+
+        template <typename... ComponentTypes>
+		std::tuple<ComponentTypes&...> GetComponentsTuple(EntityId entity)
+		{
+            return std::tuple<ComponentTypes&...>(GetComponentType<ComponentTypes>(entity)...);
+		}
+        template <typename... ComponentTypes>
+		std::tuple<const ComponentTypes&...> GetComponentsTuple(EntityId entity) const
+		{
+            return std::tuple<const ComponentTypes&...>(GetComponentType<ComponentTypes>(entity)...);
+		}
+
+        template <typename... ComponentTypes>
+        decltype(auto) GetComponentsOfEntity(EntityId entity)
+        {
+            if constexpr (sizeof...(ComponentTypes) == 1)
+                return GetComponentOfEntity<ComponentTypes...>(entity);
+            else if constexpr (sizeof...(ComponentTypes) > 1)
+                return GetComponentsTuple<ComponentTypes...>(entity);
+        }
+        template <typename... ComponentTypes>
+        decltype(auto) GetComponentsOfEntity(EntityId entity) const
+        {
+            if constexpr (sizeof...(ComponentTypes) == 1)
+                return GetComponentOfEntity<ComponentTypes...>(entity);
+            else if constexpr (sizeof...(ComponentTypes) > 1)
+                return GetComponentsTuple<ComponentTypes...>(entity);
         }
 
     public:

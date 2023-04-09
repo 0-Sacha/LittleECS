@@ -6,7 +6,7 @@ namespace LittleECS::Detail
 {
     template <typename ComponentType>
     template <typename Function, typename ComponentConstness> // Function = std::function<void(EntityId, ComponentType&)>
-    void CompressedComponentStorage<ComponentType>::ForEachUniqueComponentImpl(Function&& function)
+    void CompressedComponentStorage<ComponentType>::ForEachStorageImpl(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
         if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
@@ -27,7 +27,7 @@ namespace LittleECS::Detail
             {
                 for (PageTypeRef& page : m_PageContainer)
                 {
-                    page->ForEach([&function, &page](Index::PageIndexOfComponent index){
+                    page->ForEachPage([&function, &page](Index::PageIndexOfComponent index){
                         EntityId entity = page->GetEntityIdAtIndex(index);
                         ComponentConstness& component = page->GetComponentAtIndex(index);
 

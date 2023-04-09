@@ -40,6 +40,11 @@ namespace LittleECS::Detail
 		EntityToComponent m_EntityToComponent;
 
     public:
+        const PagesContainer& GetPageContainer()
+        {
+            return m_PageContainer;
+        }
+
     	bool EntityHasThisComponent(EntityId entity) const override
 		{
 			return m_EntityToComponent.HasEntity(entity);
@@ -126,25 +131,31 @@ namespace LittleECS::Detail
     private:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function, typename ComponentConstness>
-    	void ForEachUniqueComponentImpl(Function&& function)
+    	void ForEachStorageImpl(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
     public:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-    	inline void ForEachUniqueComponent(Function&& function)
+    	inline void ForEachStorage(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return ForEachUniqueComponentImpl<Function, ComponentType>(function);
+            return ForEachStorageImpl<Function, ComponentType>(function);
         }
         
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		inline void ForEachUniqueComponent(Function&& function) const
+		inline void ForEachStorage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachUniqueComponentImpl<Function, const ComponentType>(function);
+            return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachStorageImpl<Function, const ComponentType>(function);
         }
+
+    public:
+        decltype(auto) begin();
+        decltype(auto) end();
+        decltype(auto) cbegin() const;
+        decltype(auto) cend() const;
     };
 }
 

@@ -14,11 +14,11 @@ namespace LittleECS
         
         if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            componentStorage->ForEachUniqueComponent(function);
+            componentStorage->ForEachStorage(function);
         }
         else
         {
-            componentStorage->ForEachUniqueComponent(function, m_EntityIdGenerator.GetAlivesEntities());
+            componentStorage->ForEachStorage(function, m_EntityIdGenerator.GetAlivesEntities());
         }
     }
 
@@ -32,11 +32,11 @@ namespace LittleECS
         
         if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            componentStorage->ForEachUniqueComponent(function);
+            componentStorage->ForEachStorage(function);
         }
         else
         {
-            componentStorage->ForEachUniqueComponent(function, m_EntityIdGenerator.GetAlivesEntities());
+            componentStorage->ForEachStorage(function, m_EntityIdGenerator.GetAlivesEntities());
         }
     }   
 
@@ -65,7 +65,7 @@ namespace LittleECS
         }
         else
         {
-            BasicView<ComponentTypes...> view(*this);
+            BasicConstView<ComponentTypes...> view(*this);
             view.template ForEachComponents<ComponentTypes...>(function);
         }
     }

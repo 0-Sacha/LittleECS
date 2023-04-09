@@ -22,6 +22,7 @@ namespace LittleECS::Detail
         };
 
         static constexpr std::size_t NUMBER_OF_BLOCKS = PAGE_SIZE / sizeof(std::size_t);
+        static constexpr std::size_t BLOCK_SIZE = sizeof(std::size_t) * 8;
 
 	private:
         template <typename... Args>
@@ -54,25 +55,25 @@ namespace LittleECS::Detail
 
     protected:
         std::array<ComponentDataBuffer, PAGE_SIZE> m_Page;
-		std::size_t m_FreeComponent[PAGE_SIZE / sizeof(std::size_t)];
+		std::size_t m_FreeComponent[NUMBER_OF_BLOCKS];
 		EntityId m_EntityIdLinked[PAGE_SIZE];
         std::size_t m_CurrentSize = 0;
 
     public:
         inline bool HasComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-            std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
+            std::size_t indexOfBlock = index / (BLOCK_SIZE);
             std::size_t block = *(m_FreeComponent + indexOfBlock);
-            std::size_t indexInBlock = index % (sizeof(std::size_t) * 8);
+            std::size_t indexInBlock = index % (BLOCK_SIZE);
             return (block & (static_cast<std::size_t>(1) << indexInBlock)) == 0;
         }
 
     private:
         inline void SetHasComponentAtIndex(Index::PageIndexOfComponent index, bool has)
         {
-            std::size_t indexOfBlock = index / (sizeof(std::size_t) * 8);
+            std::size_t indexOfBlock = index / (BLOCK_SIZE);
             std::size_t* block = m_FreeComponent + indexOfBlock;
-            std::size_t indexInBlock = index % (sizeof(std::size_t) * 8);
+            std::size_t indexInBlock = index % (BLOCK_SIZE);
 
             *block = *block & ~(static_cast<std::size_t>(1) << indexInBlock);
 
@@ -80,7 +81,7 @@ namespace LittleECS::Detail
                 *block |= (static_cast<std::size_t>(1) << indexInBlock);
         }
 
-        Index::PageIndexOfComponent GetNextIndex() const
+        Index::PageIndexOfComponent GetNextFreeIndex() const
         {
             const std::size_t* beginFreeListBlocks = m_FreeComponent;
             const std::size_t* endFreeListBlocks = m_FreeComponent + NUMBER_OF_BLOCKS;
@@ -99,16 +100,50 @@ namespace LittleECS::Detail
             std::size_t block = *beginFreeListBlocks;
             std::size_t mask = 1;
             std::uint8_t freeIndexInBlock = 0;
-            for(; freeIndexInBlock < sizeof(std::size_t) * 8; ++freeIndexInBlock)
+            for(; freeIndexInBlock < BLOCK_SIZE; ++freeIndexInBlock)
             {
                 if (block & mask)
                     break;
                 mask = mask << 1;
             }
 
-            LECS_ASSERT(freeIndexInBlock != (sizeof(std::size_t) * 8), "The block found is full")
+            LECS_ASSERT(freeIndexInBlock != (BLOCK_SIZE), "The block found is full")
 
-            std::size_t foundIndex = freeIndexInBlock + (blockIndex * sizeof(std::size_t) * 8);
+            std::size_t foundIndex = freeIndexInBlock + (blockIndex * BLOCK_SIZE);
+
+            return foundIndex;
+        }
+
+        Index::PageIndexOfComponent GetNextValidIndex(Index::PageIndexOfComponent index) const
+        {
+            std::size_t blockIndex = index / sizeof(std::size_t);
+            std::size_t subBlockIndex = index % sizeof(std::size_t);
+
+            LECS_ASSERT(blockIndex < NUMBER_OF_BLOCKS, "This index can't exist")
+            LECS_ASSERT(subBlockIndex < BLOCK_SIZE, "This sub-index can't exist")
+
+            const std::size_t* currentBlock = m_FreeComponent + index;
+            const std::size_t* endBlock = m_FreeComponent + NUMBER_OF_BLOCKS;
+            std::uint8_t indexInSubBlock = subBlockIndex + 1;
+
+            std::size_t foundIndex = PAGE_SIZE;
+
+            while (currentBlock < endBlock)
+            {
+                std::size_t mask = static_cast<std::size_t>(1) << indexInSubBlock;
+                for(; indexInSubBlock < BLOCK_SIZE; ++indexInSubBlock)
+                {
+                    if ((*currentBlock & mask) == 0)
+                    {
+                        foundIndex = indexInSubBlock + ((endBlock - currentBlock) * BLOCK_SIZE);
+                        currentBlock = endBlock;
+                        break;
+                    }
+                    mask = mask << 1;
+                }
+                ++currentBlock;
+                indexInSubBlock = 0;
+            }
 
             return foundIndex;
         }
@@ -121,7 +156,7 @@ namespace LittleECS::Detail
         {
             LECS_ASSERT(CanAddComponent(), "Can't add more component to this page")
 
-            Index::PageIndexOfComponent index = GetNextIndex();
+            Index::PageIndexOfComponent index = GetNextFreeIndex();
 			LECS_ASSERT(HasComponentAtIndex(index) == false, "There are already a component at this index")
 
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
@@ -182,19 +217,19 @@ namespace LittleECS::Detail
 
     private:
         template <typename Function, typename ComponentConstness>
-		void ForEachImpl(Function&& function);
+		void ForEachPageImpl(Function&& function);
 
     public:
         template <typename Function>
-		inline void ForEach(Function&& function)
+		inline void ForEachPage(Function&& function)
         {
-            return ForEachImpl<Function, ComponentType>(function);
+            return ForEachPageImpl<Function, ComponentType>(std::forward<Function>(function));
         }
 
         template <typename Function>
-		void ForEach(Function&& function) const
+		void ForEachPage(Function&& function) const
         {
-            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachImpl<Function, const ComponentType>(function);
+            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(std::forward<Function>(function));
         }
     };
 }
