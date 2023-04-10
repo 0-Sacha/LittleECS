@@ -54,7 +54,12 @@ namespace LittleECS::Detail
 			return *this;
 		}
 
-		FCSIteratorNoRef operator++(int) { FCSIteratorNoRef res(m_FastComponentStorage, m_ContainerIterator, m_ContainerIteratorLast); ++(*this); return res; }
+		FCSIteratorNoRef operator++(int)
+		{
+			FCSIteratorNoRef res = this;
+			++(*this);
+			return res;
+		}
 
 		bool operator==(const FCSIteratorNoRef& rhs) const
 		{
@@ -67,7 +72,7 @@ namespace LittleECS::Detail
 
 			LECS_ASSERT(simpleResult == complexResult, "Operator== for Iterator is wrong")
 
-				return simpleResult;
+			return simpleResult;
 #else
 			return m_FastComponentStorage != nullptr;
 #endif

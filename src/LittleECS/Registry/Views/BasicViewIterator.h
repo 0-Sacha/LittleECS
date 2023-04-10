@@ -186,17 +186,17 @@ namespace LittleECS
         
         if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return Detail::Iterable([&componentStorage](){
+            return Detail::Iterable([componentStorage](){
                 return componentStorage->cbegin();
-            }, [&componentStorage](){
+            }, [componentStorage](){
                 return componentStorage->cend();
             });
         }
         else
         {
-            return Detail::Iterable([&componentStorage, this](){
+            return Detail::Iterable([componentStorage, this](){
                 return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [&componentStorage, this](){
+            }, [componentStorage, this](){
                 return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
             });
         }
@@ -259,17 +259,17 @@ namespace LittleECS
         
         if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return Detail::Iterable([&componentStorage](){
+            return Detail::Iterable([componentStorage](){
                 return componentStorage->cbegin();
-            }, [&componentStorage](){
+            }, [componentStorage](){
                 return componentStorage->cend();
             });
         }
         else
         {
-            return Detail::Iterable([&componentStorage, this](){
+            return Detail::Iterable([componentStorage, this](){
                 return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [&componentStorage, this](){
+            }, [componentStorage, this](){
                 return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
             });
         }
@@ -304,17 +304,17 @@ namespace LittleECS
         
         if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return Detail::Iterable([&componentStorage](){
+            return Detail::Iterable([componentStorage](){
                 return componentStorage->cbegin();
-            }, [&componentStorage](){
+            }, [componentStorage](){
                 return componentStorage->cend();
             });
         }
         else
         {
-            return Detail::Iterable([&componentStorage, this](){
+            return Detail::Iterable([componentStorage, this](){
                 return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [&componentStorage, this](){
+            }, [componentStorage, this](){
                 return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
             });
         }

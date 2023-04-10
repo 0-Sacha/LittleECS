@@ -23,8 +23,8 @@ namespace LittleECS::Detail
 		}
 
     private:
-        Begin&& m_Begin;
-        End&& m_End;
+        Begin m_Begin;
+        End m_End;
 	};
 
 	struct IterableEnd {};

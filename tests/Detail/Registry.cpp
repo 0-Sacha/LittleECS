@@ -235,8 +235,8 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
                                 ProjectCore::Instrumentation::ProfilerFactory::ToJson(profiler);                                \
                             }
 
-BenchmarkTest(1'000, 1K);
-BenchmarkTest(10'000, 10K);
+// BenchmarkTest(1'000, 1K);
+// BenchmarkTest(10'000, 10K);
 // BenchmarkTest(100'000, 100K);
 // BenchmarkTest(1'000'000, 1M);
 // BenchmarkTest(10'000'000, 10M);

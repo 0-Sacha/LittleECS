@@ -34,6 +34,8 @@ project "LittleECS"
 if (LittleECSTestsEnable)
 then
 
+Solution.Projects["LittleECSTests"] = Solution.Projects["LittleECS"]
+
 LittleECSTestLaunch = {}
 LittleECSTestLaunch.project = "LittleECSTests"
 Solution.Launch["LittleECSTests"] = LittleECSTestLaunch
