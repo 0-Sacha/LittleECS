@@ -29,6 +29,12 @@ namespace LittleECS::Detail
         class FCSErrorCantForEachOnNonREFContainer : public LECSException {};
 
 	public:
+		FastComponentStorage()
+			: m_PageContainer()
+			, m_AliveEntitiesContainer()
+		{
+		}
+
 		~FastComponentStorage() override
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
@@ -160,16 +166,6 @@ namespace LittleECS::Detail
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
     public:
-        decltype(auto) begin()
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return m_AliveEntitiesContainer.begin();
-        }
-        decltype(auto) end()
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return m_AliveEntitiesContainer.end();
-        }
         decltype(auto) cbegin() const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
@@ -180,11 +176,7 @@ namespace LittleECS::Detail
         {
             return m_AliveEntitiesContainer.cend();
         }
-
-        decltype(auto) begin(const auto& registryAliveEntities)
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
-        decltype(auto) end(const auto& registryAliveEntities)
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+        
         decltype(auto) cbegin(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
         decltype(auto) cend(const auto& registryAliveEntities) const
@@ -193,3 +185,4 @@ namespace LittleECS::Detail
 }
  
 #include "FCSEach.h"
+#include "FCSIterator.h"

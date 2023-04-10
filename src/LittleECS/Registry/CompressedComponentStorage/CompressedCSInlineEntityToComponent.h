@@ -31,6 +31,8 @@ namespace LittleECS::Detail
 
     public:
         CompressedCSInlineEntityToComponent()
+			: m_BucketContainer()
+			, m_AliveEntitiesContainer()
         {
             if constexpr (HAS_ENTITIES_REF)
                 m_AliveEntitiesContainer.reserve(PAGE_SIZE);

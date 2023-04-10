@@ -4,6 +4,10 @@ Solution.ProjectsInfo.Includes["LittleECS"] = {
 	"%{Solution.Projects.LittleECS}/src/LittleECS",
 }
 
+Solution.ProjectsInfo.Defines["LittleECS"] = {
+	"LECS_ENABLE_EACH"
+}
+
 Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LECS"
 
 project "LittleECS"

@@ -16,6 +16,8 @@ namespace LittleECS
     class BasicView
     {
     public:
+        using M_Type = BasicView<ViewComponentTypes...>;
+
         template <std::size_t I>
         using TypeAt = typename Detail::GetTypeAt<I, ViewComponentTypes...>::Type;
 
@@ -124,24 +126,42 @@ namespace LittleECS
         // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
         template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
         void ForEachComponents(Function&& function);
-
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>
         template <typename ComponentTypeEach, typename Function>
         void ForEachUniqueComponent(Function&& function);
-
         // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
         template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
         void ForEachComponents(Function&& function) const;
-
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>
         template <typename ComponentTypeEach, typename Function>
         void ForEachUniqueComponent(Function&& function) const;
+    
+    public:
+        decltype(auto) EachEntities() const
+        {
+            return EachEntitiesWithAll<ViewComponentTypes...>();
+        }
+        template <typename ComponentTypeEach>
+        decltype(auto) EachEntitiesWith() const;
+        template <typename ComponentTypeEach, typename... ComponentTypesEach>
+        decltype(auto) EachEntitiesWithAll() const;
+        
+        template <typename ComponentTypeEach>
+        decltype(auto) EachUniqueComponent();
+        template <typename ComponentTypeEach>
+        decltype(auto) EachUniqueComponent() const;
+	    template <typename RangeComponent, typename... ComponentTypesEach>
+        decltype(auto) EachComponents();
+	    template <typename RangeComponent, typename... ComponentTypesEach>
+        decltype(auto) EachComponents() const;
     };
 
     template <typename... ViewComponentTypes>
     class BasicConstView
     {
     public:
+        using M_Type = BasicConstView<ViewComponentTypes...>;
+
         template <std::size_t I>
         using TypeAt = typename Detail::GetTypeAt<I, ViewComponentTypes...>::Type;
 
@@ -222,9 +242,23 @@ namespace LittleECS
         // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
         template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
         void ForEachComponents(Function&& function) const;
-
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>
         template <typename ComponentTypeEach, typename Function>
         void ForEachUniqueComponent(Function&& function) const;
+    
+    public:
+        decltype(auto) EachEntities() const
+        {
+            return EachEntitiesWithAll<ViewComponentTypes...>();
+        }
+        template <typename ComponentTypeEach>
+        decltype(auto) EachEntitiesWith() const;
+        template <typename ComponentTypeEach, typename... ComponentTypesEach>
+        decltype(auto) EachEntitiesWithAll() const;
+
+        template <typename ComponentTypeEach>
+        decltype(auto) EachUniqueComponent() const;
+	    template <typename RangeComponent, typename... ComponentTypesEach>
+        decltype(auto) EachComponents() const;
     };
 }

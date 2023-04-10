@@ -19,6 +19,8 @@ namespace LittleECS::Detail
     class CompressedComponentStorage : public IComponentStorage
     {
     public:
+        using M_Type = CompressedComponentStorage<ComponentType>;
+
 		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
 
         using PageType = CompressedComponentStoragePage<ComponentType, PAGE_SIZE>;
@@ -152,11 +154,10 @@ namespace LittleECS::Detail
         }
 
     public:
-        decltype(auto) begin();
-        decltype(auto) end();
         decltype(auto) cbegin() const;
         decltype(auto) cend() const;
     };
 }
 
 #include "CCSEach.h"
+#include "CCSIterator.h"

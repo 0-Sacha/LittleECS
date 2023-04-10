@@ -16,12 +16,12 @@ namespace LittleECS::Detail
             if (*beginFreeListBlocks != std::numeric_limits<std::size_t>::max())
             {
                 std::size_t blockIndex = beginFreeListBlocks - m_FreeComponent;
-                Index::PageIndexOfComponent blockShift = (blockIndex * sizeof(std::size_t) * 8);
+                Index::PageIndexOfComponent blockShift = (blockIndex * BLOCK_SIZE);
 
                 std::size_t block = *beginFreeListBlocks;
                 std::size_t mask = 1;
                 std::uint8_t freeIndexInBlock = 0;
-                for (; freeIndexInBlock < sizeof(std::size_t) * 8; ++freeIndexInBlock)
+                for (; freeIndexInBlock < BLOCK_SIZE; ++freeIndexInBlock)
                 {
                     if ((block & mask) == 0)
                     {
