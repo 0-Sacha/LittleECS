@@ -5,6 +5,7 @@
 namespace LittleECS::Detail
 {
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     template <typename Function, typename ComponentConstness> // Function = std::function<void(EntityId, ComponentType&)>
     void CompressedComponentStorage<ComponentType>::ForEachStorageImpl(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)

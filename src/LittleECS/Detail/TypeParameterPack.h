@@ -6,6 +6,12 @@
 
 namespace LittleECS::Detail
 {
+    template <typename T1, typename T2>
+    struct Same
+    {
+        static constexpr bool Value = std::is_same_v<std::remove_cvref_t<T1>, std::remove_cvref_t<T2>>;
+    };
+
 
     template <std::size_t I, typename... Types>
     struct GetTypeAt
@@ -49,14 +55,14 @@ namespace LittleECS::Detail
     };
 
     template <typename TypeSerach, std::size_t I, typename CurrentType, typename... RestTypes>
-    requires (std::is_same_v<TypeSerach, CurrentType> == true)
+    requires (Same<TypeSerach, CurrentType>::Value)
     struct GetTypeIndex<TypeSerach, I, CurrentType, RestTypes...>
     {
         static constexpr std::size_t Index = I;
     };
 
     template <typename TypeSerach, std::size_t I, typename CurrentType>
-    requires (std::is_same_v<TypeSerach, CurrentType>)
+    requires (Same<TypeSerach, CurrentType>::Value)
     struct GetTypeIndex<TypeSerach, I, CurrentType>
     {
         static constexpr std::size_t Index = I;

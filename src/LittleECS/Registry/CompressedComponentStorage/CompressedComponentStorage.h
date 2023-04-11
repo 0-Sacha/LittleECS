@@ -16,6 +16,7 @@ namespace LittleECS::Detail
 {
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     class CompressedComponentStorage : public IComponentStorage
     {
     public:
@@ -154,8 +155,8 @@ namespace LittleECS::Detail
         }
 
     public:
-        decltype(auto) cbegin() const;
-        decltype(auto) cend() const;
+        decltype(auto) EntitiesIteratorBegin() const;
+        decltype(auto) EntitiesIteratorEnd() const;
     };
 }
 

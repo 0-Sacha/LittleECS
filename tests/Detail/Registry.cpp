@@ -76,7 +76,6 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
         PCT_EQ(v.Value, 22.0f);
     });
 
-
     registry.ForEachComponents<BasicIntComponent>([](BasicIntComponent& k)
     {
         k = 85ull;
@@ -90,8 +89,8 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 85ull);
     PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 85ull);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
-    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity1).Value, 171.0f);  // 22.0f
-    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity3).Value, 5.0f);    // 22.0f
+    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity1).Value, 22.0f);
+    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity3).Value, 5.0f);
     PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entity2) == false);
     
     registry.ForEachUniqueComponent<BasicIntComponent>([](LittleECS::EntityId entity, BasicIntComponent& k)
@@ -103,37 +102,66 @@ PCT_TEST_FUNC(REGISTRY, BASIC_WORK_FLOW_TEST)
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity2) == true);
     PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
 
-    int entityIntCount = 0;
+    int entityCount = 0;
 	for (LittleECS::EntityId entity : registry.EachEntitiesUniqueComponent<BasicIntComponent>())
 	{
-        ++entityIntCount;
+        ++entityCount;
 		PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity));
 	}
-    PCT_EQ(entityIntCount, 2);
+    PCT_EQ(entityCount, 2);
 
 	auto view = registry.View<BasicIntComponent, BasicFloatComponent>();
 
-    entityIntCount = 0;
+    entityCount = 0;
 	for (LittleECS::EntityId entity : view.EachEntitiesWith<BasicIntComponent>())
 	{
-        ++entityIntCount;
+        ++entityCount;
 		PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity));
 	}
-    PCT_EQ(entityIntCount, 2);
+    PCT_EQ(entityCount, 2);
 
-    entityIntCount = 0;
+    entityCount = 0;
 	for (auto [intComponent] : view.EachComponents<BasicIntComponent>())
 	{
-		++entityIntCount;
+		++entityCount;
 		intComponent = 52ull;
 	}
-    PCT_EQ(entityIntCount, 2);
+    PCT_EQ(entityCount, 2);
 
-	// for (LittleECS::EntityId entity : view.EachEntitiesWithAll<BasicIntComponent, BasicFloatComponent>())
-	// {
-	// 	PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity));
-	// 	PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entity));
-	// }
+    entityCount = 0;
+    view.ForEachComponents<BasicIntComponent, BasicFloatComponent>([&entityCount, &link, &registry](LittleECS::EntityId entity, BasicIntComponent& k, BasicFloatComponent& v)
+    {
+        PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity));
+		PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entity));
+
+        ++entityCount;
+    });
+    PCT_EQ(entityCount, 1);
+
+    entityCount = 0;
+    view.ForEachComponents<BasicIntComponent, BasicFloatComponent>([&entityCount](BasicIntComponent& k, BasicFloatComponent& v)
+    {
+        ++entityCount;
+    });
+    PCT_EQ(entityCount, 1);
+
+    entityCount = 0;
+	for (LittleECS::EntityId entity : view.EachEntitiesWithAll<BasicIntComponent, BasicFloatComponent>())
+	{
+		PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity));
+		PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entity));
+        ++entityCount;
+	}
+    PCT_EQ(entityCount, 1);
+
+    entityCount = 0;
+	for (auto [intComponent, floatComponent] : view.EachComponents<BasicIntComponent, BasicFloatComponent>())
+	{
+        PCT_EQ(intComponent.Value, 52ull);
+        PCT_EQ(floatComponent.Value, 22.0f);
+        ++entityCount;
+	}
+    PCT_EQ(entityCount, 1);
 
 	PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 52ull);
 	PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 52ull);

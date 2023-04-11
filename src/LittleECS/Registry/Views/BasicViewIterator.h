@@ -178,79 +178,6 @@ namespace LittleECS
 {
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeEach>
-    decltype(auto) BasicView<ViewComponentTypes...>::EachEntitiesWith() const
-    {
-        const typename Detail::ComponentStorageInfo<ComponentTypeEach>::StorageType* componentStorage = GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>();
-
-        LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
-        
-        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return Detail::Iterable([componentStorage](){
-                return componentStorage->cbegin();
-            }, [componentStorage](){
-                return componentStorage->cend();
-            });
-        }
-        else
-        {
-            return Detail::Iterable([componentStorage, this](){
-                return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [componentStorage, this](){
-                return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            });
-        }
-    }
-
-    template <typename... ViewComponentTypes>
-    template <typename RangeComponent, typename... ComponentTypesEach>
-    decltype(auto) BasicView<ViewComponentTypes...>::EachEntitiesWithAll() const
-    {
-        if constexpr (sizeof...(ComponentTypesEach) == 0)
-        {
-            return EachEntitiesWith<RangeComponent>();
-        }
-        else
-        {
-            return Detail::Iterable([this](){
-                auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
-                return Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-            }, [](){
-                return Detail::IterableEnd{};
-            });
-        }
-    }
-
-    template <typename... ViewComponentTypes>
-	template <typename RangeComponent, typename... ComponentTypesEach>
-	decltype(auto) BasicView<ViewComponentTypes...>::EachComponents()
-    {
-		return Detail::Iterable([this]() {
-				auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
-				auto entities = Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-				return Detail::ViewComponentsIterator<M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd());
-			}, []() {
-				return Detail::IterableEnd{};
-			});
-    }
-    template <typename... ViewComponentTypes>
-	template <typename RangeComponent, typename... ComponentTypesEach>
-	decltype(auto) BasicView<ViewComponentTypes...>::EachComponents() const
-    {
-		return Detail::Iterable([this]() {
-				auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
-				auto entities = Detail::ViewEntitiesIterator<const M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-				return Detail::ViewComponentsIterator<const M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd());
-			}, []() {
-				return Detail::IterableEnd{};
-			});
-    }
-}
-
-namespace LittleECS
-{
-    template <typename... ViewComponentTypes>
-    template <typename ComponentTypeEach>
     decltype(auto) BasicConstView<ViewComponentTypes...>::EachEntitiesWith() const
     {
         const typename Detail::ComponentStorageInfo<ComponentTypeEach>::StorageType* componentStorage = GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>();
@@ -258,21 +185,12 @@ namespace LittleECS
         LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
         
         if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return Detail::Iterable([componentStorage](){
-                return componentStorage->cbegin();
-            }, [componentStorage](){
-                return componentStorage->cend();
-            });
-        }
+            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(), componentStorage->EntitiesIteratorEnd());
         else
-        {
-            return Detail::Iterable([componentStorage, this](){
-                return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [componentStorage, this](){
-                return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            });
-        }
+            return Detail::Iterable(
+                componentStorage->EntitiesIteratorBegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()),
+                componentStorage->EntitiesIteratorEnd(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities())
+            );
     }
 
     template <typename... ViewComponentTypes>
@@ -280,17 +198,14 @@ namespace LittleECS
     decltype(auto) BasicConstView<ViewComponentTypes...>::EachEntitiesWithAll() const
     {
         if constexpr (sizeof...(ComponentTypesEach) == 0)
-        {
             return EachEntitiesWith<RangeComponent>();
-        }
         else
         {
-            return Detail::Iterable([this](){
-                auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
-				return Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-            }, [](){
-                return Detail::IterableEnd{};
-            });
+            auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
+            return Detail::Iterable(
+                Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end()),
+                Detail::IterableEnd()
+            );
         }
     }
 
@@ -303,33 +218,52 @@ namespace LittleECS
         LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
         
         if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return Detail::Iterable([componentStorage](){
-                return componentStorage->cbegin();
-            }, [componentStorage](){
-                return componentStorage->cend();
-            });
-        }
+            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(), componentStorage->EntitiesIteratorEnd());
         else
-        {
-            return Detail::Iterable([componentStorage, this](){
-                return componentStorage->cbegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            }, [componentStorage, this](){
-                return componentStorage->cend(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-            });
-        }
+            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()),
+                                    componentStorage->EntitiesIteratorEnd(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()));
     }
 
     template <typename... ViewComponentTypes>
 	template <typename RangeComponent, typename... ComponentTypesEach>
 	decltype(auto) BasicConstView<ViewComponentTypes...>::EachComponents() const
     {
-		return Detail::Iterable([this]() {
-				auto rangedComponent = this->EachEntitiesWith<RangeComponent>();
-				auto entities = Detail::ViewEntitiesIterator<const M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-				return Detail::ViewComponentsIterator<const M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd());
-			}, []() {
-				return Detail::IterableEnd{};
-			});
+		auto rangedComponent = EachEntitiesWith<RangeComponent>();
+		auto entities = Detail::ViewEntitiesIterator<const M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
+		
+        return Detail::Iterable(
+            Detail::ViewComponentsIterator<const M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd()),
+            Detail::IterableEnd()
+        );
+    }
+}
+
+namespace LittleECS
+{
+    template <typename... ViewComponentTypes>
+    template <typename ComponentTypeEach>
+    decltype(auto) BasicView<ViewComponentTypes...>::EachUniqueComponent()
+    {
+        typename Detail::ComponentStorageInfo<ComponentTypeEach>::StorageType* componentStorage = GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>();
+
+        LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
+        
+        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
+            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(), componentStorage->EntitiesIteratorEnd());
+        else
+            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()),
+                                    componentStorage->EntitiesIteratorEnd(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()));
+    }
+    template <typename... ViewComponentTypes>
+	template <typename RangeComponent, typename... ComponentTypesEach>
+	decltype(auto) BasicView<ViewComponentTypes...>::EachComponents()
+    {
+		auto rangedComponent = this->template EachEntitiesWith<RangeComponent>();
+		auto entities = Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
+		
+        return Detail::Iterable(
+            Detail::ViewComponentsIterator<M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd()),
+            Detail::IterableEnd()
+		);
     }
 }

@@ -5,6 +5,7 @@
 namespace LittleECS::Detail
 {
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     template <typename Function>
     void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
@@ -21,6 +22,7 @@ namespace LittleECS::Detail
     }
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     template <typename Function>
     void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
@@ -38,6 +40,7 @@ namespace LittleECS::Detail
 
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     template <typename Function>
     void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
@@ -64,7 +67,8 @@ namespace LittleECS::Detail
     }
 
     template <typename ComponentType>
-    template <typename Function> // Function = std::function<void(EntityId, const ComponentType&)>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    template <typename Function> // FuWnction = std::function<void(EntityId, const ComponentType&)>
     void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {

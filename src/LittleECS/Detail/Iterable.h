@@ -12,14 +12,14 @@ namespace LittleECS::Detail
 			, m_End(std::forward<End>(end))
 		{}
 
-		auto begin()
+		Begin begin()
 		{
-            return m_Begin();
+            return m_Begin;
 		}
 
-		auto end()
+		End end()
 		{
-            return m_End();
+            return m_End;
 		}
 
     private:

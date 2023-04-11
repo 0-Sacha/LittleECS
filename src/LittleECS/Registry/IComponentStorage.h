@@ -49,11 +49,18 @@ namespace LittleECS::Detail
 		virtual void RemoveComponentOfEntity(EntityId entity) = 0;
 	};
 
+    template <typename ComponentType>
+    struct TypeValidForComponentStorage
+    {
+        static constexpr bool Value = std::is_void_v<ComponentType> == false;
+    };
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     class FastComponentStorage;
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     class CompressedComponentStorage;
 
 

@@ -223,13 +223,13 @@ namespace LittleECS::Detail
         template <typename Function>
 		inline void ForEachPage(Function&& function)
         {
-            return ForEachPageImpl<Function, ComponentType>(std::forward<Function>(function));
+            return ForEachPageImpl<Function, ComponentType>(function);
         }
 
         template <typename Function>
 		void ForEachPage(Function&& function) const
         {
-            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(std::forward<Function>(function));
+            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(function);
         }
     };
 }

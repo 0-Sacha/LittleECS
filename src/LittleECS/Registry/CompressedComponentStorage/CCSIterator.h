@@ -164,30 +164,32 @@ namespace LittleECS::Detail
     }
 
     template <typename ComponentType>
-    decltype(auto) CompressedComponentStorage<ComponentType>::cbegin() const
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    decltype(auto) CompressedComponentStorage<ComponentType>::EntitiesIteratorBegin() const
     {
         if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().cbegin();
+                return m_EntityToComponent.GetAliveContainer().EntitiesIteratorBegin();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
                 return CustomIterator::CCSIteratorNoRefNoMap<M_Type>(*this);
         }
         else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
-            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().cbegin());
+            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().EntitiesIteratorBegin());
     }
     
     template <typename ComponentType>
-    decltype(auto) CompressedComponentStorage<ComponentType>::cend() const
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    decltype(auto) CompressedComponentStorage<ComponentType>::EntitiesIteratorEnd() const
     {
        if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().cend();
+                return m_EntityToComponent.GetAliveContainer().EntitiesIteratorEnd();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
                 return IterableEnd();
         }
         else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
-            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().cend());
+            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().EntitiesIteratorEnd());
     }
 }

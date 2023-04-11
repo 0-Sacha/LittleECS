@@ -13,6 +13,7 @@ namespace LittleECS::Detail
 {
 
     template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
     class FastComponentStorage : public IComponentStorage
     {
     public:
@@ -166,20 +167,13 @@ namespace LittleECS::Detail
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
     public:
-        decltype(auto) cbegin() const
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return m_AliveEntitiesContainer.cbegin();
-        }
-        decltype(auto) cend() const
-        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-        {
-            return m_AliveEntitiesContainer.cend();
-        }
-        
-        decltype(auto) cbegin(const auto& registryAliveEntities) const
+        decltype(auto) EntitiesIteratorBegin() const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+        decltype(auto) EntitiesIteratorEnd() const
+        requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+        decltype(auto) EntitiesIteratorBegin(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
-        decltype(auto) cend(const auto& registryAliveEntities) const
+        decltype(auto) EntitiesIteratorEnd(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
     };
 }

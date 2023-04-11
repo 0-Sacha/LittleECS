@@ -90,14 +90,31 @@ namespace LittleECS::Detail
 	};
 
     template <typename ComponentType>
-    decltype(auto) FastComponentStorage<ComponentType>::cbegin(const auto& registryAliveEntities) const
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+	decltype(auto) FastComponentStorage<ComponentType>::EntitiesIteratorBegin() const
+    requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+    {
+        return m_AliveEntitiesContainer.cbegin();
+    }
+    template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    decltype(auto) FastComponentStorage<ComponentType>::EntitiesIteratorEnd() const
+    requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+    {
+        return m_AliveEntitiesContainer.cend();
+    }
+	
+    template <typename ComponentType>
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    decltype(auto) FastComponentStorage<ComponentType>::EntitiesIteratorBegin(const auto& registryAliveEntities) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
         return FCSIteratorNoRef(this, registryAliveEntities.cbegin(), registryAliveEntities.cend());
     }
 
     template <typename ComponentType>
-    decltype(auto) FastComponentStorage<ComponentType>::cend(const auto&) const
+    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    decltype(auto) FastComponentStorage<ComponentType>::EntitiesIteratorEnd(const auto&) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
 		return IterableEnd();
