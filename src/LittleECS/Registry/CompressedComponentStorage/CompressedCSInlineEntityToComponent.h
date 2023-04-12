@@ -52,7 +52,7 @@ namespace LECS::Detail
         }
 
     public:
-        const AliveEntitiesContainer& GetAliveContainer()
+        const AliveEntitiesContainer& GetAliveContainer() const
         {
             return m_AliveEntitiesContainer;
         }

@@ -114,6 +114,7 @@ namespace LECS::Detail
             return foundIndex;
         }
 
+    public:
         Index::PageIndexOfComponent GetNextValidIndex(Index::PageIndexOfComponent index) const
         {
             std::size_t blockIndex = index / sizeof(std::size_t);
@@ -135,7 +136,8 @@ namespace LECS::Detail
                 {
                     if ((*currentBlock & mask) == 0)
                     {
-                        foundIndex = indexInSubBlock + ((endBlock - currentBlock) * BLOCK_SIZE);
+						std::size_t blockIndex = NUMBER_OF_BLOCKS - std::size_t(endBlock - currentBlock);
+                        foundIndex = indexInSubBlock + (blockIndex * BLOCK_SIZE);
                         currentBlock = endBlock;
                         break;
                     }
@@ -223,13 +225,13 @@ namespace LECS::Detail
         template <typename Function>
 		inline void ForEachPage(Function&& function)
         {
-            return ForEachPageImpl<Function, ComponentType>(function);
+            return ForEachPageImpl<Function, ComponentType>(std::forward<Function>(function));
         }
 
         template <typename Function>
 		void ForEachPage(Function&& function) const
         {
-            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(function);
+            return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(std::forward<Function>(function));
         }
     };
 }

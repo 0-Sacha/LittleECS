@@ -30,9 +30,9 @@ namespace LECS::Detail
         }
 
     public:
-        reference operator*() const
+        reference operator*()
         {
-            return m_SubEntitiesIterator.operator*();
+            return *m_SubEntitiesIterator;
         }
         pointer operator->()
         {
@@ -114,7 +114,7 @@ namespace LECS::Detail
         {}
 
     public:
-        value_type operator*() const
+        value_type operator*()
         {
             EntityId entity = *m_SubViewEntitiesIterator;
             if constexpr (INCLUDE_ENTITY == true)
@@ -122,13 +122,6 @@ namespace LECS::Detail
             else
                 return std::tuple_cat(m_BasicViewLinked->template GetAll<IteratorComponentTypes...>(entity));
         }
-        /*
-        // FIXME
-        pointer operator->()
-        {
-            return m_SubEntitiesIterator.operator->();
-        }
-        */
 
         ViewComponentsIterator& operator++()
         {

@@ -24,43 +24,36 @@ namespace LECS::Detail
                 , m_CurrentIndexOfPage(currentIndexOfPage)
                 , m_CurrentPageIndexOfCurrent(currentPageIndexOfCurrent)
             {
-                if (currentIndexOfPage == 0 && currentPageIndexOfCurrent == 0)
-                {
-                    if (CurrentEntityIsValid())
-                    {
-                        operator++();
-                    }
-                }
-
-                LECS_ASSERT(CurrentEntityIsValid(), "Invalid Iterator")
+				if (CurrentEntityIsValid() == false)
+				{
+					if (currentIndexOfPage == 0 && currentPageIndexOfCurrent == 0)
+						operator++();
+					else
+						m_CompressedComponentStorage = nullptr;
+				}
             }
 
         private:
-            bool CurrentEntityIsValid()
+            bool CurrentEntityIsValid() const
             {
+				if (m_CompressedComponentStorage == nullptr)
+					return false;
+
                 if (m_CurrentIndexOfPage >= m_CompressedComponentStorage->GetPageContainer().size())
                     return false;
 
                 if (m_CurrentPageIndexOfCurrent >= CompressedComponentStorage::PAGE_SIZE)
                     return false;
             
-                return m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage].HasComponentAtIndex(m_CurrentPageIndexOfCurrent);
+                return m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->HasComponentAtIndex(m_CurrentPageIndexOfCurrent);
             }
 
-            EntityId* GetCurrentEntity()
-            {
-                LECS_ASSERT(CurrentEntityIsValid(), "Invalid Iterator")
-                return &m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage].GetEntityIdAtIndex(m_CurrentPageIndexOfCurrent);
-            }
 
         public:
-            reference operator*()
+            EntityId operator*() const
             {
-                return *GetCurrentEntity();
-            }
-            pointer operator->()
-            {
-                return GetCurrentEntity();
+                LECS_ASSERT(CurrentEntityIsValid(), "Invalid Iterator")
+                return m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->GetEntityIdAtIndex(m_CurrentPageIndexOfCurrent);
             }
 
             CCSIteratorNoRefNoMap& operator++()
@@ -68,12 +61,11 @@ namespace LECS::Detail
                 bool found = false;
                 while (m_CurrentIndexOfPage < m_CompressedComponentStorage->GetPageContainer().size())
                 {
-                    m_CurrentPageIndexOfCurrent = m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage].GetNextValidIndex(m_CurrentPageIndexOfCurrent);
+                    m_CurrentPageIndexOfCurrent = m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->GetNextValidIndex(m_CurrentPageIndexOfCurrent);
                     if (m_CurrentPageIndexOfCurrent < CompressedComponentStorage::PAGE_SIZE)
                     {
                         found = true;
-                        m_CurrentPageIndexOfCurrent = CompressedComponentStorage::PAGE_SIZE;
-                        m_CurrentIndexOfPage = m_CompressedComponentStorage->GetPageContainer().size();
+						break;
                     }
                     ++m_CurrentIndexOfPage;
                 }
@@ -170,9 +162,9 @@ namespace LECS::Detail
         if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().EntitiesIteratorBegin();
+                return m_EntityToComponent.GetAliveContainer().cbegin();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
-                return CustomIterator::CCSIteratorNoRefNoMap<M_Type>(*this);
+                return CustomIterator::CCSIteratorNoRefNoMap<M_Type>(this);
         }
         else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
             return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().EntitiesIteratorBegin());
@@ -185,7 +177,7 @@ namespace LECS::Detail
        if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().EntitiesIteratorEnd();
+                return m_EntityToComponent.GetAliveContainer().cend();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
                 return IterableEnd();
         }

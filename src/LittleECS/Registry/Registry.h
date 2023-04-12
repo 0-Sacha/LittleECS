@@ -14,15 +14,20 @@ namespace LECS
 	class Registry
 	{
 	public:
-		using ComponentStorageRef = std::unique_ptr<Detail::IComponentStorage>;
-		using ComponentsStoragesContainer = std::unordered_map<ComponentId::Type, ComponentStorageRef>;
+		struct ComponentData
+		{
+			std::unique_ptr<Detail::IComponentStorage> ComponentStorage;
+			std::function<void(EntityId)> OnConstruct;
+			std::function<void(EntityId)> OnDestruct;
+		};
+		using ComponentIdToComponentData = std::unordered_map<ComponentId::Type, ComponentData>;
 		using ComponentIdGenerator = Detail::CompilerComponentIdGenerator;
 
 	public:
 		Registry() {}
 
 	protected:
-		ComponentsStoragesContainer m_ComponentsStoragesContainer;
+		ComponentIdToComponentData m_ComponentIdToComponentData;
 		Detail::EntityIdGenerator m_EntityIdGenerator;
 
 	// Entity Management
@@ -31,9 +36,9 @@ namespace LECS
 		{
 			return m_EntityIdGenerator;
 		}
-		const ComponentsStoragesContainer& GetComponentsStoragesContainer() const
+		const ComponentIdToComponentData& GetComponentIdToComponentData() const
 		{
-			return m_ComponentsStoragesContainer;
+			return m_ComponentIdToComponentData;
 		}
 
 		EntityId CreateEntityId()
@@ -43,11 +48,11 @@ namespace LECS
 
 		void DestroyEntityId(EntityId entity)
 		{
-			for (auto& container : m_ComponentsStoragesContainer)
+			for (auto& container : m_ComponentIdToComponentData)
 			{
-				if (container.second->HasThisComponentV(entity))
+				if (container.second.ComponentStorage->HasThisComponentV(entity))
 				{
-					container.second->RemoveComponentOfEntityV(entity);
+					container.second.ComponentStorage->RemoveComponentOfEntityV(entity);
 				}
 			}
 
@@ -125,7 +130,10 @@ namespace LECS
 		void ForEachComponents(Function&& function) const;
 
 	public:
-		const auto& EachEntities();
+		const auto& EachEntities()
+		{
+			return m_EntityIdGenerator.GetAlivesEntities();
+		}
 
 		template<typename ComponentType>
 		decltype(auto) EachEntitiesWith();

@@ -6,12 +6,12 @@ namespace LECS
 {
     void ConstEntity::Refresh()
     {
-     	for (auto& container : m_Registry.GetComponentsStoragesContainer())
+     	for (auto& container : m_Registry.GetComponentIdToComponentData())
         {
-            const void* component = container.second->GetComponentAliasedPtrV(m_EntityId);
+            const void* component = container.second.ComponentStorage->GetComponentAliasedPtrV(m_EntityId);
             if (component != nullptr)
             {
-                m_ComponentsContainer.insert({ componentId, component });
+                m_ComponentsContainer.insert({ container.first, component });
             }
         }
     }

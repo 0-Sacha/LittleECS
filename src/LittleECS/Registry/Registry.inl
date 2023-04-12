@@ -9,14 +9,15 @@ namespace LECS
 	{
 		ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-		if (m_ComponentsStoragesContainer.contains(componentId) == true)
+		if (m_ComponentIdToComponentData.contains(componentId) == true)
 		{
-			Detail::IComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
+			Detail::IComponentStorage* componentStorageBasic = m_ComponentIdToComponentData[componentId].ComponentStorage.get();
 			return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
 		}
 		else
 		{
-			ComponentStorageRef& componentStorageRef = m_ComponentsStoragesContainer[componentId] = std::make_unique<typename Detail::ComponentStorageInfo<ComponentType>::StorageType>();
+			std::unique_ptr<Detail::IComponentStorage>& componentStorageRef =
+				m_ComponentIdToComponentData[componentId].ComponentStorage = std::make_unique<typename Detail::ComponentStorageInfo<ComponentType>::StorageType>();
 			Detail::IComponentStorage* componentStorageBasic = componentStorageRef.get();
 			return reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
 		}
@@ -29,11 +30,11 @@ namespace LECS
 	{
 		ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-		const auto componentStorage = m_ComponentsStoragesContainer.find(componentId);
+		const auto componentStorage = m_ComponentIdToComponentData.find(componentId);
 
-		LECS_ASSERT(componentStorage != m_ComponentsStoragesContainer.end(), "This ComponentStorage is not part of this registry")
+		LECS_ASSERT(componentStorage != m_ComponentIdToComponentData.end(), "This ComponentStorage is not part of this registry")
 
-		const Detail::IComponentStorage* componentStorageBasic = componentStorage->second.get();
+		const Detail::IComponentStorage* componentStorageBasic = componentStorage->second.ComponentStorage.get();
 		return reinterpret_cast<const typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
 	}
 
@@ -50,12 +51,12 @@ namespace LECS
 	{
 		ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
 
-		auto componentStoragefound = m_ComponentsStoragesContainer.find(componentId);
+		auto componentStoragefound = m_ComponentIdToComponentData.find(componentId);
 
-		if (componentStoragefound == m_ComponentsStoragesContainer.end())
+		if (componentStoragefound == m_ComponentIdToComponentData.end())
 			return false;
 
-		Detail::IComponentStorage* componentStorageBasic = componentStoragefound->second.get();
+		Detail::IComponentStorage* componentStorageBasic = componentStoragefound->second.ComponentStorage.get();
 		typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = reinterpret_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(componentStorageBasic);
 
 		if (componentStorage == nullptr)
@@ -124,8 +125,4 @@ namespace LECS
 			function(entity);
 	}
 
-	const auto& Registry::EachEntities()
-	{
-		return m_EntityIdGenerator.GetAlivesEntities();
-	}
 }

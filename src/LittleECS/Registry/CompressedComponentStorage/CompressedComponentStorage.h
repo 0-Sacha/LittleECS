@@ -43,7 +43,7 @@ namespace LECS::Detail
 		EntityToComponent m_EntityToComponent;
 
     public:
-        const PagesContainer& GetPageContainer()
+        const PagesContainer& GetPageContainer() const
         {
             return m_PageContainer;
         }
@@ -159,7 +159,7 @@ namespace LECS::Detail
     	inline void ForEachStorage(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return ForEachStorageImpl<Function, ComponentType>(function);
+            return ForEachStorageImpl<Function, ComponentType>(std::forward<Function>(function));
         }
         
         // Function = std::function<void(EntityId, const ComponentType&)>
@@ -167,7 +167,7 @@ namespace LECS::Detail
 		inline void ForEachStorage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachStorageImpl<Function, const ComponentType>(function);
+            return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachStorageImpl<Function, const ComponentType>(std::forward<Function>(function));
         }
 
     public:
