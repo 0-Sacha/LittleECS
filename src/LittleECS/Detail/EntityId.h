@@ -5,7 +5,6 @@
 
 namespace LECS
 {
-
     class EntityId
     {
     public:
@@ -47,7 +46,6 @@ namespace LECS
     {
         return lhs == rhs.Id;
     }
-    
 }
 
 namespace ProjectCore::FMT

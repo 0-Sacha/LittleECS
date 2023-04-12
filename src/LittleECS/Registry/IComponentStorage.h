@@ -113,7 +113,7 @@ namespace LECS::Detail
             static constexpr bool PTR_TO_COMPONENT_VALID = true;
         };
 
-        using Default = CommonComponent;
+        using Default = FastComponent;
     };
 
 	template <typename ComponentType>

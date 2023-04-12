@@ -45,6 +45,11 @@ namespace LECS::Detail
             return m_AliveEntitiesId;
         } 
 
+        bool HasEntityId(EntityId entity) const
+        {
+            return m_AliveEntitiesId.contains(entity);
+        }
+
     protected:
         typename EntityId::Type m_CurrentIndex = EntityId::FIRST;
         std::set<typename EntityId::Type> m_FreeEntitiesId;

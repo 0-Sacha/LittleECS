@@ -7,7 +7,7 @@
 
 namespace LECS
 {
-    class Registry;
+	class Registry;
 
     class ConstEntity
     {
@@ -15,17 +15,13 @@ namespace LECS
 		using ComponentsContainer = std::unordered_map<ComponentId::Type, const void*>;
     
     public:
-        ConstEntity(const Registry& registry)
-            : m_Registry(registry)
-            , m_ComponentsContainer()
-        {
-            Refresh();
-        }
+		ConstEntity();
+		ConstEntity(const Registry* registry, EntityId entityId);
         
     protected:
-        const Registry& m_Registry;
-        ComponentsContainer m_ComponentsContainer;
+        const Registry* m_Registry;
         EntityId m_EntityId;
+        ComponentsContainer m_ComponentsContainer;
 
     public:
         void Refresh();
@@ -34,6 +30,17 @@ namespace LECS
         template <typename ComponentType>
         const ComponentType* GetComponentPtr() const;
         
+    public:
+        operator EntityId ()
+        {
+            return m_EntityId;
+        }
+
+        operator bool ()
+        {
+            return m_EntityId != EntityId::INVALID;
+        }
+
     public:
         template <typename ComponentType>
 		bool Has() const;
@@ -52,16 +59,9 @@ namespace LECS
 		using ComponentsContainer = std::unordered_map<ComponentId::Type, const void*>;
     
     public:
-        Entity(Registry& registry)
-            : ConstEntity(registry)
-        {}
+        Entity();
+        Entity(Registry* registry, EntityId entityId);
         
-    protected:
-        Registry& GetRegistry()
-        {
-            return const_cast<Registry&>(m_Registry);
-        }
-
     protected:
         template <typename ComponentType>
         const ComponentType* GetComponentPtr() const
@@ -108,15 +108,13 @@ namespace LECS
 		template <typename... ComponentTypes>
 		std::tuple<const ComponentTypes&...> GetAll() const
         {
-            return ConstEntity::template GetAll<ComponentType>();
+            return ConstEntity::template GetAll<ComponentTypes...>();
         }
         template <typename... ComponentTypes>
 		std::tuple<ComponentTypes&...> GetAll();
 
     public:
         template <typename ComponentType, typename... Args>
-		ComponentType& Add(EntityId entity, Args&&... args);
-    };
-
-           
+		ComponentType& Add(Args&&... args);
+    };           
 }

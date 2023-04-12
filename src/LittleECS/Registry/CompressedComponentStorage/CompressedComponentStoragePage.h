@@ -17,6 +17,9 @@ namespace LECS::Detail
             {
                 std::uint8_t StorageData[sizeof(ComponentType)];
                 ComponentType ComponentValue;
+
+				DataStorageType() {}
+				~DataStorageType() {}
             };
             DataStorageType Data{};
         };

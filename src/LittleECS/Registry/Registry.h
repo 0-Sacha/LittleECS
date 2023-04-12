@@ -4,6 +4,10 @@
 
 #include "CompressedComponentStorage/CompressedComponentStorage.h"
 #include "FastComponentStorage/FastComponentStorage.h"
+
+#include "Entity/Entity.h"
+#include "Entity/LiteEntity.h"
+
 #include "Views/BasicView.h"
 
 #include <unordered_map>
@@ -41,6 +45,11 @@ namespace LECS
 			return m_ComponentIdToComponentData;
 		}
 
+		bool RegistryHas(EntityId entity) const
+		{
+			return m_EntityIdGenerator.HasEntityId(entity);
+		}
+		
 		EntityId CreateEntityId()
 		{
 			return m_EntityIdGenerator.GetNewEntityId();
@@ -57,6 +66,16 @@ namespace LECS
 			}
 
 			m_EntityIdGenerator.EntityIdDelete(entity);
+		}
+
+		Entity CreateEntityFrom(EntityId entity)
+		{
+			return Entity(this, entity);
+		}
+
+		LiteEntity CreateLiteEntityFrom(EntityId entity)
+		{
+			return LiteEntity(this, entity);
 		}
 
 	public:
@@ -152,6 +171,9 @@ namespace LECS
 
 #include "RegistryForEach.h"
 #include "RegistryIterator.h"
+
+#include "Entity/Entity.inl"
+#include "Entity/LiteEntity.inl"
 
 #include "Views/BasicView.inl"
 #include "Views/BasicViewForEach.h"

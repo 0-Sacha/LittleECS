@@ -13,10 +13,13 @@ namespace LECS::Detail
     private:
         struct ComponentDataBuffer
         {
-            union DataStorageType
-            {
-                std::uint8_t StorageData[sizeof(ComponentType)];
-                ComponentType ComponentValue;
+			union DataStorageType
+			{
+				std::uint8_t StorageData[sizeof(ComponentType)];
+				ComponentType ComponentValue;
+
+				DataStorageType() {}
+				~DataStorageType() {}
             };
             DataStorageType Data{};
         };
