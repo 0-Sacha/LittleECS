@@ -7,7 +7,7 @@
 
 #include <any>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     namespace Index
     {
@@ -45,8 +45,10 @@ namespace LittleECS::Detail
         virtual ~IComponentStorage() = default;
 
 	public:
-		virtual bool EntityHasThisComponent(EntityId entity) const = 0;
-		virtual void RemoveComponentOfEntity(EntityId entity) = 0;
+		virtual bool HasThisComponentV(EntityId entity) const = 0;
+		virtual void RemoveComponentOfEntityV(EntityId entity) = 0;
+		virtual const void* GetComponentAliasedPtrV(EntityId entity) const = 0;
+		virtual void* GetComponentAliasedPtrV(EntityId entity) = 0;
 	};
 
     template <typename ComponentType>
@@ -74,6 +76,8 @@ namespace LittleECS::Detail
             static constexpr bool HAS_ENTITIES_REF = true;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
+
+            static constexpr bool PTR_TO_COMPONENT_VALID = true;
         };
 
         struct FastComponentWithoutREF
@@ -83,6 +87,8 @@ namespace LittleECS::Detail
             static constexpr bool HAS_ENTITIES_REF = false;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = true;
+
+            static constexpr bool PTR_TO_COMPONENT_VALID = true;
         };
 
         struct RareComponent
@@ -92,6 +98,8 @@ namespace LittleECS::Detail
             static constexpr bool HAS_ENTITIES_REF = true;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
+
+            static constexpr bool PTR_TO_COMPONENT_VALID = true;
         };
 
         struct CommonComponent
@@ -101,6 +109,8 @@ namespace LittleECS::Detail
             static constexpr bool HAS_ENTITIES_REF = false;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
+
+            static constexpr bool PTR_TO_COMPONENT_VALID = true;
         };
 
         using Default = CommonComponent;

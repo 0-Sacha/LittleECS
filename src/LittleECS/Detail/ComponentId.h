@@ -3,7 +3,7 @@
 #include "Core.h"
 #include <limits>
 
-namespace LittleECS
+namespace LECS
 {
     struct ComponentId
     {
@@ -51,10 +51,10 @@ namespace LittleECS
 namespace ProjectCore::FMT
 {
 	template<typename FormatterContext>
-	struct FormatterType<LittleECS::ComponentId, FormatterContext> {
-		static void Format(LittleECS::ComponentId typeId, FormatterContext& context)
+	struct FormatterType<LECS::ComponentId, FormatterContext> {
+		static void Format(LECS::ComponentId typeId, FormatterContext& context)
         {
-			FormatterType<Detail::ForwardAsUInt<typename LittleECS::ComponentId::Type>, FormatterContext>::Format(typeId, context);
+			FormatterType<Detail::ForwardAsUInt<typename LECS::ComponentId::Type>, FormatterContext>::Format(typeId, context);
 		}
 	};
 }

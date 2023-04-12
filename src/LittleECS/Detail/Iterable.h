@@ -2,7 +2,7 @@
 
 #include <iterator>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template <typename Begin, typename End>
 	struct Iterable

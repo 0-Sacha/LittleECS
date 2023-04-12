@@ -2,7 +2,7 @@
 
 #include <tuple>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template<typename Function, typename... Args>
     struct IsApplicable

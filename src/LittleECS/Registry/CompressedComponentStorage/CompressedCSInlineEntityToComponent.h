@@ -2,7 +2,7 @@
 
 #include "CompressedComponentStoragePage.h"
 
-namespace LittleECS::Detail 
+namespace LECS::Detail 
 {
 
     template <bool HAS_ENTITIES_REF, std::size_t PAGE_SIZE>

@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-namespace LittleECS::Detail 
+namespace LECS::Detail 
 {
 
     class CompressedCSMapEntityToComponent

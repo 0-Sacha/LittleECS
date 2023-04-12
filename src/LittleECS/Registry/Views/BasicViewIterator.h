@@ -4,7 +4,7 @@
 
 #include "LittleECS/Detail/Iterable.h"
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template <typename BasicViewLinked, typename SubEntitiesIterator, typename SubEntitiesIteratorLast, typename... IteratorComponentTypes>
     class ViewEntitiesIterator
@@ -49,7 +49,7 @@ namespace LittleECS::Detail
 					break;
 
                 if constexpr (sizeof...(IteratorComponentTypes) > 0)
-                    currentEntityValid = m_BasicViewLinked->template EntityHasAll<IteratorComponentTypes...>(operator*());      
+                    currentEntityValid = m_BasicViewLinked->template HasAll<IteratorComponentTypes...>(operator*());      
                 else
                     currentEntityValid = true;
             } while(currentEntityValid == false);
@@ -118,9 +118,9 @@ namespace LittleECS::Detail
         {
             EntityId entity = *m_SubViewEntitiesIterator;
             if constexpr (INCLUDE_ENTITY == true)
-                return std::tuple_cat(std::tuple<EntityId>(entity), m_BasicViewLinked->template GetComponentTuple<IteratorComponentTypes...>(entity));
+                return std::tuple_cat(std::tuple<EntityId>(entity), m_BasicViewLinked->template GetAll<IteratorComponentTypes...>(entity));
             else
-                return std::tuple_cat(m_BasicViewLinked->template GetComponentTuple<IteratorComponentTypes...>(entity));
+                return std::tuple_cat(m_BasicViewLinked->template GetAll<IteratorComponentTypes...>(entity));
         }
         /*
         // FIXME
@@ -174,7 +174,7 @@ namespace LittleECS::Detail
     };
 }
 
-namespace LittleECS
+namespace LECS
 {
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeEach>
@@ -238,7 +238,7 @@ namespace LittleECS
     }
 }
 
-namespace LittleECS
+namespace LECS
 {
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeEach>

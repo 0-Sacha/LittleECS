@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
 
     template <typename ComponentType>
@@ -56,7 +56,7 @@ namespace LittleECS::Detail
 		}
 
     public:
-    	bool EntityHasThisComponent(EntityId entity) const override
+    	bool HasThisComponent(EntityId entity) const
 		{
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
 
@@ -67,8 +67,13 @@ namespace LittleECS::Detail
 
 			return m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent);
 		}
+
+        bool HasThisComponentV(EntityId entity) const override
+		{
+            return HasThisComponent(entity);
+        }
         
-        void RemoveComponentOfEntity(EntityId entity) override
+        void RemoveComponentOfEntity(EntityId entity)
         {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
@@ -82,6 +87,11 @@ namespace LittleECS::Detail
             }
 
             page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
+        }
+
+        void RemoveComponentOfEntityV(EntityId entity) override
+        {
+            return RemoveComponentOfEntity(entity);
         }
 
 	public:
@@ -143,6 +153,15 @@ namespace LittleECS::Detail
                 return nullptr;
             const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+        }
+
+        const void* GetComponentAliasedPtrV(EntityId entity) const override
+        {
+            return reinterpret_cast<const void*>(GetComponentOfEntityPtr(entity));
+        }
+		void* GetComponentAliasedPtrV(EntityId entity) override
+        {
+            return reinterpret_cast<void*>(GetComponentOfEntityPtr(entity));
         }
     
     public:

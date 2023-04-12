@@ -12,7 +12,7 @@
 #include <set>
 #include <vector>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
 
     template <typename ComponentType>
@@ -48,9 +48,14 @@ namespace LittleECS::Detail
             return m_PageContainer;
         }
 
-    	bool EntityHasThisComponent(EntityId entity) const override
+    	bool HasThisComponent(EntityId entity) const
 		{
 			return m_EntityToComponent.HasEntity(entity);
+		}
+
+        bool HasThisComponentV(EntityId entity) const override
+		{
+			return HasThisComponent(entity);
 		}
 
     private:
@@ -69,7 +74,7 @@ namespace LittleECS::Detail
         }
 
     public:
-        void RemoveComponentOfEntity(EntityId entity) override
+        void RemoveComponentOfEntity(EntityId entity)
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
             m_EntityToComponent.RemoveIndexInfoForEntity(entity);
@@ -79,11 +84,16 @@ namespace LittleECS::Detail
 			m_FreePages.insert(indexInfo.IndexOfPage);
         }
 
+        void RemoveComponentOfEntityV(EntityId entity) override
+        {
+            return RemoveComponentOfEntity(entity);
+        }
+
 	public:
         template <typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
-            LECS_ASSERT(EntityHasThisComponent(entity) == false)
+            LECS_ASSERT(HasThisComponent(entity) == false)
             
             Index::IndexOfPage indexOfFreePage = GetFreePageIndexOrCreateIt();
             PageTypeRef& page = m_PageContainer[indexOfFreePage];
@@ -103,7 +113,6 @@ namespace LittleECS::Detail
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
-
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
@@ -114,14 +123,12 @@ namespace LittleECS::Detail
 
         ComponentType* GetComponentOfEntityPtr(EntityId entity)
         {
-            // AAA
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
             if (indexInfo.IndexOfPage >= m_PageContainer.size())
                 return nullptr;
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
         }
-
         const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
@@ -129,6 +136,15 @@ namespace LittleECS::Detail
                 return nullptr;
             const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+        }
+
+        const void* GetComponentAliasedPtrV(EntityId entity) const override
+        {
+            return reinterpret_cast<const void*>(GetComponentOfEntityPtr(entity));
+        }
+		void* GetComponentAliasedPtrV(EntityId entity) override
+        {
+            return reinterpret_cast<void*>(GetComponentOfEntityPtr(entity));
         }
 
     private:
@@ -160,5 +176,5 @@ namespace LittleECS::Detail
     };
 }
 
-#include "CCSEach.h"
+#include "CCSForEach.h"
 #include "CCSIterator.h"

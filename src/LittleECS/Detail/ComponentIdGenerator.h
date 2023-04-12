@@ -16,7 +16,7 @@
     #define LECS_FUNCTION_SIGNATURE_ID_SUFFIX '>'
 #endif
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     class CompilerComponentIdGenerator
     {

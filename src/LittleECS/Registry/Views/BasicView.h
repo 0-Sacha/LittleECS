@@ -3,12 +3,13 @@
 #include "LittleECS/Registry/IComponentStorage.h"
 
 #include "LittleECS/Detail/TypeParameterPack.h"
+#include "LittleECS/Detail/ApplicableFunction.h"
 
 #include <array>
 #include <tuple>
 #include <functional>
 
-namespace LittleECS
+namespace LECS
 {
     class Registry;
 
@@ -43,63 +44,68 @@ namespace LittleECS
 
     private:
         template <std::size_t I, typename Component, typename... ComponentRest>
-        void CreateRegistryLink();
+        void RefreshRegistryLink();
 
         void Refresh()
         {
-            return CreateRegistryLink<0, ViewComponentTypes...>();
+            return RefreshRegistryLink<0, ViewComponentTypes...>();
         }
 
     public:
         template <typename ComponentType>
-        bool EntityHas(EntityId entity) const
+        bool Has(EntityId entity) const
         {
 			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
             if (storage == nullptr)
                 return false;
-            return storage->EntityHasThisComponent(entity);
+            return storage->HasThisComponent(entity);
         }
 
         template <typename ComponentType, typename... ComponentTypes>
-        bool EntityHasAll(EntityId entity) const
+        bool HasAll(EntityId entity) const
         {
 			if constexpr (sizeof...(ComponentTypes) == 0)
-                return EntityHas<ComponentType>(entity);
+                return Has<ComponentType>(entity);
             else
-                return EntityHas<ComponentType>(entity) && EntityHasAll<ComponentTypes...>(entity);
+                return Has<ComponentType>(entity) && HasAll<ComponentTypes...>(entity);
         }
 
     public:
 		template <typename ComponentType>
-		const ComponentType& GetComponent(EntityId entity) const
+		const ComponentType& Get(EntityId entity) const
 		{
 			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
             LECS_ASSERT(storage, "This entity doesn't have this component")
             return storage->GetComponentOfEntity(entity);
 		}
-        template <typename... ComponentTypes>
-		std::tuple<const ComponentTypes&...> GetComponentTuple(EntityId entity) const
+        template <typename ComponentType>
+		const ComponentType* GetPtr(EntityId entity) const
 		{
-            return std::tuple<const ComponentTypes&...>(GetComponent<ComponentTypes>(entity)...);
+			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+            LECS_ASSERT(storage, "This entity doesn't have this component")
+            return storage->GetComponentOfEntityPtr(entity);
 		}
         template <typename... ComponentTypes>
-		decltype(auto) GetComponents(EntityId entity) const
+		std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
 		{
-            if constexpr (sizeof...(ComponentTypes) == 0)
-                return GetComponentTuple<ViewComponentTypes...>(entity);
-            else if constexpr (sizeof...(ComponentTypes) == 1)
-                return GetComponent<ComponentTypes...>(entity);
-            else if constexpr (sizeof...(ComponentTypes) > 1)
-                return GetComponentTuple<ComponentTypes...>(entity);
+            return std::tuple<const ComponentTypes&...>(Get<ComponentTypes>(entity)...);
 		}
 
     public:
-        // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
-        template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
-        void ForEachComponents(Function&& function) const;
+        // Function = std::function<void(EntityId)>
+		template<typename Function>
+        requires (Detail::IsApplicable<Function, EntityId>::Value)
+		void ForEachEntities(Function&& function) const
+        {
+            return ForEachComponents<ViewComponentTypes...>(std::forward<Function>(function));
+        }
+
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>
         template <typename ComponentTypeEach, typename Function>
         void ForEachUniqueComponent(Function&& function) const;
+        // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
+        template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
+        void ForEachComponents(Function&& function) const;
     
     public:
         decltype(auto) EachEntities() const
@@ -152,66 +158,72 @@ namespace LittleECS
 
     public:
         template <typename ComponentType>
-        inline bool EntityHas(EntityId entity) const
+        inline bool Has(EntityId entity) const
         {
-            return Base::template EntityHas<ComponentType>(entity);
+            return Base::template Has<ComponentType>(entity);
         }
         template <typename ComponentType, typename... ComponentTypes>
-        inline bool EntityHasAll(EntityId entity) const
+        inline bool HasAll(EntityId entity) const
         {
-            return Base::template EntityHasAll<ComponentType, ComponentTypes...>(entity);
+            return Base::template HasAll<ComponentType, ComponentTypes...>(entity);
         }
 
         template <typename ComponentType>
-        const ComponentType& GetComponent(EntityId entity) const
+        const ComponentType& Get(EntityId entity) const
         {
-            return Base::template GetComponent<ComponentType>(entity);
+            return Base::template Get<ComponentType>(entity);
         }
         template <typename ComponentType>
-        ComponentType& GetComponent(EntityId entity)
+        ComponentType& Get(EntityId entity)
         {
 			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
 			LECS_ASSERT(storage, "This entity doesn't have this component")
 			return storage->GetComponentOfEntity(entity);
 		}
+
+        template <typename ComponentType>
+        const ComponentType& GetPtr(EntityId entity) const
+        {
+            return Base::template GetPtr<ComponentType>(entity);
+        }
+        template <typename ComponentType>
+        ComponentType* GetPtr(EntityId entity)
+        {
+			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+			LECS_ASSERT(storage, "This entity doesn't have this component")
+			return &storage->GetComponentOfEntity(entity);
+		}
+
         template <typename... ComponentTypes>
-		std::tuple<const ComponentTypes&...> GetComponentTuple(EntityId entity) const
+		std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
 		{
-            return Base::template GetComponentTuple<ComponentTypes...>(entity);
+            return Base::template GetAll<ComponentTypes...>(entity);
 		}
 		template <typename... ComponentTypes>
-		std::tuple<ComponentTypes&...> GetComponentTuple(EntityId entity)
+		std::tuple<ComponentTypes&...> GetAll(EntityId entity)
 		{
-            return std::tuple<ComponentTypes&...>(GetComponent<ComponentTypes>(entity)...);
-		}
-        template <typename... ComponentTypes>
-		decltype(auto) GetComponents(EntityId entity) const
-		{
-            return Base::template GetComponents<ComponentTypes...>(entity);
-        }
-        template <typename... ComponentTypes>
-		decltype(auto) GetComponents(EntityId entity)
-		{
-            if constexpr (sizeof...(ComponentTypes) == 0)
-                return GetComponentTuple<ViewComponentTypes...>(entity);
-            else if constexpr (sizeof...(ComponentTypes) == 1)
-                return GetComponent<ComponentTypes...>(entity);
-            else if constexpr (sizeof...(ComponentTypes) > 1)
-                return GetComponentTuple<ComponentTypes...>(entity);
+            return std::tuple<ComponentTypes&...>(Get<ComponentTypes>(entity)...);
 		}
 
     public:
+        // Function = std::function<void(EntityId)>
+		template<typename Function>
+        requires (Detail::IsApplicable<Function, EntityId>::Value)
+		void ForEachEntities(Function&& function) const
+        {
+            return Base::template ForEachEntities<Function>(std::forward<Function>(function));
+        }
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>
         template <typename ComponentTypeEach, typename Function>
         void ForEachUniqueComponent(Function&& function) const
         {
-            return Base::template ForEachComponents<ComponentTypeEach, Function>(function);
+            return Base::template ForEachComponents<ComponentTypeEach, Function>(std::forward<Function>(function));
         }
         // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
         template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
         void ForEachComponents(Function&& function) const
         {
-            return Base::template ForEachComponents<ComponentTypeRanged, ComponentTypesEach..., Function>(function);
+            return Base::template ForEachComponents<ComponentTypeRanged, ComponentTypesEach..., Function>(std::forward<Function>(function));
         }
 
         // Function = std::function<void(EntityId, ComponentTypeEach& component)>

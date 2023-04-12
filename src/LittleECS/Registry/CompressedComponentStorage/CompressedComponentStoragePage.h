@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template <typename ComponentType, std::size_t PAGE_SIZE>
     requires (PAGE_SIZE % sizeof(std::size_t) == 0)
@@ -234,4 +234,4 @@ namespace LittleECS::Detail
     };
 }
  
-#include "CCSPageEach.h"
+#include "CCSPageForEach.h"

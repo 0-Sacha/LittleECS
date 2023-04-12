@@ -5,7 +5,7 @@
 #include <queue>
 #include <set>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
 
     class EntityIdGenerator

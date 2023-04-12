@@ -2,7 +2,7 @@
 
 #include "Registry.h"
 
-namespace LittleECS
+namespace LECS
 {
 	// Function = std::function<void(EntityId, ComponentType& component)>
 	template<typename ComponentType, typename Function>

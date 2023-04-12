@@ -4,7 +4,7 @@
 
 #include "LittleECS/Detail/ApplicableFunction.h"
 
-namespace LittleECS
+namespace LECS
 {
     // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
@@ -26,16 +26,20 @@ namespace LittleECS
             return ForEachUniqueComponent<ComponentTypeRanged>(std::forward<Function>(function));
 
         auto dispatchFunction = [&](EntityId entity, const ComponentTypeRanged& componentRanged) {
-                if (EntityHasAll<ComponentTypesEach...>(entity) == false)
+                if (HasAll<ComponentTypesEach...>(entity) == false)
                     return;
                 
-                if constexpr (Detail::IsApplicable<Function, EntityId, const ComponentTypeRanged&, const ComponentTypesEach&...>::Value)
+                if constexpr (Detail::IsApplicable<Function, EntityId>::Value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple<EntityId>(entity));
+                }
+                else if constexpr (Detail::IsApplicable<Function, EntityId, const ComponentTypeRanged&, const ComponentTypesEach&...>::Value)
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }
                 else if constexpr (Detail::IsApplicable<Function, const ComponentTypeRanged&, const ComponentTypesEach&...>::Value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }
             };
 
@@ -43,7 +47,7 @@ namespace LittleECS
     }
 }
 
-namespace LittleECS
+namespace LECS
 {
     // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
@@ -65,16 +69,20 @@ namespace LittleECS
             return ForEachUniqueComponent<ComponentTypeRanged>(std::forward<Function>(function));
     
         auto dispatchFunction = [&](EntityId entity, ComponentTypeRanged& componentRanged) {
-                if (EntityHasAll<ComponentTypesEach...>(entity) == false)
+                if (HasAll<ComponentTypesEach...>(entity) == false)
                     return;
                 
-                if constexpr (Detail::IsApplicable<Function, EntityId, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
+                if constexpr (Detail::IsApplicable<Function, EntityId>::Value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple<EntityId>(entity));
+                }
+                else if constexpr (Detail::IsApplicable<Function, EntityId, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
+                {
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }
 				else if constexpr (Detail::IsApplicable<Function, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetComponentTuple<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }
             };
 

@@ -4,7 +4,7 @@
 
 #include "LittleECS/Detail/Iterable.h"
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     namespace CustomIterator
     {

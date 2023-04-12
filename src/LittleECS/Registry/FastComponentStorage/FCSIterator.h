@@ -4,7 +4,7 @@
 
 #include "LittleECS/Detail/Iterable.h"
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
 	template <typename FastComponentStorage, typename ContainerIterator>
 	class FCSIteratorNoRef
@@ -43,7 +43,7 @@ namespace LittleECS::Detail
 					break;
 				
 				EntityId entity = *m_ContainerIterator;
-				currentEntityValid = m_FastComponentStorage->EntityHasThisComponent(entity);
+				currentEntityValid = m_FastComponentStorage->HasThisComponent(entity);
 			} while (currentEntityValid == false);
 
 			if (currentEntityValid == false)

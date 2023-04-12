@@ -4,10 +4,10 @@
 
 #include "LittleECS/Detail/Iterable.h"
 
-namespace LittleECS
+namespace LECS
 {
 	template<typename ComponentType>
-	decltype(auto) Registry::EachEntitiesUniqueComponent()
+	decltype(auto) Registry::EachEntitiesWith()
 	{
 		typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
 
@@ -21,7 +21,7 @@ namespace LittleECS
         		   );
 	}
 	template<typename ComponentType>
-	decltype(auto) Registry::EachEntitiesUniqueComponent() const
+	decltype(auto) Registry::EachEntitiesWith() const
 	{
         const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
 

@@ -2,7 +2,7 @@
 
 #include "CompressedComponentStorage.h"
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template <typename ComponentType>
     requires (TypeValidForComponentStorage<ComponentType>::Value)

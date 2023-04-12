@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <limits>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
     template <typename T1, typename T2>
     struct Same
