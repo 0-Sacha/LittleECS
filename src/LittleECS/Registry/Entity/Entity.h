@@ -31,15 +31,9 @@ namespace LECS
         const ComponentType* GetComponentPtr() const;
         
     public:
-        operator EntityId ()
-        {
-            return m_EntityId;
-        }
-
-        operator bool ()
-        {
-            return m_EntityId != EntityId::INVALID;
-        }
+        inline EntityId GetEntityId() { return m_EntityId; }
+        inline operator EntityId () { return m_EntityId; }
+        inline operator bool () { return m_EntityId != EntityId::INVALID; }
 
     public:
         template <typename ComponentType>
