@@ -17,25 +17,27 @@ namespace LECS::Detail
 
         using IndexInAliveList = std::size_t;
 
-        struct IndexInfo
-        {
-            IndexOfPage IndexOfPage;
-            PageIndexOfComponent PageIndexOfComponent;
-
-            [[nodiscard]] inline constexpr bool IsValid()
-            {
-                return IndexOfPage != std::numeric_limits<std::size_t>::max();
-            }
-
-            inline constexpr void SetInvalid()
-            {
-                IndexOfPage = std::numeric_limits<std::size_t>::max();
-            }
-        };
+        struct IndexInfo;
 
         [[nodiscard]] inline constexpr bool IsPowerOfTwo(const std::size_t value) noexcept
         {
             return value && ((value & (value - 1)) == 0);
+        }
+    };
+
+    struct Index::IndexInfo
+    {
+        Index::IndexOfPage IndexOfPage;
+        Index::PageIndexOfComponent PageIndexOfComponent;
+
+        [[nodiscard]] inline constexpr bool IsValid()
+        {
+            return IndexOfPage != std::numeric_limits<std::size_t>::max();
+        }
+
+        inline constexpr void SetInvalid()
+        {
+            IndexOfPage = std::numeric_limits<std::size_t>::max();
         }
     };
 
