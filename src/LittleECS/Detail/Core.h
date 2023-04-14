@@ -41,9 +41,13 @@ namespace LittleECS
     #define LECS_FATAL(...)
 #endif
 
-
 #ifdef LECS_ASSERT_ENABLE
-    #define LECS_ASSERT(x, ...) if (!(x)) { LECS_FATAL("Assert FAILED! : {}", #x); __debugbreak(); }
+	#ifdef LECS_COMPILER_VS
+		#define LECS_ASSERT(x, ...)	if(!(x)) { LECS_FATAL("ASSERT FAILED! : " #x __VA_ARGS__); __debugbreak(); }
+	#else
+		#include <csignal>
+		#define LECS_ASSERT(x, ...)	if(!(x)) { LECS_FATAL("ASSERT FAILED! : " #x __VA_ARGS__); std::raise(SIGINT); }
+	#endif
 #else
-    #define LECS_ASSERT(x, ...)
+	#define LECS_ASSERT(x)
 #endif
