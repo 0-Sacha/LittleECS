@@ -4,6 +4,10 @@ Solution.ProjectsInfo.Includes["LittleECS"] = {
 	"%{Solution.Projects.LittleECS}/src/LittleECS",
 }
 
+Solution.ProjectsInfo.Defines["LittleECS"] = {
+	"LECS_ENABLE_EACH"
+}
+
 Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LECS"
 
 project "LittleECS"
@@ -11,6 +15,8 @@ project "LittleECS"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
+
+	Solution.HighWarnings()
 
 	targetdir 	(Solution.Path.ProjectTargetDirectory)
 	objdir 		(Solution.Path.ProjectObjectDirectory)
@@ -28,16 +34,26 @@ project "LittleECS"
 if (LittleECSTestsEnable)
 then
 
+Solution.Projects["LittleECSTests"] = Solution.Projects["LittleECS"]
+
 LittleECSTestLaunch = {}
 LittleECSTestLaunch.project = "LittleECSTests"
-
 Solution.Launch["LittleECSTests"] = LittleECSTestLaunch
+
+LittleECSTestLaunchPerf = {}
+LittleECSTestLaunchPerf.project = "LittleECSTests"
+LittleECSTestLaunchPerf.BuildCfg = "Release"
+LittleECSTestLaunchPerf.Platform = "x64"
+LittleECSTestLaunchPerf.PreLaunchTask = "RELEASEx64 build"
+Solution.Launch["LittleECSTests-PerfTest"] = LittleECSTestLaunchPerf
 
 project "LittleECSTests"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "on"
+
+	Solution.HighWarnings()
 
 	targetdir 	(Solution.Path.ProjectTargetDirectory)
 	objdir 		(Solution.Path.ProjectObjectDirectory)

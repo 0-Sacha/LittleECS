@@ -1,96 +1,180 @@
 #pragma once
 
-#include "ComponentStorage.h"
 #include "LittleECS/Detail/EntityIdGenerator.h"
 
-#include <map>
+#include "CompressedComponentStorage/CompressedComponentStorage.h"
+#include "FastComponentStorage/FastComponentStorage.h"
+
+#include "Entity/Entity.h"
+#include "Entity/LiteEntity.h"
+
+#include "Views/BasicView.h"
+
 #include <unordered_map>
-#include <array>
 #include <memory>
 
-namespace LittleECS
+namespace LECS
 {
+	class Registry
+	{
+	public:
+		struct ComponentData
+		{
+			std::unique_ptr<Detail::IComponentStorage> ComponentStorage;
+			std::function<void(EntityId)> OnConstruct;
+			std::function<void(EntityId)> OnDestruct;
+		};
+		using ComponentIdToComponentData = std::unordered_map<ComponentId::Type, ComponentData>;
+		using ComponentIdGenerator = Detail::CompilerComponentIdGenerator;
 
-    class Registry
-    {
-    public:
-        using ComponentStorageRef = std::unique_ptr<Detail::BasicComponentStorage>;
-        using ComponentsStoragesContainer = std::array<ComponentStorageRef, 128>;
-        using ComponentIdGenerator = Detail::GlobalComponentIdGenerator;
+	public:
+		Registry() {}
 
-    protected:
-        ComponentsStoragesContainer m_ComponentsStoragesContainer;
-        Detail::EntityIdGenerator m_EntityIdGenerator;
+	protected:
+		ComponentIdToComponentData m_ComponentIdToComponentData;
+		Detail::EntityIdGenerator m_EntityIdGenerator;
 
-    public:
-        Registry() {}
+	// Entity Management
+	public:
+		const Detail::EntityIdGenerator& GetEntityIdGenerator() const
+		{
+			return m_EntityIdGenerator;
+		}
+		const ComponentIdToComponentData& GetComponentIdToComponentData() const
+		{
+			return m_ComponentIdToComponentData;
+		}
 
-    // Entity Management
-    public:
-        EntityId CreateEntity()
-        {
-            return m_EntityIdGenerator.GetNewEntityId();
-        }
+		bool RegistryHas(EntityId entity) const
+		{
+			return m_EntityIdGenerator.HasEntityId(entity);
+		}
+		
+		EntityId CreateEntityId()
+		{
+			return m_EntityIdGenerator.GetNewEntityId();
+		}
 
-    // Entity's Components Management
-    private:
-        template <typename ComponentType>
-        Detail::ComponentStorage<ComponentType>* GetComponentStorageOrCreateIt()
-        {
-            ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
+		void DestroyEntityId(EntityId entity)
+		{
+			for (auto& container : m_ComponentIdToComponentData)
+			{
+				if (container.second.ComponentStorage->HasThisComponentV(entity))
+				{
+					container.second.ComponentStorage->RemoveComponentOfEntityV(entity);
+				}
+			}
 
-            if (m_ComponentsStoragesContainer[componentId] != nullptr)
-            {
-                Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
-                return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
-            }
-            else
-            {
-                ComponentStorageRef& componentStorageRef = m_ComponentsStoragesContainer[componentId] = std::make_unique<Detail::ComponentStorage<ComponentType>>();
-                Detail::BasicComponentStorage* componentStorageBasic = componentStorageRef.get();
-                return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
-            }
+			m_EntityIdGenerator.EntityIdDelete(entity);
+		}
 
-            return nullptr;
-        }
+		Entity CreateEntityFrom(EntityId entity)
+		{
+			return Entity(this, entity);
+		}
 
-        template <typename ComponentType>
-        Detail::ComponentStorage<ComponentType>* GetComponentStorage()
-        {
-            ComponentId componentId = ComponentIdGenerator::GetTypeId<ComponentType>();
+		LiteEntity CreateLiteEntityFrom(EntityId entity)
+		{
+			return LiteEntity(this, entity);
+		}
 
-            if (m_ComponentsStoragesContainer[componentId] == nullptr)
-                return nullptr;
-            
-            Detail::BasicComponentStorage* componentStorageBasic = m_ComponentsStoragesContainer[componentId].get();
-            return reinterpret_cast<Detail::ComponentStorage<ComponentType>*>(componentStorageBasic);
-        }
+	public:
+		template <typename ComponentType>
+		typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt();
 
-    public:
-        template <typename ComponentType, typename... Args>
-        ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
-        {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorageOrCreateIt<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "Got a nullptr ComponentStorage");
-            return componentStorage->AddComponentToEntity(entity, std::forward<Args>(args)...);
-        }
+		template <typename ComponentType>
+		void CreateComponentStorage()
+		{
+			GetComponentStorageOrCreateIt<ComponentType>();
+		}
 
-        template <typename ComponentType>
-        ComponentType& GetComponentOfEntity(EntityId entity)
-        {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
-            LECS_ASSERT(componentStorage != nullptr, "This Component is not part of this registry");
-            return componentStorage->GetComponentOfEntity(entity);
-        }
+		template <typename ComponentType>
+		const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage() const;
 
-        template <typename ComponentType>
-        bool EntityHasComponent(EntityId entity)
-        {
-            Detail::ComponentStorage<ComponentType>* componentStorage = GetComponentStorage<ComponentType>();
-            if (componentStorage == nullptr)
-                return false;
-            return componentStorage->EntityHasThisComponent(entity);
-        }
-    };
+		template <typename ComponentType>
+		typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage()
+		{
+			return const_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(const_cast<const Registry*>(this)->GetComponentStorage<ComponentType>());
+		}
 
+	public:
+		template <typename ComponentType, typename... Args>
+		ComponentType& Add(EntityId entity, Args&&... args);
+
+		template <typename ComponentType>
+		bool Has(EntityId entity);
+
+		template <typename ComponentType, typename... ComponentTypes>
+		bool HasAll(EntityId entity);
+
+	public:
+		template <typename ComponentType>
+		const ComponentType& Get(EntityId entity) const;
+		template <typename ComponentType>
+		ComponentType& Get(EntityId entity);
+
+		template <typename ComponentType>
+		const ComponentType* GetPtr(EntityId entity) const;
+		template <typename ComponentType>
+		ComponentType* GetPtr(EntityId entity);
+
+		template <typename... ComponentTypes>
+		std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const;
+		template <typename... ComponentTypes>
+		std::tuple<ComponentTypes&...> GetAll(EntityId entity);
+
+	public:
+		template<typename... ComponentTypes>
+		BasicView<ComponentTypes...> View()
+		{
+			return BasicView<ComponentTypes...>(*this);
+		}
+
+	public:
+		// Function = std::function<void(EntityId)>
+		template<typename Function>
+		void ForEachEntities(Function&& function);
+
+		// Function = std::function<void(EntityId, ComponentType& component)>
+		template<typename ComponentType, typename Function>
+		void ForEachUniqueComponent(Function&& function);
+		// Function = std::function<void(EntityId, ComponentType& component)>
+		template<typename ComponentType, typename Function>
+		void ForEachUniqueComponent(Function&& function) const;
+		// Function = std::function<void(EntityId, ComponentTypes&... components)>
+		template<typename... ComponentTypes, typename Function>
+		void ForEachComponents(Function&& function);
+		// Function = std::function<void(EntityId, ComponentTypes&... components)>
+		template<typename... ComponentTypes, typename Function>
+		void ForEachComponents(Function&& function) const;
+
+	public:
+		const auto& EachEntities()
+		{
+			return m_EntityIdGenerator.GetAlivesEntities();
+		}
+
+		template<typename ComponentType>
+		decltype(auto) EachEntitiesWith();
+		template<typename ComponentType>
+		decltype(auto) EachEntitiesWith() const;
+		
+		// TODO
+		// template<typename ComponentType>
+		// decltype(auto) EachUniqueComponent();
+		// template<typename ComponentType>
+		// decltype(auto) EachUniqueComponent() const;
+	};
 }
+
+#include "Registry.inl"
+
+#include "RegistryForEach.h"
+#include "RegistryIterator.h"
+
+#include "Entity/Entity.inl"
+#include "Entity/LiteEntity.inl"
+
+#include "Views/BasicView.inl"
+#include "Views/BasicViewForEach.h"
+#include "Views/BasicViewIterator.h"

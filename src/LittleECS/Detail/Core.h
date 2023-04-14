@@ -5,7 +5,7 @@
 
 #include <utility>
 
-namespace LittleECS
+namespace LECS
 {
     class Core
     {
@@ -28,11 +28,11 @@ namespace LittleECS
 #endif
 
 #ifdef LECS_LOGGER_ENABLE
-    #define LECS_TRACE(...)	    LittleECS::Core::Logger().Trace(__VA_ARGS__)
-    #define LECS_INFO(...)	    LittleECS::Core::Logger().Info(__VA_ARGS__)
-    #define LECS_WARN(...)	    LittleECS::Core::Logger().Warn(__VA_ARGS__)
-    #define LECS_ERROR(...)	    LittleECS::Core::Logger().Error(__VA_ARGS__)
-    #define LECS_FATAL(...)	    LittleECS::Core::Logger().Fatal(__VA_ARGS__)
+    #define LECS_TRACE(...)	    LECS::Core::Logger().Trace(__VA_ARGS__)
+    #define LECS_INFO(...)	    LECS::Core::Logger().Info(__VA_ARGS__)
+    #define LECS_WARN(...)	    LECS::Core::Logger().Warn(__VA_ARGS__)
+    #define LECS_ERROR(...)	    LECS::Core::Logger().Error(__VA_ARGS__)
+    #define LECS_FATAL(...)	    LECS::Core::Logger().Fatal(__VA_ARGS__)
 #else
     #define LECS_TRACE(...)
     #define LECS_INFO(...)

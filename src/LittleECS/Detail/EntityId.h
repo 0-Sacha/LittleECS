@@ -3,14 +3,13 @@
 #include "Core.h"
 #include <limits>
 
-namespace LittleECS
+namespace LECS
 {
-
     class EntityId
     {
     public:
-        using Type = std::uint32_t;
-        static constexpr Type NON_VALID = std::numeric_limits<Type>::max();
+        using Type = std::size_t;
+        static constexpr Type INVALID = std::numeric_limits<Type>::max();
         static constexpr Type FIRST = 0;
 
     public:
@@ -18,12 +17,12 @@ namespace LittleECS
             : Id(id)
         {}
 
-        inline operator Type () const
+        inline constexpr operator Type () const
         {
             return Id;
         }
 
-        inline EntityId& operator=(Type id)
+        inline constexpr EntityId& operator=(Type id)
         {
             Id = id;
             return *this;
@@ -33,30 +32,29 @@ namespace LittleECS
         Type Id;
     };
 
-    inline bool operator==(EntityId lhs, EntityId rhs)
+    inline bool constexpr operator==(EntityId lhs, EntityId rhs)
     {
         return lhs.Id == rhs.Id;
     }
 
-    inline bool operator==(EntityId lhs, EntityId::Type rhs)
+    inline bool constexpr operator==(EntityId lhs, EntityId::Type rhs)
     {
         return lhs.Id == rhs;
     }
 
-    inline bool operator==(EntityId::Type lhs, EntityId rhs)
+    inline bool constexpr operator==(EntityId::Type lhs, EntityId rhs)
     {
         return lhs == rhs.Id;
     }
-    
 }
 
 namespace ProjectCore::FMT
 {
 	template<typename FormatterContext>
-	struct FormatterType<LittleECS::EntityId, FormatterContext> {
-		static void Format(LittleECS::EntityId typeId, FormatterContext& context)
+	struct FormatterType<LECS::EntityId, FormatterContext> {
+		static void Format(LECS::EntityId typeId, FormatterContext& context)
         {
-			FormatterType<Detail::ForwardAsUInt<typename LittleECS::EntityId::Type>, FormatterContext>::Format(typeId, context);
+			FormatterType<Detail::ForwardAsUInt<typename LECS::EntityId::Type>, FormatterContext>::Format(typeId, context);
 		}
 	};
 }

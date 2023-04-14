@@ -6,15 +6,15 @@
 
 #include <set>
 
-PCT_TEST_GROUP(LITTLE_ECS, REGISTRY);
+PCT_TEST_GROUP(LITTLE_ECS, PERFORMANCE);
 
 struct BasicIntComponent
 {
-    BasicIntComponent(int value = 0)
+    BasicIntComponent(std::size_t value = 0)
         : Value(value)
     {}
 
-    int Value;
+    std::size_t Value;
 };
 
 struct BasicFloatComponent
@@ -27,50 +27,22 @@ struct BasicFloatComponent
 };
 
 template <>
-struct LittleECS::Detail::ComponentStorageInfo<BasicIntComponent>
+struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultComponentStorageInfo<BasicIntComponent>::FastComponent
 {
-	static constexpr BasicComponentStorage::GlobalIndexOfComponent PAGE_SIZE = 512;
+	static constexpr bool HAS_ENTITIES_REF = false;
+	static constexpr bool SEND_ENTITIES_POOL_ON_EACH = true;
 };
 
-PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
-{
-    LittleECS::Registry registry;
-
-    LittleECS::EntityId entity1 = registry.CreateEntity();
-    LittleECS::EntityId entity2 = registry.CreateEntity();
-    LittleECS::EntityId entity3 = registry.CreateEntity();
-    PCT_NEQ(entity1.Id, entity2.Id);
-    PCT_NEQ(entity1.Id, entity3.Id);
-    PCT_NEQ(entity2.Id, entity3.Id);
-
-    registry.AddComponentToEntity<BasicIntComponent>(entity1, 7);
-    registry.AddComponentToEntity<BasicIntComponent>(entity2, 101);
-
-    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 7);
-    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);
-    PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
-
-    registry.AddComponentToEntity<BasicFloatComponent>(entity1, 171.0f);
-    registry.AddComponentToEntity<BasicFloatComponent>(entity3, 5.0f);
-
-    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity1).Value, 171.0f);
-    PCT_EQ(registry.GetComponentOfEntity<BasicFloatComponent>(entity3).Value, 5.0f);
-    PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entity2) == false);
-    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity1).Value, 7);
-    PCT_EQ(registry.GetComponentOfEntity<BasicIntComponent>(entity2).Value, 101);
-    PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entity3) == false);
-}
-
-#define BenchmarkTest(Size, Name) PCT_TEST_FUNC(REGISTRY, ADD_MANY_COMPONENT_ ## Name)                                          \
+#define BenchmarkTest(Size, Name) PCT_TEST_FUNC(PERFORMANCE, ADD_MANY_COMPONENT_ ## Name)                                          \
                             {                                                                                                   \
                                 ProjectCore::Instrumentation::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                   \
                                                                                                                                 \
-                                LittleECS::Registry registry;                                                                   \
+                                LECS::Registry registry;                                                                   \
                                                                                                                                 \
-                                std::vector<LittleECS::EntityId> entities;                                                      \
+                                std::vector<LECS::EntityId> entities;                                                      \
                                 entities.reserve(Size);                                                                         \
                                                                                                                                 \
-                                for (int i = 0; i < Size; ++i)                                                                  \
+                                for (std::size_t i = 0; i < Size; ++i)                                                          \
                                 {                                                                                               \
                                     entities.emplace_back(registry.CreateEntity());                                             \
                                 }                                                                                               \
@@ -78,7 +50,7 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
                                 {                                                                                               \
                                     bool uid = true;                                                                            \
                                                                                                                                 \
-		                            for (int i = 0; i < Size; ++i)                                                              \
+		                            for (std::size_t i = 0; i < Size; ++i)                                                      \
 		                            {                                                                                           \
                                         if (entities[i].Id != i)                                                                \
                                         {                                                                                       \
@@ -91,9 +63,9 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
                                     {                                                                                           \
                                         uid = true;                                                                             \
                                                                                                                                 \
-                                        std::set<typename LittleECS::EntityId::Type> setUID;                                    \
+                                        std::set<typename LECS::EntityId::Type> setUID;                                    \
                                                                                                                                 \
-			                            for (int i = 0; i < Size; ++i)                                                          \
+			                            for (std::size_t i = 0; i < Size; ++i)                                                          \
 			                            {                                                                                       \
 				                            if (setUID.contains(entities[i].Id))                                                \
 				                            {                                                                                   \
@@ -115,35 +87,46 @@ PCT_TEST_FUNC(REGISTRY, ADD_COMPONENT)
                                 {                                                                                               \
                                     ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Add Component");                \
                                                                                                                                 \
-                                    for (int i = 0; i < Size; ++i)                                                              \
+                                    for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-		                                registry.AddComponentToEntity<BasicIntComponent>(entities[i], i);                       \
+		                                registry.Add<BasicIntComponent>(entities[i], i);                       \
                                     }                                                                                           \
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
 		                            ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Get Component");                \
                                                                                                                                 \
-		                            for (int i = 0; i < Size; ++i)                                                              \
+		                            for (std::size_t i = 0; i < Size; ++i)                                                      \
 		                            {                                                                                           \
-			                            PCT_EQ(i, registry.GetComponentOfEntity<BasicIntComponent>(entities[i]).Value);         \
+			                            PCT_EQ(i, registry.Get<BasicIntComponent>(entities[i]).Value);         \
 		                            }                                                                                           \
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
 		                            ProjectCore::Instrumentation::ScopeProfile scope(profiler, "Has Component");                \
                                                                                                                                 \
-                                    for (int i = 0; i < Size; ++i)                                                              \
+                                    for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-                                        PCT_ASSERT(registry.EntityHasComponent<BasicIntComponent>(entities[i]));                \
-                                        PCT_ASSERT(registry.EntityHasComponent<BasicFloatComponent>(entities[i]) == false);     \
+                                        PCT_ASSERT(registry.Has<BasicIntComponent>(entities[i]));                \
+                                        PCT_ASSERT(registry.Has<BasicFloatComponent>(entities[i]) == false);     \
                                     }                                                                                           \
+                                }                                                                                               \
+                                                                                                                                \
+                                {                                                                                               \
+		                            ProjectCore::Instrumentation::ScopeProfile scope(profiler, "ForEach Component");            \
+                                                                                                                                \
+                                    registry.ForEachUniqueComponent<BasicIntComponent>([](LECS::EntityId, BasicIntComponent& k) \
+                                    {                                                                                           \
+                                        k = 5ull;                                                                               \
+                                    });                                                                                         \
                                 }                                                                                               \
                                                                                                                                 \
                                 ProjectCore::Instrumentation::ProfilerFactory::ToJson(profiler);                                \
                             }
 
-BenchmarkTest(10'000, 10K);
-BenchmarkTest(100'000, 100K);
-BenchmarkTest(1'000'000, 1M);
+// BenchmarkTest(1'000, 1K);
+// BenchmarkTest(10'000, 10K);
+// BenchmarkTest(100'000, 100K);
+// BenchmarkTest(1'000'000, 1M);
+// BenchmarkTest(10'000'000, 10M);
 // BenchmarkTest(100'000'000, 100M);

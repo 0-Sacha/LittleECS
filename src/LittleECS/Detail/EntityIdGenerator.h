@@ -3,8 +3,9 @@
 #include "EntityId.h"
 
 #include <queue>
+#include <set>
 
-namespace LittleECS::Detail
+namespace LECS::Detail
 {
 
     class EntityIdGenerator
@@ -12,14 +13,16 @@ namespace LittleECS::Detail
     public:
         EntityId GetNewEntityId()
         {
-            if (m_FreeEntityId.size() > 0)
-            {
-                EntityId res = m_FreeEntityId.front();
-                m_FreeEntityId.pop();
-                return res;
-            }
+            typename EntityId::Type res;
 
-            return m_CurrentIndex++;
+            if (m_FreeEntitiesId.size() > 0)
+                res = m_FreeEntitiesId.extract(m_FreeEntitiesId.begin()).value();
+            else
+                res = m_CurrentIndex++;
+
+            LECS_ASSERT(m_AliveEntitiesId.contains(res) == false, "Create an EntityId with an already assigned id")
+            m_AliveEntitiesId.insert(res);
+            return res;
         }
 
         void EntityIdDelete(EntityId entity)
@@ -31,12 +34,26 @@ namespace LittleECS::Detail
                 return;
             }
 
-            m_FreeEntityId.push(id);
+            LECS_ASSERT(m_AliveEntitiesId.contains(id) == true, "Destroy an EntityId with an non assigned id")
+            
+            m_AliveEntitiesId.erase(id);
+            m_FreeEntitiesId.insert(id);
+        }
+
+        const std::set<typename EntityId::Type>& GetAlivesEntities() const
+        {
+            return m_AliveEntitiesId;
+        } 
+
+        bool HasEntityId(EntityId entity) const
+        {
+            return m_AliveEntitiesId.contains(entity);
         }
 
     protected:
         typename EntityId::Type m_CurrentIndex = EntityId::FIRST;
-        std::queue<typename EntityId::Type> m_FreeEntityId;
+        std::set<typename EntityId::Type> m_FreeEntitiesId;
+        std::set<typename EntityId::Type> m_AliveEntitiesId;
     };
 
 }
