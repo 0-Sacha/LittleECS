@@ -29,6 +29,12 @@ namespace LECS
             return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
         }
 
+		void Invalidate()
+		{
+			m_EntityId = EntityId::INVALID;
+			m_Registry != nullptr;
+		}
+
     public:
         void Refresh();
 
