@@ -22,6 +22,12 @@ namespace LECS
         const Registry* m_Registry;
         EntityId m_EntityId;
         ComponentsContainer m_ComponentsContainer;
+    
+    public:
+		bool IsValid() const
+        {
+            return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
+        }
 
     public:
         void Refresh();

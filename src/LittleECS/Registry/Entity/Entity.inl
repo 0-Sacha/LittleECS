@@ -24,8 +24,7 @@ namespace LECS
 
     inline void ConstEntity::Refresh()
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
      	for (auto& container : m_Registry->GetComponentIdToComponentData())
         {
@@ -40,8 +39,7 @@ namespace LECS
     template <typename ComponentType>
     const ComponentType* ConstEntity::GetComponentPtr() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         ComponentId componentId = Registry::ComponentIdGenerator::GetTypeId<ComponentType>();
 
@@ -56,8 +54,7 @@ namespace LECS
     template <typename ComponentType>
 	bool ConstEntity::Has() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         if constexpr (Detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID)
         {
@@ -72,8 +69,7 @@ namespace LECS
     template <typename ComponentType>
     const ComponentType& ConstEntity::Get() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         if constexpr (Detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID)
         {
@@ -87,8 +83,7 @@ namespace LECS
     template <typename ComponentType>
     const ComponentType* ConstEntity::GetPtr() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         if constexpr (Detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID)
         {
@@ -102,8 +97,7 @@ namespace LECS
     template <typename... ComponentTypes>
     std::tuple<const ComponentTypes&...> ConstEntity::GetAll() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
 		return std::tuple<const ComponentTypes&...>(Get<ComponentTypes>(m_EntityId)...);
     }
@@ -122,8 +116,7 @@ namespace LECS
     template <typename... ComponentTypes>
     std::tuple<ComponentTypes&...> Entity::GetAll()
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
 		return std::tuple<ComponentTypes&...>(Get<ComponentTypes>(m_EntityId)...);
     }
@@ -131,8 +124,7 @@ namespace LECS
     template <typename ComponentType, typename... Args>
     ComponentType& Entity::Add(Args&&... args)
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
         
         ComponentId componentId = Registry::ComponentIdGenerator::GetTypeId<ComponentType>();
 

@@ -16,11 +16,16 @@ namespace LECS
         Registry* m_Registry;
         EntityId m_EntityId;
 
-
     public:
         inline EntityId GetEntityId() { return m_EntityId; }
         inline operator EntityId () { return m_EntityId; }
         inline operator bool () { return m_EntityId != EntityId::INVALID; }
+
+    public:
+		bool IsValid() const
+        {
+            return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
+        }
 
     public:
         template <typename ComponentType>

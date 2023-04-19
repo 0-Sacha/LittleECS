@@ -8,7 +8,13 @@ Solution.ProjectsInfo.Defines["LittleECS"] = {
 	"LECS_ENABLE_EACH"
 }
 
+Solution.ProjectsInfo.HeaderOnly["LittleECS"] = true;
+
 Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LECS"
+
+Solution.ProjectsInfo.ProjectDependencies["LittleECS"] = {
+	"ProjectCore"
+}
 
 project "LittleECS"
 	kind "StaticLib"
@@ -28,8 +34,7 @@ project "LittleECS"
 		"src/**.cpp",
 	}
 	
-	Solution.IncludeProject("LittleECS")
-	Solution.IncludeAndLinkProject("ProjectCore")
+	Solution.Project("LittleECS")
 
 if (LittleECSTestsEnable)
 then
@@ -46,6 +51,10 @@ LittleECSTestLaunchPerf.BuildCfg = "Release"
 LittleECSTestLaunchPerf.Platform = "x64"
 LittleECSTestLaunchPerf.PreLaunchTask = "RELEASEx64 build"
 Solution.Launch["LittleECSTests-PerfTest"] = LittleECSTestLaunchPerf
+
+Solution.ProjectsInfo.ProjectDependencies["LittleECSTests"] = {
+	"LittleECS"
+}
 
 project "LittleECSTests"
 	kind "ConsoleApp"
@@ -64,8 +73,9 @@ project "LittleECSTests"
 		"Tests/**.inl",
 		"Tests/**.cpp",
 	}
-	
-	Solution.IncludeProject("LittleECS")
-	Solution.IncludeAndLinkProject("ProjectCore")
+
+	Solution.Project("LittleECSTests")
+
+
 end
 	

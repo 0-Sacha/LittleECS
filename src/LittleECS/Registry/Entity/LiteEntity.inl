@@ -22,8 +22,7 @@ namespace LECS
     template <typename ComponentType>
 	bool LiteEntity::Has() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         return m_Registry->Has<ComponentType>(m_EntityId);
     }
@@ -31,8 +30,7 @@ namespace LECS
     template <typename ComponentType>
     const ComponentType& LiteEntity::Get() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
         
         return m_Registry->Get<ComponentType>(m_EntityId);
     }
@@ -40,8 +38,7 @@ namespace LECS
     template <typename ComponentType>
     ComponentType& LiteEntity::Get()
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         return m_Registry->Get<ComponentType>(m_EntityId);
     }
@@ -49,8 +46,7 @@ namespace LECS
     template <typename... ComponentTypes>
     std::tuple<const ComponentTypes&...> LiteEntity::GetAll() const
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
 
         return m_Registry->GetAll<ComponentTypes...>(m_EntityId);
     }
@@ -58,8 +54,7 @@ namespace LECS
     template <typename... ComponentTypes>
     std::tuple<ComponentTypes&...> LiteEntity::GetAll()
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
         
         return m_Registry->GetAll<ComponentTypes...>(m_EntityId);
     }
@@ -67,8 +62,7 @@ namespace LECS
     template <typename ComponentType, typename... Args>
 	ComponentType& LiteEntity::Add(Args&&... args)
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-		LECS_ASSERT(m_Registry != nullptr)
+		LECS_ASSERT(IsValid())
         
         return m_Registry->Add<ComponentType>(m_EntityId, std::forward<Args>(args)...);
     }
