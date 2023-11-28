@@ -20,7 +20,6 @@ project "LittleECS"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
 
 	Solution.HighWarnings()
 
@@ -60,7 +59,6 @@ project "LittleECSTests"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
 
 	Solution.HighWarnings()
 

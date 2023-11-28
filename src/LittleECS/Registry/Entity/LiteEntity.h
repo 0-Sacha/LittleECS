@@ -30,7 +30,7 @@ namespace LECS
 		void Invalidate()
 		{
 			m_EntityId = EntityId::INVALID;
-			m_Registry != nullptr;
+			m_Registry = nullptr;
 		}
 
     public:
