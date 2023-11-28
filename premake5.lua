@@ -1,5 +1,5 @@
 
-Solution.ProjectsInfo.Includes["LittleECS"] = {
+Solution.ProjectsInfo.IncludeDirs["LittleECS"] = {
 	"%{Solution.Projects.LittleECS}/src/",
 	"%{Solution.Projects.LittleECS}/src/LittleECS",
 }
