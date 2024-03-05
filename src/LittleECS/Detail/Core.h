@@ -42,7 +42,7 @@ namespace LECS
 #endif
 
 #ifdef LECS_ASSERT_ENABLE
-	#ifdef LECS_COMPILER_VS
+	#ifdef UTILITIES_COMPILER_VS
 		#define LECS_ASSERT(x, ...)	if(!(x)) { LECS_FATAL("ASSERT FAILED! : " #x __VA_ARGS__); __debugbreak(); }
 	#else
 		#include <csignal>
