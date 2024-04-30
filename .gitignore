@@ -1,0 +1,28 @@
+
+# VS
+.vs
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+Makefile
+*.make
+
+# VSCode
+.vscode
+
+# VSCode
+bin
+bin-int
+
+# Asset
+Asset
+TestSuite_LITTLE_ECS.json
+ADD_MANY_COMPONENT.json
+ADD_MANY_COMPONENT_1M.json
+ADD_MANY_COMPONENT_10K.json
+ADD_MANY_COMPONENT_100K.json
+ADD_MANY_COMPONENT_100M.json
+ADD_MANY_COMPONENT_1K.json
+ADD_MANY_COMPONENT_10M.json
