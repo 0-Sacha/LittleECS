@@ -3,6 +3,6 @@
 
 int main()
 {
-	ProjectCore::Tester::TestSuitesManager::Verbose = false;
-	return ProjectCore::Tester::TestSuitesManager::ExecAllTestSuites();
+    ProjectCore::Tester::TestSuitesManager::Verbose = false;
+    return ProjectCore::Tester::TestSuitesManager::ExecAllTestSuites();
 }

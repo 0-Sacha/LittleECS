@@ -9,8 +9,8 @@ namespace LECS
     class LiteEntity
     {
     public:
-		LiteEntity();
-		LiteEntity(Registry* registry, EntityId entityId);
+        LiteEntity();
+        LiteEntity(Registry* registry, EntityId entityId);
         
     protected:
         Registry* m_Registry;
@@ -22,29 +22,29 @@ namespace LECS
         inline operator bool () { return m_EntityId != EntityId::INVALID; }
 
     public:
-		bool IsValid() const
+        bool IsValid() const
         {
             return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
         }
 
-		void Invalidate()
-		{
-			m_EntityId = EntityId::INVALID;
-			m_Registry = nullptr;
-		}
+        void Invalidate()
+        {
+            m_EntityId = EntityId::INVALID;
+            m_Registry = nullptr;
+        }
 
     public:
         template <typename ComponentType>
-		bool Has() const;
+        bool Has() const;
         template <typename ComponentType>
-		const ComponentType& Get() const;
+        const ComponentType& Get() const;
         template <typename ComponentType>
-		ComponentType& Get();
-		template <typename... ComponentTypes>
-		std::tuple<const ComponentTypes&...> GetAll() const;
+        ComponentType& Get();
         template <typename... ComponentTypes>
-		std::tuple<ComponentTypes&...> GetAll();
+        std::tuple<const ComponentTypes&...> GetAll() const;
+        template <typename... ComponentTypes>
+        std::tuple<ComponentTypes&...> GetAll();
         template <typename ComponentType, typename... Args>
-		ComponentType& Add(Args&&... args);
+        ComponentType& Add(Args&&... args);
     };
 }

@@ -45,8 +45,8 @@ namespace LECS::Detail
             do
             {
                 ++m_SubEntitiesIterator;
-				if (m_SubEntitiesIterator == m_SubEntitiesIteratorLast)
-					break;
+                if (m_SubEntitiesIterator == m_SubEntitiesIteratorLast)
+                    break;
 
                 if constexpr (sizeof...(IteratorComponentTypes) > 0)
                     currentEntityValid = m_BasicViewLinked->template HasAll<IteratorComponentTypes...>(operator*());      
@@ -218,12 +218,12 @@ namespace LECS
     }
 
     template <typename... ViewComponentTypes>
-	template <typename RangeComponent, typename... ComponentTypesEach>
-	decltype(auto) BasicConstView<ViewComponentTypes...>::EachComponents() const
+    template <typename RangeComponent, typename... ComponentTypesEach>
+    decltype(auto) BasicConstView<ViewComponentTypes...>::EachComponents() const
     {
-		auto rangedComponent = EachEntitiesWith<RangeComponent>();
-		auto entities = Detail::ViewEntitiesIterator<const M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-		
+        auto rangedComponent = EachEntitiesWith<RangeComponent>();
+        auto entities = Detail::ViewEntitiesIterator<const M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
+        
         return Detail::Iterable(
             Detail::ViewComponentsIterator<const M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd()),
             Detail::IterableEnd()
@@ -248,15 +248,15 @@ namespace LECS
                                     componentStorage->EntitiesIteratorEnd(this->m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities()));
     }
     template <typename... ViewComponentTypes>
-	template <typename RangeComponent, typename... ComponentTypesEach>
-	decltype(auto) BasicView<ViewComponentTypes...>::EachComponents()
+    template <typename RangeComponent, typename... ComponentTypesEach>
+    decltype(auto) BasicView<ViewComponentTypes...>::EachComponents()
     {
-		auto rangedComponent = this->template EachEntitiesWith<RangeComponent>();
-		auto entities = Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
-		
+        auto rangedComponent = this->template EachEntitiesWith<RangeComponent>();
+        auto entities = Detail::ViewEntitiesIterator<M_Type, decltype(rangedComponent.begin()), decltype(rangedComponent.end()), ComponentTypesEach...>(this, rangedComponent.begin(), rangedComponent.end());
+        
         return Detail::Iterable(
             Detail::ViewComponentsIterator<M_Type, decltype(entities), Detail::IterableEnd, false, RangeComponent, ComponentTypesEach...>(this, entities, Detail::IterableEnd()),
             Detail::IterableEnd()
-		);
+        );
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.h"
+#include "LittleECS/Core/Core.h"
+
 #include <limits>
 
 namespace LECS
@@ -50,11 +51,11 @@ namespace LECS
 
 namespace ProjectCore::FMT
 {
-	template<typename FormatterContext>
-	struct FormatterType<LECS::EntityId, FormatterContext> {
-		static void Format(LECS::EntityId typeId, FormatterContext& context)
+    template<typename FormatterContext>
+    struct FormatterType<LECS::EntityId, FormatterContext> {
+        static void Format(LECS::EntityId typeId, FormatterContext& context)
         {
-			FormatterType<Detail::ForwardAsUInt<typename LECS::EntityId::Type>, FormatterContext>::Format(typeId, context);
-		}
-	};
+            FormatterType<Detail::ForwardAsUInt<typename LECS::EntityId::Type>, FormatterContext>::Format(typeId, context);
+        }
+    };
 }

@@ -1,4 +1,4 @@
-#include "../BaseLittleECSTest.h"
+#include "BaseLittleECSTest.h"
 
 #include "LittleECS/Detail/ComponentId.h"
 #include "LittleECS/Detail/ComponentIdGenerator.h"

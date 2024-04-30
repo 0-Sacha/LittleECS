@@ -22,11 +22,11 @@ namespace LECS::Detail
     public:
         using M_Type = CompressedComponentStorage<ComponentType>;
 
-		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
+        static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
 
         using PageType = CompressedComponentStoragePage<ComponentType, PAGE_SIZE>;
         using PageTypeRef = std::unique_ptr<PageType>;
-		using PagesContainer = std::vector<PageTypeRef>;
+        using PagesContainer = std::vector<PageTypeRef>;
         using FreePages = std::set<Index::IndexOfPage>;
 
         using CompressedCSInlineEntityToComponentType = CompressedCSInlineEntityToComponent<ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF, PAGE_SIZE>;
@@ -34,13 +34,13 @@ namespace LECS::Detail
                                                         CompressedCSMapEntityToComponent,
                                                         CompressedCSInlineEntityToComponentType>;
 
-	public:
-		~CompressedComponentStorage() override {}
+    public:
+        ~CompressedComponentStorage() override {}
 
-	protected:
-		PagesContainer m_PageContainer;
+    protected:
+        PagesContainer m_PageContainer;
         FreePages m_FreePages;
-		EntityToComponent m_EntityToComponent;
+        EntityToComponent m_EntityToComponent;
 
     public:
         const PagesContainer& GetPageContainer() const
@@ -48,25 +48,25 @@ namespace LECS::Detail
             return m_PageContainer;
         }
 
-    	bool HasThisComponent(EntityId entity) const
-		{
-			return m_EntityToComponent.HasEntity(entity);
-		}
+        bool HasThisComponent(EntityId entity) const
+        {
+            return m_EntityToComponent.HasEntity(entity);
+        }
 
         bool HasThisComponentV(EntityId entity) const override
-		{
-			return HasThisComponent(entity);
-		}
+        {
+            return HasThisComponent(entity);
+        }
 
     private:
         Index::IndexOfPage GetFreePageIndexOrCreateIt()
         {
             if (m_FreePages.size() == 0)
             {
-				m_PageContainer.emplace_back(new PageType);
+                m_PageContainer.emplace_back(new PageType);
                 Index::IndexOfPage indexOfPage = m_PageContainer.size() - 1;
                 m_FreePages.insert(indexOfPage);
-				return indexOfPage;
+                return indexOfPage;
             }
 
             Index::IndexOfPage indexOfPage = *m_FreePages.begin();
@@ -81,7 +81,7 @@ namespace LECS::Detail
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
 
-			m_FreePages.insert(indexInfo.IndexOfPage);
+            m_FreePages.insert(indexInfo.IndexOfPage);
         }
 
         void RemoveComponentOfEntityV(EntityId entity) override
@@ -89,7 +89,7 @@ namespace LECS::Detail
             return RemoveComponentOfEntity(entity);
         }
 
-	public:
+    public:
         template <typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
@@ -116,7 +116,7 @@ namespace LECS::Detail
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             Index::IndexInfo indexInfo = m_EntityToComponent.GetIndexInfoOfEntity(entity);
-			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
+            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
             const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
@@ -142,7 +142,7 @@ namespace LECS::Detail
         {
             return reinterpret_cast<const void*>(GetComponentOfEntityPtr(entity));
         }
-		void* GetComponentAliasedPtrV(EntityId entity) override
+        void* GetComponentAliasedPtrV(EntityId entity) override
         {
             return reinterpret_cast<void*>(GetComponentOfEntityPtr(entity));
         }
@@ -150,13 +150,13 @@ namespace LECS::Detail
     private:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function, typename ComponentConstness>
-    	void ForEachStorageImpl(Function&& function)
+        void ForEachStorageImpl(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
     public:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-    	inline void ForEachStorage(Function&& function)
+        inline void ForEachStorage(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
             return ForEachStorageImpl<Function, ComponentType>(std::forward<Function>(function));
@@ -164,7 +164,7 @@ namespace LECS::Detail
         
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		inline void ForEachStorage(Function&& function) const
+        inline void ForEachStorage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
             return const_cast<CompressedComponentStorage<ComponentType>*>(this)->template ForEachStorageImpl<Function, const ComponentType>(std::forward<Function>(function));

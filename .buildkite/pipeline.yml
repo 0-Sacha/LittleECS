@@ -1,0 +1,5 @@
+steps:
+  - label: ":pipeline: Launch Windows Pipeline"
+    command: "buildkite-agent pipeline upload .buildkite/windows_amd64.yml"
+  - label: ":pipeline: Launch Linux Pipeline"
+    command: "buildkite-agent pipeline upload .buildkite/linux_amd64.yml"

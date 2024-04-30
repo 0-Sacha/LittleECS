@@ -80,7 +80,7 @@ namespace LECS
                 {
                     std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }
-				else if constexpr (Detail::IsApplicable<Function, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
+                else if constexpr (Detail::IsApplicable<Function, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
                 {
                     std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
                 }

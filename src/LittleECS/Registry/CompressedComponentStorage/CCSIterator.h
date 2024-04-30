@@ -24,20 +24,20 @@ namespace LECS::Detail
                 , m_CurrentIndexOfPage(currentIndexOfPage)
                 , m_CurrentPageIndexOfCurrent(currentPageIndexOfCurrent)
             {
-				if (CurrentEntityIsValid() == false)
-				{
-					if (currentIndexOfPage == 0 && currentPageIndexOfCurrent == 0)
-						operator++();
-					else
-						m_CompressedComponentStorage = nullptr;
-				}
+                if (CurrentEntityIsValid() == false)
+                {
+                    if (currentIndexOfPage == 0 && currentPageIndexOfCurrent == 0)
+                        operator++();
+                    else
+                        m_CompressedComponentStorage = nullptr;
+                }
             }
 
         private:
             bool CurrentEntityIsValid() const
             {
-				if (m_CompressedComponentStorage == nullptr)
-					return false;
+                if (m_CompressedComponentStorage == nullptr)
+                    return false;
 
                 if (m_CurrentIndexOfPage >= m_CompressedComponentStorage->GetPageContainer().size())
                     return false;
@@ -65,7 +65,7 @@ namespace LECS::Detail
                     if (m_CurrentPageIndexOfCurrent < CompressedComponentStorage::PAGE_SIZE)
                     {
                         found = true;
-						break;
+                        break;
                     }
                     ++m_CurrentIndexOfPage;
                 }

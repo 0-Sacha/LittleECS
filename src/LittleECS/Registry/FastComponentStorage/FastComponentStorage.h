@@ -19,45 +19,45 @@ namespace LECS::Detail
     public:
         using M_Type = FastComponentStorage<ComponentType>;
 
-		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
+        static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = ComponentStorageInfo<ComponentType>::PAGE_SIZE;
 
         using PageType = FastComponentStoragePage<ComponentType, PAGE_SIZE>;
         using PageTypeRef = std::unique_ptr<PageType>;
-		using PagesContainer = std::vector<PageTypeRef>;
+        using PagesContainer = std::vector<PageTypeRef>;
         using AliveEntitiesContainerType = std::vector<typename EntityId::Type>;
         using AliveEntitiesContainer = std::conditional_t<ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF, AliveEntitiesContainerType, int>;
 
         class FCSErrorCantForEachOnNonREFContainer : public LECSException {};
 
-	public:
-		FastComponentStorage()
-			: m_PageContainer()
-			, m_AliveEntitiesContainer()
-		{
-		}
+    public:
+        FastComponentStorage()
+            : m_PageContainer()
+            , m_AliveEntitiesContainer()
+        {
+        }
 
-		~FastComponentStorage() override
+        ~FastComponentStorage() override
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
                 m_AliveEntitiesContainer.reserve(PAGE_SIZE);
         }
 
-	protected:
-		PagesContainer m_PageContainer;
+    protected:
+        PagesContainer m_PageContainer;
         AliveEntitiesContainer m_AliveEntitiesContainer;
 
-	protected:
-		inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
-		{
-			Index::IndexInfo indexInfo;
-			indexInfo.IndexOfPage = entity.Id / PAGE_SIZE;
-			indexInfo.PageIndexOfComponent = entity.Id % PAGE_SIZE;
-			return indexInfo;
-		}
+    protected:
+        inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
+        {
+            Index::IndexInfo indexInfo;
+            indexInfo.IndexOfPage = entity.Id / PAGE_SIZE;
+            indexInfo.PageIndexOfComponent = entity.Id % PAGE_SIZE;
+            return indexInfo;
+        }
 
     public:
-    	bool HasThisComponent(EntityId entity) const
-		{
+        bool HasThisComponent(EntityId entity) const
+        {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
 
             if (indexInfo.IndexOfPage >= m_PageContainer.size())
@@ -65,11 +65,11 @@ namespace LECS::Detail
             if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
                 return false;
 
-			return m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent);
-		}
+            return m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent);
+        }
 
         bool HasThisComponentV(EntityId entity) const override
-		{
+        {
             return HasThisComponent(entity);
         }
         
@@ -94,7 +94,7 @@ namespace LECS::Detail
             return RemoveComponentOfEntity(entity);
         }
 
-	public:
+    public:
         template <typename... Args>
         ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
         {
@@ -124,7 +124,7 @@ namespace LECS::Detail
         ComponentType& GetComponentOfEntity(EntityId entity)
         {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
+            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
             PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
@@ -132,7 +132,7 @@ namespace LECS::Detail
         const ComponentType& GetComponentOfEntity(EntityId entity) const
         {
             Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-			LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
+            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
             const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
             return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
         }
@@ -159,7 +159,7 @@ namespace LECS::Detail
         {
             return reinterpret_cast<const void*>(GetComponentOfEntityPtr(entity));
         }
-		void* GetComponentAliasedPtrV(EntityId entity) override
+        void* GetComponentAliasedPtrV(EntityId entity) override
         {
             return reinterpret_cast<void*>(GetComponentOfEntityPtr(entity));
         }
@@ -172,7 +172,7 @@ namespace LECS::Detail
 
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		void ForEachStorage(Function&& function) const
+        void ForEachStorage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
         
         // Function = std::function<void(EntityId, ComponentType&)>
@@ -182,7 +182,7 @@ namespace LECS::Detail
 
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-		void ForEachStorage(Function&& function, const auto& registryAliveEntities) const
+        void ForEachStorage(Function&& function, const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
     public:

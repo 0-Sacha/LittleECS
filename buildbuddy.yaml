@@ -1,0 +1,18 @@
+plugins:
+  - repo: buildbuddy-io/plugins
+    path: open-invocation
+  - repo: siggisim/theme-modern
+  - repo: buildbuddy-io/plugins
+    path: notify
+
+actions:
+  - name: "BuildBuddy Workflows"
+    triggers:
+      push:
+        branches:
+          - "*"
+      pull_request:
+        branches:
+          - "*"
+    bazel_commands:
+      - "test --remote_header=x-buildbuddy-api-key=$BUILDBUDDY_RBEKEY_WINDOWS_WSL //..."

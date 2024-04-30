@@ -46,12 +46,12 @@ namespace LECS::Detail
     public:
         virtual ~IComponentStorage() = default;
 
-	public:
-		virtual bool HasThisComponentV(EntityId entity) const = 0;
-		virtual void RemoveComponentOfEntityV(EntityId entity) = 0;
-		virtual const void* GetComponentAliasedPtrV(EntityId entity) const = 0;
-		virtual void* GetComponentAliasedPtrV(EntityId entity) = 0;
-	};
+    public:
+        virtual bool HasThisComponentV(EntityId entity) const = 0;
+        virtual void RemoveComponentOfEntityV(EntityId entity) = 0;
+        virtual const void* GetComponentAliasedPtrV(EntityId entity) const = 0;
+        virtual void* GetComponentAliasedPtrV(EntityId entity) = 0;
+    };
 
     template <typename ComponentType>
     struct TypeValidForComponentStorage
@@ -68,13 +68,13 @@ namespace LECS::Detail
     class CompressedComponentStorage;
 
 
-	template <typename ComponentType>
+    template <typename ComponentType>
     struct DefaultComponentStorageInfo
     {
         struct FastComponent
         {
             using StorageType = FastComponentStorage<ComponentType>;
-    		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
+            static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
             static constexpr bool HAS_ENTITIES_REF = true;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = false;
@@ -85,7 +85,7 @@ namespace LECS::Detail
         struct FastComponentWithoutREF
         {
             using StorageType = FastComponentStorage<ComponentType>;
-    		static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
+            static constexpr Index::GlobalIndexOfComponent PAGE_SIZE = 1024;
             static constexpr bool HAS_ENTITIES_REF = false;
             static constexpr bool USE_MAP_VERSION = false;
             static constexpr bool SEND_ENTITIES_POOL_ON_EACH = true;
@@ -118,7 +118,7 @@ namespace LECS::Detail
         using Default = FastComponent;
     };
 
-	template <typename ComponentType>
+    template <typename ComponentType>
     struct ComponentStorageInfo : public DefaultComponentStorageInfo<ComponentType>::Default{};
 
 }

@@ -13,13 +13,13 @@ namespace LECS::Detail
     private:
         struct ComponentDataBuffer
         {
-			union DataStorageType
-			{
-				std::uint8_t StorageData[sizeof(ComponentType)];
-				ComponentType ComponentValue;
+            union DataStorageType
+            {
+                std::uint8_t StorageData[sizeof(ComponentType)];
+                ComponentType ComponentValue;
 
-				DataStorageType() {}
-				~DataStorageType() {}
+                DataStorageType() {}
+                ~DataStorageType() {}
             };
             DataStorageType Data{};
         };
@@ -42,30 +42,30 @@ namespace LECS::Detail
 
         struct EntityLinkedWithRef
         {
-			typename EntityId::Type Entity;
+            typename EntityId::Type Entity;
             Index::IndexInAliveList IndexInAliveList;
 
-			inline bool constexpr IsValid() const
-			{
-				return Entity != EntityId::INVALID;
-			}
+            inline bool constexpr IsValid() const
+            {
+                return Entity != EntityId::INVALID;
+            }
 
-			inline void constexpr SetInvalid()
-			{
-				Entity = EntityId::INVALID;
-			}
+            inline void constexpr SetInvalid()
+            {
+                Entity = EntityId::INVALID;
+            }
         };
 
         using EntityLinked = std::conditional_t<ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF, EntityLinkedWithRef, EntityLinkedWithoutRef>;
 
-	private:
+    private:
         template <typename... Args>
-		inline ComponentType& ConstructAt(Index::PageIndexOfComponent index, Args&&... args)
-		{
-			ComponentDataBuffer* buffer = &m_Page[index];
-			ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
+        inline ComponentType& ConstructAt(Index::PageIndexOfComponent index, Args&&... args)
+        {
+            ComponentDataBuffer* buffer = &m_Page[index];
+            ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
             return *component;
-		}
+        }
 
         inline void DestroyAt(Index::PageIndexOfComponent index)
         {
@@ -80,30 +80,30 @@ namespace LECS::Detail
                 m_EntitiesLinked[i].SetInvalid();
         }
 
-		~FastComponentStoragePage()
-		{
-			// ForEach([this](Index::PageIndexOfComponent index) { this->DestroyAt(index); });
-		}
+        ~FastComponentStoragePage()
+        {
+            // ForEach([this](Index::PageIndexOfComponent index) { this->DestroyAt(index); });
+        }
 
     protected:
         std::array<ComponentDataBuffer, PAGE_SIZE> m_Page;
         EntityLinked m_EntitiesLinked[PAGE_SIZE];
 
     public:
-    	inline typename EntityId::Type GetEntityIdAtIndex(Index::PageIndexOfComponent index) const
-		{
-			return m_EntitiesLinked[index].Entity;
+        inline typename EntityId::Type GetEntityIdAtIndex(Index::PageIndexOfComponent index) const
+        {
+            return m_EntitiesLinked[index].Entity;
         }
 
         inline bool HasEntityAtIndex(Index::PageIndexOfComponent index) const
-		{
-			return m_EntitiesLinked[index].IsValid();
+        {
+            return m_EntitiesLinked[index].IsValid();
         }
 
         inline Index::IndexInAliveList GetIndexInAliveListAtIndex(Index::PageIndexOfComponent index) const
-		{
+        {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-    			return m_EntitiesLinked[index].IndexInAliveList;
+                return m_EntitiesLinked[index].IndexInAliveList;
             else
                 return 0;
         }
@@ -145,36 +145,36 @@ namespace LECS::Detail
 
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
-			LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
-			LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
+            LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
-		}
+        }
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
-			LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
-			LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
+            LECS_ASSERT(index < m_Page.size(), "There are no component linked to this entity at this page")
+            LECS_ASSERT(HasEntityAtIndex(index) == true, "There are no component linked to this entity at this page")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
-		}
+        }
 
         ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index)
-		{
-			if (index >= m_Page.size())
-				return nullptr;
+        {
+            if (index >= m_Page.size())
+                return nullptr;
             if (HasEntityAtIndex(index) == false)
                 return nullptr;
             return reinterpret_cast<ComponentType*>(&m_Page[index]);
-		}
+        }
 
         const ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index) const
         {
-			if (index >= m_Page.size())
-				return nullptr;
+            if (index >= m_Page.size())
+                return nullptr;
             if (HasEntityAtIndex(index) == false)
                 return nullptr;
             return reinterpret_cast<const ComponentType*>(&m_Page[index]);
-		}
+        }
     };
 }

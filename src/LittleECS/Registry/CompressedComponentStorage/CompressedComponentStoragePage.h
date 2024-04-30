@@ -18,8 +18,8 @@ namespace LECS::Detail
                 std::uint8_t StorageData[sizeof(ComponentType)];
                 ComponentType ComponentValue;
 
-				DataStorageType() {}
-				~DataStorageType() {}
+                DataStorageType() {}
+                ~DataStorageType() {}
             };
             DataStorageType Data{};
         };
@@ -27,14 +27,14 @@ namespace LECS::Detail
         static constexpr std::size_t NUMBER_OF_BLOCKS = PAGE_SIZE / sizeof(std::size_t);
         static constexpr std::size_t BLOCK_SIZE = sizeof(std::size_t) * 8;
 
-	private:
+    private:
         template <typename... Args>
-		inline ComponentType& ConstructAt(Index::PageIndexOfComponent index, Args&&... args)
-		{
-			ComponentDataBuffer* buffer = &m_Page[index];
-			ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
+        inline ComponentType& ConstructAt(Index::PageIndexOfComponent index, Args&&... args)
+        {
+            ComponentDataBuffer* buffer = &m_Page[index];
+            ComponentType* component = new (buffer) ComponentType(std::forward<Args>(args)...);
             return *component;
-		}
+        }
 
         inline void DestroyAt(Index::PageIndexOfComponent index)
         {
@@ -54,12 +54,12 @@ namespace LECS::Detail
 #endif
         }
 
-		~CompressedComponentStoragePage() = default;
+        ~CompressedComponentStoragePage() = default;
 
     protected:
         std::array<ComponentDataBuffer, PAGE_SIZE> m_Page;
-		std::size_t m_FreeComponent[NUMBER_OF_BLOCKS];
-		EntityId m_EntityIdLinked[PAGE_SIZE];
+        std::size_t m_FreeComponent[NUMBER_OF_BLOCKS];
+        EntityId m_EntityIdLinked[PAGE_SIZE];
         std::size_t m_CurrentSize = 0;
 
     public:
@@ -95,10 +95,10 @@ namespace LECS::Detail
                 ++beginFreeListBlocks;
             }
 
-			LECS_ASSERT(beginFreeListBlocks != endFreeListBlocks, "This page is full")
-			LECS_ASSERT(*beginFreeListBlocks != 0, "This page is full")
+            LECS_ASSERT(beginFreeListBlocks != endFreeListBlocks, "This page is full")
+            LECS_ASSERT(*beginFreeListBlocks != 0, "This page is full")
 
-			std::size_t blockIndex = static_cast<std::size_t>(beginFreeListBlocks - m_FreeComponent);
+            std::size_t blockIndex = static_cast<std::size_t>(beginFreeListBlocks - m_FreeComponent);
 
             std::size_t block = *beginFreeListBlocks;
             std::size_t mask = 1;
@@ -139,7 +139,7 @@ namespace LECS::Detail
                 {
                     if ((*currentBlock & mask) == 0)
                     {
-						std::size_t blockIndex = NUMBER_OF_BLOCKS - std::size_t(endBlock - currentBlock);
+                        std::size_t blockIndex = NUMBER_OF_BLOCKS - std::size_t(endBlock - currentBlock);
                         foundIndex = indexInSubBlock + (blockIndex * BLOCK_SIZE);
                         currentBlock = endBlock;
                         break;
@@ -162,7 +162,7 @@ namespace LECS::Detail
             LECS_ASSERT(CanAddComponent(), "Can't add more component to this page")
 
             Index::PageIndexOfComponent index = GetNextFreeIndex();
-			LECS_ASSERT(HasComponentAtIndex(index) == false, "There are already a component at this index")
+            LECS_ASSERT(HasComponentAtIndex(index) == false, "There are already a component at this index")
 
             ComponentType& component = ConstructAt(index, std::forward<Args>(args)...);
             SetHasComponentAtIndex(index, true);
@@ -184,18 +184,18 @@ namespace LECS::Detail
         ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index)
         {
             LECS_ASSERT(HasComponentAtIndex(index) == true, "There are no component at this index")
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
+            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
             return *reinterpret_cast<ComponentType*>(&m_Page[index]);
-		}
+        }
 
         const ComponentType& GetComponentAtIndex(Index::PageIndexOfComponent index) const
         {
             LECS_ASSERT(HasComponentAtIndex(index) == true, "There are no component at this index")
-			LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
+            LECS_ASSERT(m_EntityIdLinked[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
 
             return *reinterpret_cast<const ComponentType*>(&m_Page[index]);
-		}
+        }
 
         ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index)
         {
@@ -204,7 +204,7 @@ namespace LECS::Detail
             if (m_EntityIdLinked[index] != EntityId::INVALID)
                 return nullptr;
             return reinterpret_cast<ComponentType*>(&m_Page[index]);
-		}
+        }
 
         const ComponentType* GetComponentAtIndexPtr(Index::PageIndexOfComponent index) const
         {
@@ -213,26 +213,26 @@ namespace LECS::Detail
             if (m_EntityIdLinked[index] != EntityId::INVALID)
                 return nullptr;
             return reinterpret_cast<const ComponentType*>(&m_Page[index]);
-		}
+        }
 
         inline EntityId GetEntityIdAtIndex(Index::PageIndexOfComponent index) const
-		{
-			return m_EntityIdLinked[index];
+        {
+            return m_EntityIdLinked[index];
         }
 
     private:
         template <typename Function, typename ComponentConstness>
-		void ForEachPageImpl(Function&& function);
+        void ForEachPageImpl(Function&& function);
 
     public:
         template <typename Function>
-		inline void ForEachPage(Function&& function)
+        inline void ForEachPage(Function&& function)
         {
             return ForEachPageImpl<Function, ComponentType>(std::forward<Function>(function));
         }
 
         template <typename Function>
-		void ForEachPage(Function&& function) const
+        void ForEachPage(Function&& function) const
         {
             return const_cast<CompressedComponentStoragePage<ComponentType, PAGE_SIZE>*>(this)->template ForEachPageImpl<Function, const ComponentType>(std::forward<Function>(function));
         }
