@@ -1,26 +1,22 @@
 
-Solution.ProjectsInfo.Includes["LittleECS"] = {
-	"%{Solution.Projects.LittleECS}/src/",
-	"%{Solution.Projects.LittleECS}/src/LittleECS",
+Solution.Projects["LittleECS"].PlatformDefineName = "LECS"
+Solution.Projects["LittleECS"].Type = "StaticLib"
+Solution.Projects["LittleECS"].HeaderOnly = true
+Solution.Projects["LittleECS"].IncludeDirs = {
+	"%{Solution.Projects.LittleECS.Path}/src/",
+	"%{Solution.Projects.LittleECS.Path}/src/LittleECS",
 }
-
-Solution.ProjectsInfo.Defines["LittleECS"] = {
+Solution.Projects["LittleECS"].Defines = {
 	"LECS_ENABLE_EACH"
 }
-
-Solution.ProjectsInfo.HeaderOnly["LittleECS"] = true;
-
-Solution.ProjectsInfo.PlatformDefineName["LittleECS"] = "LECS"
-
-Solution.ProjectsInfo.ProjectDependencies["LittleECS"] = {
+Solution.Projects["LittleECS"].ProjectDependencies = {
 	"ProjectCore"
 }
 
 project "LittleECS"
-	kind "StaticLib"
+	kind 		(Solution.Projects["ProjectCore"].Type)
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
 
 	Solution.HighWarnings()
 
@@ -39,28 +35,26 @@ project "LittleECS"
 if (LittleECSTestsEnable)
 then
 
-Solution.Projects["LittleECSTests"] = Solution.Projects["LittleECS"]
+Solution.AddProject("LittleECSTests", Solution.Projects["LittleECS"].Path)
+Solution.Projects["LittleECSTests"].ProjectDependencies = {
+	"LittleECS"
+}
 
 LittleECSTestLaunch = {}
-LittleECSTestLaunch.project = "LittleECSTests"
+LittleECSTestLaunch.Project = "LittleECSTests"
 Solution.Launch["LittleECSTests"] = LittleECSTestLaunch
 
 LittleECSTestLaunchPerf = {}
-LittleECSTestLaunchPerf.project = "LittleECSTests"
+LittleECSTestLaunchPerf.Project = "LittleECSTests"
 LittleECSTestLaunchPerf.BuildCfg = "Release"
 LittleECSTestLaunchPerf.Platform = "x64"
 LittleECSTestLaunchPerf.PreLaunchTask = "RELEASEx64 build"
 Solution.Launch["LittleECSTests-PerfTest"] = LittleECSTestLaunchPerf
 
-Solution.ProjectsInfo.ProjectDependencies["LittleECSTests"] = {
-	"LittleECS"
-}
-
 project "LittleECSTests"
-	kind "ConsoleApp"
+	kind 		(Solution.Projects["LittleECSTests"].Type)
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "on"
 
 	Solution.HighWarnings()
 
