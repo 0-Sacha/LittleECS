@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../IComponentStorage.h"
+#include "LittleECS/Registry/IComponentStorage.h"
 
 #include <array>
 

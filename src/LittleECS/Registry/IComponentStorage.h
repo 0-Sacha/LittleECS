@@ -67,7 +67,6 @@ namespace LECS::Detail
     requires (TypeValidForComponentStorage<ComponentType>::Value)
     class CompressedComponentStorage;
 
-
     template <typename ComponentType>
     struct DefaultComponentStorageInfo
     {

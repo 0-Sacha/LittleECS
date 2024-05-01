@@ -1,22 +1,12 @@
 #pragma once
 
 #include "BasicView.h"
+#include "BasicViewIterator.h"
 
 #include "LittleECS/Detail/ApplicableFunction.h"
 
 namespace LECS
 {
-    // Function = std::function<void(EntityId, ComponentTypeEach& component)>
-    template <typename... ViewComponentTypes>
-    template <typename ComponentTypeEach, typename Function>
-    void BasicConstView<ViewComponentTypes...>::ForEachUniqueComponent(Function&& function) const
-    {
-        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function);
-        else
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
-    }
-
     // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>

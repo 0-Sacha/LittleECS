@@ -1,10 +1,12 @@
 #pragma once
 
+#include "LittleECS/Registry/IComponentStorage.h"
+#include "LittleECS/Detail/Exception.h"
+
 #include "CompressedComponentStoragePage.h"
 
 #include "CompressedCSMapEntityToComponent.h"
 #include "CompressedCSInlineEntityToComponent.h"
-
 
 #include <memory>
 #include <any>
@@ -14,7 +16,6 @@
 
 namespace LECS::Detail
 {
-
     template <typename ComponentType>
     requires (TypeValidForComponentStorage<ComponentType>::Value)
     class CompressedComponentStorage : public IComponentStorage
@@ -176,5 +177,5 @@ namespace LECS::Detail
     };
 }
 
-#include "CCSForEach.h"
-#include "CCSIterator.h"
+#include "CCSForEach-inl.h"
+#include "CCSIterator-inl.h"

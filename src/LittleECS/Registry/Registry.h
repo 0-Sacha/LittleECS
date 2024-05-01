@@ -2,11 +2,10 @@
 
 #include "LittleECS/Detail/EntityIdGenerator.h"
 
-#include "CompressedComponentStorage/CompressedComponentStorage.h"
-#include "FastComponentStorage/FastComponentStorage.h"
+#include "IComponentStorage.h"
 
-#include "Entity/Entity.h"
-#include "Entity/LiteEntity.h"
+#include "LittleECS/Entity/Entity.h"
+#include "LittleECS/Entity/LiteEntity.h"
 
 #include "Views/BasicView.h"
 
@@ -167,14 +166,11 @@ namespace LECS
     };
 }
 
-#include "Registry.inl"
+#include "Registry-inl.h"
+#include "RegistryForEach-inl.h"
+#include "RegistryIterator-inl.h"
 
-#include "RegistryForEach.h"
-#include "RegistryIterator.h"
+#include "Views/BasicView-inl-r.h"
 
-#include "Entity/Entity.inl"
-#include "Entity/LiteEntity.inl"
-
-#include "Views/BasicView.inl"
-#include "Views/BasicViewForEach.h"
-#include "Views/BasicViewIterator.h"
+#include "LittleECS/Entity/Entity-inl-r.h"
+#include "LittleECS/Entity/LiteEntity-inl-r.h"

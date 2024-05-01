@@ -1,7 +1,9 @@
 #pragma once
 
-#include "FastComponentStoragePage.h"
+#include "LittleECS/Registry/IComponentStorage.h"
 #include "LittleECS/Detail/Exception.h"
+
+#include "FastComponentStoragePage.h"
 
 #include <memory>
 #include <any>
@@ -11,7 +13,6 @@
 
 namespace LECS::Detail
 {
-
     template <typename ComponentType>
     requires (TypeValidForComponentStorage<ComponentType>::Value)
     class FastComponentStorage : public IComponentStorage
@@ -27,19 +28,17 @@ namespace LECS::Detail
         using AliveEntitiesContainerType = std::vector<typename EntityId::Type>;
         using AliveEntitiesContainer = std::conditional_t<ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF, AliveEntitiesContainerType, int>;
 
-        class FCSErrorCantForEachOnNonREFContainer : public LECSException {};
-
     public:
         FastComponentStorage()
             : m_PageContainer()
             , m_AliveEntitiesContainer()
         {
+            if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
+                m_AliveEntitiesContainer.reserve(PAGE_SIZE);
         }
 
         ~FastComponentStorage() override
         {
-            if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                m_AliveEntitiesContainer.reserve(PAGE_SIZE);
         }
 
     protected:
@@ -188,14 +187,17 @@ namespace LECS::Detail
     public:
         decltype(auto) EntitiesIteratorBegin() const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+
         decltype(auto) EntitiesIteratorEnd() const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
+
         decltype(auto) EntitiesIteratorBegin(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
+        
         decltype(auto) EntitiesIteratorEnd(const auto& registryAliveEntities) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
     };
 }
- 
-#include "FCSEach.h"
-#include "FCSIterator.h"
+
+#include "FCSEach-inl.h"
+#include "FCSIterator-inl.h"

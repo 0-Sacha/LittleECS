@@ -4,7 +4,6 @@
 
 namespace LECS::Detail 
 {
-
     template <bool HAS_ENTITIES_REF, std::size_t PAGE_SIZE>
     class CompressedCSInlineEntityToComponent
     {
@@ -139,5 +138,4 @@ namespace LECS::Detail
             (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInfo.SetInvalid();
         }
     };
-
 }

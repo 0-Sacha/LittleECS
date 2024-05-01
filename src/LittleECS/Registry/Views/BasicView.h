@@ -4,6 +4,7 @@
 
 #include "LittleECS/Detail/TypeTraits.h"
 #include "LittleECS/Detail/ApplicableFunction.h"
+#include "LittleECS/Detail/Iterable.h"
 
 #include <array>
 #include <tuple>
@@ -263,3 +264,6 @@ namespace LECS
         decltype(auto) EachComponents();
     };
 }
+
+#include "BasicViewEach-inl.h"
+#include "BasicViewForEach-inl.h"

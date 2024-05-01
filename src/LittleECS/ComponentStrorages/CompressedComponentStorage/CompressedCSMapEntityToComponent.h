@@ -6,7 +6,6 @@
 
 namespace LECS::Detail 
 {
-
     class CompressedCSMapEntityToComponent
     {
     public:
@@ -44,5 +43,4 @@ namespace LECS::Detail
             m_Container[entity.Id].SetInvalid();
         }
     };
-
 }

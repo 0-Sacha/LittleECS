@@ -13,11 +13,11 @@
     #define LECS_LOGGER_ENABLE
 #endif
 
-#ifdef LECS_LOGGER_ENABLE
-    #ifdef LECS_USE_PROJECTCORE
-        #include "UseProjectCore.h"
-    #endif
+#ifdef LECS_USE_PROJECTCORE
+    #include "UseProjectCore.h"
+#endif
 
+#ifdef LECS_LOGGER_ENABLE
     #define LECS_TRACE(...)     // TODO: ?
     #define LECS_INFO(...)      // TODO: ?
     #define LECS_WARN(...)      // TODO: ?
