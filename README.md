@@ -6,7 +6,7 @@
 LittleECS is a C++ Entity Component System.
 The API is mostly inspired from [entt](https://github.com/skypjack/entt)
 
-I highly encourage you to check out the [documentation](Docs/Workflow.md) and [example](Examples/Workflow/main.cpp) to see what it can do and how to use it.
+I highly encourage you to check out the Workflow [documentation](Docs/Workflow.md) and [example](Examples/Workflow/main.cpp) to see what it can do and how to use it.
 
 ## Warnings
 This project is mostly an educational project of mine that I have started to learn about C++. Some features are not finished to be implemented/tested. I highly not recomend using this for a serious project.
