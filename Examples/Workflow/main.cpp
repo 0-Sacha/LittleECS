@@ -1,11 +1,8 @@
 #include "LittleECS/LittleECS.h"
 
-#define PROJECTCORE_BASE_Logger_NAME "Workflow"
-#define PROJECTCORE_Logger_ENABLE
+#include "ProjectCore/FLog.h"
 
-#include "ProjectCore/LoggerManager/Loggers/BasicLogger.h"
-
-ProjectCore::LoggerManager::BasicLogger Logger;
+ProjectCore::FLog::BasicLogger Logger("Workflow");
 
 /****** Components ******/
 struct ASmallComponent

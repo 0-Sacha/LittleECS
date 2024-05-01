@@ -29,6 +29,6 @@ Then you can run a program with (example with `//Workflow:Workflow`, see below f
 .\bazel-bin\Workflow\Workflow
 ```
 
-### List Of Example
+### List Of Examples
 
 - `//Workflow:Workflow`: Workflow using the Internal Logger

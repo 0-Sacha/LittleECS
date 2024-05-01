@@ -2,7 +2,7 @@
 
 #include "LittleECS/LittleECS.h"
 
-#include "ProjectCore/Instrumentation/ProfilerManger/ProfilerManger.h"
+#include "ProjectCore/ProfilerManager.h"
 
 #include <set>
 
