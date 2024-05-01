@@ -1,4 +1,4 @@
-name: ProjectCore
+name: LittleECS
 
 on:
   push:

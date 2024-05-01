@@ -4,6 +4,7 @@ MODULE.bazel.lock
 bazel-bin
 bazel-out
 bazel-littleecs
+bazel-examples
 bazel-testlogs
 
 # VS

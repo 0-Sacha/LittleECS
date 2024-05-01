@@ -1,4 +1,4 @@
-name: "ProjectCore"
+name: "LittleECS"
 steps:
   - label: ":pipeline: Launch Embbeded Pipeline"
     command: "buildkite-agent pipeline upload .builkite/pipeline.yml"
