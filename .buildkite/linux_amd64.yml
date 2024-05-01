@@ -1,0 +1,13 @@
+agents:
+  queue: "agent-runners-linux-amd64"
+
+steps:
+  - label: ":bazel: Build and Test on gcc"
+    commands:
+      - CC=gcc bazelisk build --config=default_compiler_opts //:LittleECSTests
+      - CC=gcc bazelisk test --config=default_compiler_opts //:LittleECSTests
+
+  - label: ":bazel: Build and Test on Clang"
+    commands:
+      - CC=clang bazelisk build --config=default_compiler_opts //:LittleECSTests
+      - CC=clang bazelisk test --config=default_compiler_opts //:LittleECSTests

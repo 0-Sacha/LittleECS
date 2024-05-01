@@ -1,19 +1,19 @@
 #pragma once
 
-#include "Core.h"
+#include "LittleECS/Core/Core.h"
 
 #include "ComponentId.h"
 
 #include <string_view>
 
-#if UTILITIES_COMPILER_GMAKE
-    #define LECS_FUNCTION_SIGNATURE_ID __PRETTY_FUNCTION__
-    #define LECS_FUNCTION_SIGNATURE_ID_PREFIX '='
-    #define LECS_FUNCTION_SIGNATURE_ID_SUFFIX ']'
-#elif UTILITIES_COMPILER_VS
+#ifdef LECS_COMPILER_MSVC
     #define LECS_FUNCTION_SIGNATURE_ID __FUNCSIG__
     #define LECS_FUNCTION_SIGNATURE_ID_PREFIX '<'
     #define LECS_FUNCTION_SIGNATURE_ID_SUFFIX '>'
+#else
+    #define LECS_FUNCTION_SIGNATURE_ID __PRETTY_FUNCTION__
+    #define LECS_FUNCTION_SIGNATURE_ID_PREFIX '='
+    #define LECS_FUNCTION_SIGNATURE_ID_SUFFIX ']'
 #endif
 
 namespace LECS::Detail

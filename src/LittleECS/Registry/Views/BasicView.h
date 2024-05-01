@@ -2,8 +2,9 @@
 
 #include "LittleECS/Registry/IComponentStorage.h"
 
-#include "LittleECS/Detail/TypeParameterPack.h"
+#include "LittleECS/Detail/TypeTraits.h"
 #include "LittleECS/Detail/ApplicableFunction.h"
+#include "LittleECS/Detail/Iterable.h"
 
 #include <array>
 #include <tuple>
@@ -55,7 +56,7 @@ namespace LECS
         template <typename ComponentType>
         bool Has(EntityId entity) const
         {
-			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+            auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
             if (storage == nullptr)
                 return false;
             return storage->HasThisComponent(entity);
@@ -64,38 +65,38 @@ namespace LECS
         template <typename ComponentType, typename... ComponentTypes>
         bool HasAll(EntityId entity) const
         {
-			if constexpr (sizeof...(ComponentTypes) == 0)
+            if constexpr (sizeof...(ComponentTypes) == 0)
                 return Has<ComponentType>(entity);
             else
                 return Has<ComponentType>(entity) && HasAll<ComponentTypes...>(entity);
         }
 
     public:
-		template <typename ComponentType>
-		const ComponentType& Get(EntityId entity) const
-		{
-			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+        template <typename ComponentType>
+        const ComponentType& Get(EntityId entity) const
+        {
+            auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
             LECS_ASSERT(storage, "This entity doesn't have this component")
             return storage->GetComponentOfEntity(entity);
-		}
+        }
         template <typename ComponentType>
-		const ComponentType* GetPtr(EntityId entity) const
-		{
-			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+        const ComponentType* GetPtr(EntityId entity) const
+        {
+            auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
             LECS_ASSERT(storage, "This entity doesn't have this component")
             return storage->GetComponentOfEntityPtr(entity);
-		}
+        }
         template <typename... ComponentTypes>
-		std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
-		{
+        std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
+        {
             return std::tuple<const ComponentTypes&...>(Get<ComponentTypes>(entity)...);
-		}
+        }
 
     public:
         // Function = std::function<void(EntityId)>
-		template<typename Function>
+        template<typename Function>
         requires (Detail::IsApplicable<Function, EntityId>::Value)
-		void ForEachEntities(Function&& function) const
+        void ForEachEntities(Function&& function) const
         {
             return ForEachComponents<ViewComponentTypes...>(std::forward<Function>(function));
         }
@@ -119,7 +120,7 @@ namespace LECS
 
         template <typename ComponentTypeEach>
         decltype(auto) EachUniqueComponent() const;
-	    template <typename RangeComponent, typename... ComponentTypesEach>
+        template <typename RangeComponent, typename... ComponentTypesEach>
         decltype(auto) EachComponents() const;
     };
 
@@ -176,10 +177,10 @@ namespace LECS
         template <typename ComponentType>
         ComponentType& Get(EntityId entity)
         {
-			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
-			LECS_ASSERT(storage, "This entity doesn't have this component")
-			return storage->GetComponentOfEntity(entity);
-		}
+            auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+            LECS_ASSERT(storage, "This entity doesn't have this component")
+            return storage->GetComponentOfEntity(entity);
+        }
 
         template <typename ComponentType>
         const ComponentType& GetPtr(EntityId entity) const
@@ -189,27 +190,27 @@ namespace LECS
         template <typename ComponentType>
         ComponentType* GetPtr(EntityId entity)
         {
-			auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
-			LECS_ASSERT(storage, "This entity doesn't have this component")
-			return &storage->GetComponentOfEntity(entity);
-		}
+            auto storage = GetComponentStorageAt<TypeIndex<ComponentType>::Index>();
+            LECS_ASSERT(storage, "This entity doesn't have this component")
+            return &storage->GetComponentOfEntity(entity);
+        }
 
         template <typename... ComponentTypes>
-		std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
-		{
+        std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const
+        {
             return Base::template GetAll<ComponentTypes...>(entity);
-		}
-		template <typename... ComponentTypes>
-		std::tuple<ComponentTypes&...> GetAll(EntityId entity)
-		{
+        }
+        template <typename... ComponentTypes>
+        std::tuple<ComponentTypes&...> GetAll(EntityId entity)
+        {
             return std::tuple<ComponentTypes&...>(Get<ComponentTypes>(entity)...);
-		}
+        }
 
     public:
         // Function = std::function<void(EntityId)>
-		template<typename Function>
+        template<typename Function>
         requires (Detail::IsApplicable<Function, EntityId>::Value)
-		void ForEachEntities(Function&& function) const
+        void ForEachEntities(Function&& function) const
         {
             return Base::template ForEachEntities<Function>(std::forward<Function>(function));
         }
@@ -251,7 +252,7 @@ namespace LECS
         {
             return Base::template EachUniqueComponent<ComponentTypeEach>();
         }
-	    template <typename RangeComponent, typename... ComponentTypesEach>
+        template <typename RangeComponent, typename... ComponentTypesEach>
         decltype(auto) EachComponents() const
         {
             return Base::template EachComponents<RangeComponent, ComponentTypesEach...>();
@@ -259,7 +260,10 @@ namespace LECS
 
         template <typename ComponentTypeEach>
         decltype(auto) EachUniqueComponent();
-	    template <typename RangeComponent, typename... ComponentTypesEach>
+        template <typename RangeComponent, typename... ComponentTypesEach>
         decltype(auto) EachComponents();
     };
 }
+
+#include "BasicViewEach-inl.h"
+#include "BasicViewForEach-inl.h"

@@ -1,0 +1,23 @@
+""
+
+# buildifier: disable=module-docstring
+module(
+    name = "littleecs_examples",
+    version = "0.1",
+    repo_name = "com_sacha_littleecs_examples",
+)
+
+bazel_dep(name = "rules_cc", version = "0.0.9")
+
+bazel_dep(name = "littleecs")
+local_path_override(
+    module_name = "littleecs",
+    path = "../",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "ProjectCore",
+    urls = [ "https://github.com/0-Sacha/ProjectCore/archive/refs/heads/dev.zip" ],
+    strip_prefix = "ProjectCore-dev"
+)

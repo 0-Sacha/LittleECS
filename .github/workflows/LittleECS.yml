@@ -1,0 +1,64 @@
+name: LittleECS
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  windows-latest-msvc:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: bazelbuild/setup-bazelisk@v3
+    - name: Mount bazel cache
+      uses: actions/cache@v4
+      with:
+        path: "~/.cache/bazel"
+        key: bazel
+    - name: Building...
+      run: bazelisk build --config=microsoft_compiler_opts //:LittleECSTests
+    - name: Testing...
+      run: bazelisk test --config=microsoft_compiler_opts //:LittleECSTests
+      
+  ubuntu-latest-gcc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: bazelbuild/setup-bazelisk@v3
+    - name: Mount bazel cache
+      uses: actions/cache@v4
+      with:
+        path: "~/.cache/bazel"
+        key: bazel
+    - name: Version
+      run: gcc --version
+    - name: Building...
+      run: CC=gcc bazelisk build --config=default_compiler_opts //:LittleECSTests
+    - name: Testing...
+      run: CC=gcc bazelisk test --config=default_compiler_opts //:LittleECSTests
+
+  ubuntu-latest-clang:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: bazelbuild/setup-bazelisk@v3
+    - name: Mount bazel cache
+      uses: actions/cache@v4
+      with:
+        path: "~/.cache/bazel"
+        key: bazel
+    - name: Install clang
+      run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x ./llvm.sh
+        sudo ./llvm.sh 17
+    - name: Version
+      run: clang --version
+    - name: Building...
+      run: CC=clang++-17 bazelisk build --config=default_compiler_opts //:LittleECSTests
+    - name: Testing...
+      run: CC=clang++-17 bazelisk test --config=default_compiler_opts //:LittleECSTests

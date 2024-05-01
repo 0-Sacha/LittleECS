@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Default Windows",
+            "includePath": [
+                "src/",
+                "bazel-littleecs/external/_main~_repo_rules~ProjectCore/src/"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "compilerPath": "cl.exe",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
