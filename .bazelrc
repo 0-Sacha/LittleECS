@@ -16,3 +16,16 @@ common:microsoft_compiler_opts --copt /std:c++20
 # BuildBuddy
 common:linux --workspace_status_command=$(pwd)/.buildbuddy/workspace_status.sh
 common:windows --workspace_status_command=.buildbuddy/workspace_status.bat
+
+common:buildbuddy --build_metadata=ROLE=CI
+common:buildbuddy --bes_results_url=https://sacha.buildbuddy.io/invocation/
+common:buildbuddy --bes_backend=grpcs://sacha.buildbuddy.io
+common:buildbuddy --remote_cache=grpcs://sacha.buildbuddy.io
+common:buildbuddy --remote_executor=grpcs://sacha.buildbuddy.io
+common:buildbuddy --experimental_remote_cache_compression
+common:buildbuddy --jobs=50
+common:buildbuddy --nolegacy_important_outputs
+common:buildbuddy --platforms=@buildbuddy_test//:buildbuddy_linux_x86_64
+common:buildbuddy --extra_execution_platforms=@buildbuddy_test//:buildbuddy_linux_x86_64
+common:buildbuddy --remote_instance_name=littleecs
+common:buildbuddy --extra_toolchains=@buildbuddy_test//:toolchain_buildbuddy_gcc_12
