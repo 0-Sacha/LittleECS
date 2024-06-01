@@ -1,5 +1,4 @@
-
-# bazel
+# Bazel
 MODULE.bazel.lock
 bazel-bin
 bazel-out
@@ -16,11 +15,12 @@ bazel-testlogs
 *.vcxproj.filters
 *.vcxproj.user
 
-# Make
+# VSCode
+.vscode
+
+# Premake
 Makefile
 *.make
-
-# bin
 bin
 bin-int
 

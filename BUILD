@@ -7,6 +7,10 @@ cc_library(
     srcs = glob([ "src/**/*.h" ]),
     hdrs = glob([ "src/**/*.h" ]),
     includes = [ "src/" ],
+    copts = select({
+        "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
+        "//conditions:default": ["-std=c++20"],
+    }),
     strip_include_prefix = "src",
     include_prefix = "LittleECS",
     linkstatic = True,
@@ -15,18 +19,26 @@ cc_library(
 
 cc_test(
     name = "LittleECSTests",
-    includes = [ "src/" ],
     srcs = glob([ "Tests/**/*.h", "Tests/**/*.cpp" ], exclude=["Tests/Perf/**"]),
+    includes = [ "src/" ],
     defines = [ "LECS_USE_PROJECTCORE" ],
+    copts = select({
+        "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
+        "//conditions:default": ["-std=c++20"],
+    }),
     deps = [ "@ProjectCore//:ProjectCore", ":LittleECS" ],
     visibility = ["//visibility:public"],
 )
 
 cc_test(
     name = "LittleECSTestsPerf",
-    includes = [ "src/" ],
     srcs = glob([ "Tests/**/*.h", "Tests/**/*.cpp" ]),
+    includes = [ "src/" ],
     defines = [ "LECS_USE_PROJECTCORE" ],
+    copts = select({
+        "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
+        "//conditions:default": ["-std=c++20"],
+    }),
     deps = [ "@ProjectCore//:ProjectCore", ":LittleECS" ],
     visibility = ["//visibility:public"],
 )

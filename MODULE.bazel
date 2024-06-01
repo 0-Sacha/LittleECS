@@ -13,5 +13,6 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 http_archive(
     name = "ProjectCore",
     urls = [ "https://github.com/0-Sacha/ProjectCore/archive/refs/heads/dev.zip" ],
-    strip_prefix = "ProjectCore-dev"
+    strip_prefix = "ProjectCore-dev",
+    integrity = "sha256-28v/wuBCDSekQV03i9/2Tn+AR9hllqPdCOMYOvHBwmI=",
 )

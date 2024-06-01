@@ -43,6 +43,7 @@ int main()
     registry.Add<Name>(alice, "Alice");
     registry.Add<Name>(bob, "Bob");
 
+
     /****** Get Components ******/
     std::cout << std::endl;
     Logger.Info("Alice's int: {}", registry.Get<int>(alice));
@@ -53,8 +54,8 @@ int main()
     std::cout << std::endl;
     /**
      * To ForEach on a specific Component, use ForEachUniqueComponent.
-     * It takes an lambda which can contains optionally an `LECS::EntityId` as first parameter, in that case the entityId will be send to the lambda
-     * The component you want to loop over is take as an template argument, and the lambda can take the component as:
+     * It takes an lambda which can contains optionally an `LECS::EntityId` as first parameter, in that case the entityId will be sent to the lambda
+     * The component you want to loop over is took as an template argument, and the lambda can take the component as:
      *  - value <int>
      *  - const value <const int>
      *  - const reference <const int&>
