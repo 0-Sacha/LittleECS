@@ -4,16 +4,16 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "bazel_utilities",
-    strip_prefix = "bazel_utilities-d748d078d0bdd4e5fe9020e8011a46edb484525e",
-    urls = [ "https://github.com/0-Sacha/bazel_utilities/archive/d748d078d0bdd4e5fe9020e8011a46edb484525e.zip" ],
-    integrity = "sha256-qakyhHoLPrGK/3zD+dWIL7wGSjLwMX69TiSGA05Wu2c=",
+    strip_prefix = "bazel_utilities-efe15a48c3b063436d6deecaa14b811083035993",
+    urls = [ "https://github.com/0-Sacha/bazel_utilities/archive/efe15a48c3b063436d6deecaa14b811083035993.zip" ],
+    integrity = "sha256-g1BUGaQFSLywkzTqixQdQTdrJ25TlcqG6PZXoCK7Jrw=",
 )
 
 http_archive(
     name = "bazel_buildbuddy",
-    strip_prefix = "bazel_buildbuddy-89937f1942a9271348c0963ef89fb67c240c3afd",
-    urls = [ "https://github.com/0-Sacha/bazel_buildbuddy/archive/89937f1942a9271348c0963ef89fb67c240c3afd.zip" ],
-    integrity = "sha256-M8sEkfNBjSivQhIRYRzCXIq7ix3w23UckP0z9T/L3II=",
+    strip_prefix = "bazel_buildbuddy-b0840cf378c4aef5750b5e8bc87aa2ad1aeb874f",
+    urls = [ "https://github.com/0-Sacha/bazel_buildbuddy/archive/b0840cf378c4aef5750b5e8bc87aa2ad1aeb874f.zip" ],
+    integrity = "sha256-Wvbu4LB7F3d42Xj/dQyaGjVEntf4U3DO+aku3zEZD4I=",
 )
 
 load("@bazel_buildbuddy//:rules.bzl", "buildbuddy_toolchain")

@@ -27,6 +27,4 @@ It can be used using [Bazel](https://bazel.build/).
 A `cc_library` rule has been created: `@LittleECS//:LittleECS`.
 You need to add the module `littleecs` to your dependencies.
 
-You will need at least to give an c++ standard to use (at least c++20) since no one have been forced. You can check the [bazelrc](.bazelrc) to see how you can add one.
-
 Not Recommended: There is also a [Premake](https://premake.github.io/docs/using-premake) configuration, thought it is deprecated (and run on a wrapper of mine: [PremakeUtilities](https://github.com/0-Sacha/PremakeUtilities)). I keep it for my Game Engine [Blackbird](https://github.com/0-Sacha/Blackbird) which is using `Premake` as Build system.

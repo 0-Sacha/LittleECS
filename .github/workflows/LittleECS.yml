@@ -20,9 +20,9 @@ jobs:
         path: "~/.cache/bazel"
         key: bazel
     - name: Building...
-      run: bazelisk build --config=microsoft_compiler_opts //:LittleECSTests
+      run: bazelisk build //:LittleECSTests
     - name: Testing...
-      run: bazelisk test --config=microsoft_compiler_opts //:LittleECSTests
+      run: bazelisk test //:LittleECSTests
       
   ubuntu-latest-gcc:
     runs-on: ubuntu-latest
@@ -37,9 +37,9 @@ jobs:
     - name: Version
       run: gcc --version
     - name: Building...
-      run: CC=gcc bazelisk build --config=default_compiler_opts //:LittleECSTests
+      run: CC=gcc bazelisk build //:LittleECSTests
     - name: Testing...
-      run: CC=gcc bazelisk test --config=default_compiler_opts //:LittleECSTests
+      run: CC=gcc bazelisk test //:LittleECSTests
 
   ubuntu-latest-clang:
     runs-on: ubuntu-latest
@@ -59,6 +59,6 @@ jobs:
     - name: Version
       run: clang --version
     - name: Building...
-      run: CC=clang++-17 bazelisk build --config=default_compiler_opts //:LittleECSTests
+      run: CC=clang++-17 bazelisk build //:LittleECSTests
     - name: Testing...
-      run: CC=clang++-17 bazelisk test --config=default_compiler_opts //:LittleECSTests
+      run: CC=clang++-17 bazelisk test //:LittleECSTests

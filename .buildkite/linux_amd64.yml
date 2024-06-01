@@ -4,10 +4,10 @@ agents:
 steps:
   - label: ":bazel: Build and Test on gcc"
     commands:
-      - CC=gcc bazelisk build --config=default_compiler_opts //:LittleECSTests
-      - CC=gcc bazelisk test --config=default_compiler_opts //:LittleECSTests
+      - CC=gcc bazelisk build //:LittleECSTests
+      - CC=gcc bazelisk test //:LittleECSTests
 
   - label: ":bazel: Build and Test on Clang"
     commands:
-      - CC=clang bazelisk build --config=default_compiler_opts //:LittleECSTests
-      - CC=clang bazelisk test --config=default_compiler_opts //:LittleECSTests
+      - CC=clang bazelisk build //:LittleECSTests
+      - CC=clang bazelisk test //:LittleECSTests

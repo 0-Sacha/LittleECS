@@ -4,5 +4,5 @@ agents:
 steps:
   - label: ":bazel: Build"
     commands:
-      - bazelisk build --config=microsoft_compiler_opts //:LittleECSTests
-      - bazelisk test --config=microsoft_compiler_opts //:LittleECSTests
+      - bazelisk build //:LittleECSTests
+      - bazelisk test //:LittleECSTests

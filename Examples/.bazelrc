@@ -4,10 +4,3 @@ common --incompatible_strict_action_env
 common --show_timestamps
 common --verbose_failures
 test --test_output=errors
-
-# Opts
-common:linux --config=default_compiler_opts
-common:msvc --config=microsoft_compiler_opts
-
-common:default_compiler_opts --copt -std=c++20
-common:microsoft_compiler_opts --copt /std:c++20
