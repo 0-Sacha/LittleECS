@@ -10,11 +10,11 @@ Solution.Projects["LittleECS"].Defines = {
 	"LECS_ENABLE_EACH"
 }
 Solution.Projects["LittleECS"].ProjectDependencies = {
-	"ProjectCore"
+	"StreamFormat"
 }
 
 project "LittleECS"
-	kind 		(Solution.Projects["ProjectCore"].Type)
+	kind 		(Solution.Projects["StreamFormat"].Type)
 	language "C++"
 	cppdialect "C++20"
 

@@ -49,7 +49,7 @@ namespace LECS
     }
 }
 
-namespace ProjectCore::FMT
+namespace StreamFormat::FMT
 {
     template<typename FormatterContext>
     struct FormatterType<LECS::ComponentId, FormatterContext> {

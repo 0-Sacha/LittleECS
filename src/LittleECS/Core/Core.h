@@ -13,8 +13,8 @@
     #define LECS_LOGGER_ENABLE
 #endif
 
-#ifdef LECS_USE_PROJECTCORE
-    #include "UseProjectCore.h"
+#ifdef LECS_USE_STREAMFORMAT
+    #include "UseStreamFormat.h"
 #endif
 
 #ifdef LECS_LOGGER_ENABLE

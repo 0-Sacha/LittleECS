@@ -1,4 +1,4 @@
-# Example of ProjectCore
+# Example of StreamFormat
 
 ### Try thoses examples !
 

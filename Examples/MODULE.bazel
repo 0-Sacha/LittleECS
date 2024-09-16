@@ -17,7 +17,7 @@ local_path_override(
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-    name = "ProjectCore",
-    urls = [ "https://github.com/0-Sacha/ProjectCore/archive/refs/heads/dev.zip" ],
-    strip_prefix = "ProjectCore-dev"
+    name = "StreamFormat",
+    urls = [ "https://github.com/0-Sacha/StreamFormat/archive/refs/heads/dev.zip" ],
+    strip_prefix = "StreamFormat-dev"
 )

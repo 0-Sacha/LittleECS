@@ -1,8 +1,8 @@
 
-#include "ProjectCore/Tester/TestSuite/AllTestSuite.h"
+#include "StreamFormat/Tester/TestSuite/AllTestSuite.h"
 
 int main()
 {
-    ProjectCore::Tester::TestSuitesManager::Verbose = false;
-    return ProjectCore::Tester::TestSuitesManager::ExecAllTestSuites();
+    StreamFormat::Tester::TestSuitesManager::Verbose = false;
+    return StreamFormat::Tester::TestSuitesManager::ExecAllTestSuites();
 }
