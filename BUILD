@@ -21,12 +21,12 @@ cc_test(
     name = "LittleECSTests",
     srcs = glob([ "Tests/**/*.h", "Tests/**/*.cpp" ], exclude=["Tests/Perf/**"]),
     includes = [ "src/" ],
-    defines = [ "LECS_USE_PROJECTCORE" ],
+    defines = [ "LECS_USE_STREAMFORMAT" ],
     copts = select({
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
         "//conditions:default": ["-std=c++20"],
     }),
-    deps = [ "@ProjectCore//:ProjectCore", ":LittleECS" ],
+    deps = [ "@StreamFormat//:StreamFormat", ":LittleECS" ],
     visibility = ["//visibility:public"],
 )
 
@@ -34,11 +34,11 @@ cc_test(
     name = "LittleECSTestsPerf",
     srcs = glob([ "Tests/**/*.h", "Tests/**/*.cpp" ]),
     includes = [ "src/" ],
-    defines = [ "LECS_USE_PROJECTCORE" ],
+    defines = [ "LECS_USE_STREAMFORMAT" ],
     copts = select({
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
         "//conditions:default": ["-std=c++20"],
     }),
-    deps = [ "@ProjectCore//:ProjectCore", ":LittleECS" ],
+    deps = [ "@StreamFormat//:StreamFormat", ":LittleECS" ],
     visibility = ["//visibility:public"],
 )

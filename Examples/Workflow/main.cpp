@@ -1,8 +1,8 @@
 #include "LittleECS/LittleECS.h"
 
-#include "ProjectCore/FLog.h"
+#include "StreamFormat/FLog.h"
 
-ProjectCore::FLog::BasicLogger Logger("Workflow");
+StreamFormat::FLog::BasicLogger Logger("Workflow");
 
 /****** Components ******/
 struct ASmallComponent
@@ -20,7 +20,7 @@ struct Name
     std::string Name;
 };
 // To be able to Format the struct Name
-PROJECTCORE_AUTO_FORMATTER(Name, "{}", value.Name);
+STREAMFORMAT_AUTO_FORMATTER(Name, "{}", value.Name);
 
 int main()
 {

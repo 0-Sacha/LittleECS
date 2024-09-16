@@ -49,8 +49,8 @@ namespace LECS
     }
 }
 
-#ifdef PROJECTCORE_FORMATTER_DECLARED
-    namespace ProjectCore::FMT
+#ifdef STREAMFORMAT_FORMATTER_DECLARED
+    namespace StreamFormat::FMT
     {
         template<typename FormatterContext>
         struct FormatterType<LECS::EntityId, FormatterContext> {

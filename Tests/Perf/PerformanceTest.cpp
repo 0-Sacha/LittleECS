@@ -2,7 +2,7 @@
 
 #include "LittleECS/LittleECS.h"
 
-#include "ProjectCore/ProfilerManager.h"
+#include "StreamFormat/ProfilerManager.h"
 
 #include <set>
 
@@ -35,7 +35,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
 
 #define BenchmarkTest(Size, Name) PCT_TEST_FUNC(PERFORMANCE, ADD_MANY_COMPONENT_ ## Name)                                       \
                             {                                                                                                   \
-                                ProjectCore::ProfilerManager::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                   \
+                                StreamFormat::ProfilerManager::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                   \
                                                                                                                                 \
                                 LECS::Registry registry;                                                                        \
                                                                                                                                 \
@@ -43,7 +43,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 entities.reserve(Size);                                                                         \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "Create Entities");              \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Create Entities");              \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
@@ -52,7 +52,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "Check Entities Ids");           \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Check Entities Ids");           \
                                                                                                                                 \
                                     bool uid = true;                                                                            \
                                                                                                                                 \
@@ -91,7 +91,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "Add Component");                \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Add Component");                \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
@@ -100,7 +100,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "Get Component");                \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Get Component");                \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
@@ -109,7 +109,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "Has Component");                \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Has Component");                \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
@@ -119,7 +119,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    ProjectCore::ProfilerManager::ScopeProfile scope(profiler, "ForEach Component");            \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "ForEach Component");            \
                                                                                                                                 \
                                     registry.ForEachUniqueComponent<BasicIntComponent>([](LECS::EntityId, BasicIntComponent& k) \
                                     {                                                                                           \
@@ -127,7 +127,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                     });                                                                                         \
                                 }                                                                                               \
                                                                                                                                 \
-                                ProjectCore::ProfilerManager::ProfilerFactory::ToJson(profiler);                                \
+                                StreamFormat::ProfilerManager::ProfilerFactory::ToJson(profiler);                                \
                             }
 
 BenchmarkTest(1'000, 1K);

@@ -1,18 +1,18 @@
 #pragma once
 
-#include "ProjectCore/FMT.h"
+#include "StreamFormat/FMT.h"
 
 #ifdef LECS_LOGGER_ENABLE
-    #include "ProjectCore/FLog.h"
+    #include "StreamFormat/FLog.h"
 
     namespace LECS
     {
         class Core
         {
         public:
-            static ProjectCore::FLog::BasicLogger& Logger() { return m_Logger; }
+            static StreamFormat::FLog::BasicLogger& Logger() { return m_Logger; }
         private:
-            static inline ProjectCore::FLog::BasicLogger m_Logger{};
+            static inline StreamFormat::FLog::BasicLogger m_Logger{};
         };
     }
 

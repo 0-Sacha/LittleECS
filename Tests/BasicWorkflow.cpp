@@ -2,7 +2,7 @@
 
 #include "LittleECS/LittleECS.h"
 
-#include "ProjectCore/ProfilerManager.h"
+#include "StreamFormat/ProfilerManager.h"
 
 #include <set>
 
