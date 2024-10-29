@@ -24,7 +24,7 @@ git clone git@github.com:0-Sacha/LittleECS.git
 
 ## Using the Lib
 It can be used using [Bazel](https://bazel.build/).
-A `cc_library` rule has been created: `@LittleECS//:LittleECS`.
+A `cc_library` rule has been created: `@littleecs//:littleecs`.
 You need to add the module `littleecs` to your dependencies.
 
 Not Recommended: There is also a [Premake](https://premake.github.io/docs/using-premake) configuration, thought it is deprecated (and run on a wrapper of mine: [PremakeUtilities](https://github.com/0-Sacha/PremakeUtilities)). I keep it for my Game Engine [Blackbird](https://github.com/0-Sacha/Blackbird) which is using `Premake` as Build system.

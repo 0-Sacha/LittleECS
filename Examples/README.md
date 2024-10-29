@@ -1,4 +1,4 @@
-# Example of StreamFormat
+# Example of LittleECS
 
 ### Try thoses examples !
 
@@ -21,4 +21,4 @@ Then you can run a program with (example with `//Workflow:Workflow`, see below f
 
 ### List Of Examples
 
-- `//Workflow:Workflow`: Workflow using the Internal Logger
+- `//Workflow:Workflow`: A classic Workflow
