@@ -48,15 +48,3 @@ namespace LECS
         return lhs == rhs.Id;
     }
 }
-
-namespace StreamFormat::FMT
-{
-    template<typename FormatterContext>
-    struct FormatterType<LECS::ComponentId, FormatterContext>
-    {
-        static void Format(LECS::ComponentId typeId, FormatterContext& context)
-        {
-            FormatterType<typename LECS::ComponentId::Type, FormatterContext>::Format(typeId, context);
-        }
-    };
-}

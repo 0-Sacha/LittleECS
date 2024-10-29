@@ -13,10 +13,6 @@
     #define LECS_LOGGER_ENABLE
 #endif
 
-#ifdef LECS_USE_STREAMFORMAT
-    #include "UseStreamFormat.h"
-#endif
-
 #ifdef LECS_LOGGER_ENABLE
     #define LECS_TRACE(...)     // TODO: ?
     #define LECS_INFO(...)      // TODO: ?
