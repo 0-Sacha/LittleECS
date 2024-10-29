@@ -53,10 +53,11 @@ namespace LECS
     namespace StreamFormat::FMT
     {
         template<typename FormatterContext>
-        struct FormatterType<LECS::EntityId, FormatterContext> {
+        struct FormatterType<LECS::EntityId, FormatterContext>
+        {
             static void Format(LECS::EntityId typeId, FormatterContext& context)
             {
-                FormatterType<Detail::ForwardAsUInt<typename LECS::EntityId::Type>, FormatterContext>::Format(typeId, context);
+                FormatterType<typename LECS::EntityId::Type, FormatterContext>::Format(typeId, context);
             }
         };
     }

@@ -4,14 +4,39 @@
 module(
     name = "littleecs",
     version = "0.1",
-    repo_name = "com_sacha_littleecs",
 )
 
-bazel_dep(name = "rules_cc", version = "0.0.9")
+git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="7f6c3585c41278918428ed48d45b12413c197fc0")
+git_override(module_name="bazel_buildbuddy", remote="https://github.com/0-Sacha/bazel_buildbuddy.git", commit="b60314cac7826edb87efe285b032b877ad725f84")
+git_override(module_name="bazel_winlibs", remote="https://github.com/0-Sacha/bazel_winlibs.git", commit="e2cc97b61cb9115fbc2b7169dc9d1cb36b351935")
+git_override(module_name="streamformat", remote="https://github.com/0-Sacha/StreamFormat.git", commit="6faa20c9176b14e81903d0d65ad06e6a6e36332b")
 
-http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-    name = "StreamFormat",
-    urls = [ "https://github.com/0-Sacha/StreamFormat/archive/refs/heads/dev.zip" ],
-    strip_prefix = "StreamFormat-dev",
+bazel_dep(name = "rules_cc", version = "0.0.10")
+bazel_dep(name = "platforms", version = "0.0.10")
+bazel_dep(name = "bazel_utilities", version = "0.0.1")
+bazel_dep(name = "bazel_buildbuddy", version = "0.0.1")
+bazel_dep(name = "bazel_winlibs", version = "0.0.1")
+
+bazel_dep(name = "streamformat", version = "0.1")
+
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
+    commit = "1e08f8e0507b6b6b1f4416a9a22cf5c28beaba93",
 )
+
+# Technically no need for this since their are already defined in 'streamformat'
+winlibs_toolchain_extension = use_extension("@bazel_winlibs//:rules.bzl", "winlibs_toolchain_extension")
+inject_repo(winlibs_toolchain_extension, "platforms", "bazel_utilities")
+winlibs_toolchain_extension.winlibs_toolchain(name = "lecs-winlibs")
+winlibs_toolchain_extension.winlibs_toolchain(name = "lecs-pthread-winlibs", linklibs = [ "pthread" ])
+use_repo(winlibs_toolchain_extension, "lecs-winlibs")
+use_repo(winlibs_toolchain_extension, "lecs-pthread-winlibs")
+# register_toolchains("@winlibs//:clang-toolchain")
+
+buildbuddy_toolchain_extension = use_extension("@bazel_buildbuddy//:rules.bzl", "buildbuddy_toolchain_extension")
+inject_repo(buildbuddy_toolchain_extension, "platforms", "bazel_utilities")
+buildbuddy_toolchain_extension.buildbuddy_toolchain(name = "lecs-buildbuddy")
+use_repo(buildbuddy_toolchain_extension, "lecs-buildbuddy")
+# register_toolchains("@buildbuddy//:gcc-toolchain")

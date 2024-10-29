@@ -4,5 +4,11 @@ agents:
 steps:
   - label: ":bazel: Build"
     commands:
-      - bazelisk build //:LittleECSTests
       - bazelisk test //:LittleECSTests
+
+  - label: ":bazel: Build And Test Winlibs/clang"
+    commands:
+      - bazelisk build --config=winlibs-clang //:LittleECSTests
+  - label: ":bazel: Build And Test Winlibs/gcc"
+    commands:
+      - bazelisk build --config=winlibs-gcc //:LittleECSTests
