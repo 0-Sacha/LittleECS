@@ -7,8 +7,8 @@ common --verbose_failures
 test --test_output=errors
 
 # Winlibs
-common:winlibs-gcc --extra_toolchains=@winlibs//:gcc-toolchain
-common:winlibs-clang --extra_toolchains=@pthread-winlibs//:clang-toolchain
+common:winlibs-gcc --extra_toolchains=@lecs-winlibs//:gcc-toolchain
+common:winlibs-clang --extra_toolchains=@lecs-pthread-winlibs//:clang-toolchain
 
 # BuildBuddy
 common:linux --workspace_status_command=$(pwd)/.buildbuddy/workspace_status.sh
@@ -23,6 +23,6 @@ common:buildbuddy --experimental_remote_cache_compression
 common:buildbuddy --jobs=50
 common:buildbuddy --remote_instance_name=littleecs
 #
-common:buildbuddy --extra_execution_platforms=@buildbuddy//:platform
-common:buildbuddy --extra_toolchains=@buildbuddy//:gcc-toolchain
-common:buildbuddy --platforms=@buildbuddy//:platform
+common:buildbuddy --extra_execution_platforms=@lecs-buildbuddy//:platform
+common:buildbuddy --extra_toolchains=@lecs-buildbuddy//:gcc-toolchain
+common:buildbuddy --platforms=@lecs-buildbuddy//:platform
