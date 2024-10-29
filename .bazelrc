@@ -21,8 +21,7 @@ common:buildbuddy --remote_cache=grpcs://sacha.buildbuddy.io
 common:buildbuddy --remote_executor=grpcs://sacha.buildbuddy.io
 common:buildbuddy --experimental_remote_cache_compression
 common:buildbuddy --jobs=50
-common:buildbuddy --nolegacy_important_outputs
-common:buildbuddy --remote_instance_name=streamformat
+common:buildbuddy --remote_instance_name=littleecs
 #
 common:buildbuddy --extra_execution_platforms=@buildbuddy//:platform
 common:buildbuddy --extra_toolchains=@buildbuddy//:gcc-toolchain
