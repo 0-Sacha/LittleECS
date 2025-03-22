@@ -1,12 +1,13 @@
-#include "../base_lecs_tests.h"
+#include "../base_lecs_tests.hxx"
 
-#include "lecs/lecs.h"
+#include "lecs/lecs.hxx"
 
 #include "StreamFormat/ProfilerManager.h"
 
 #include <set>
 
 // NOLINTBEGIN(misc-const-correctness)
+// NOLINTBEGIN(readability-magic-numbers)
 PCT_TEST_GROUP(LITTLE_ECS, PERFORMANCE);
 
 struct BasicIntComponent {
@@ -118,4 +119,5 @@ BenchmarkTest(1'000'000, 1M);
 BenchmarkTest(10'000'000, 10M);
 // BenchmarkTest(100'000'000, 100M);
 
+// NOLINTEND(readability-magic-numbers)
 // NOLINTEND(misc-const-correctness)

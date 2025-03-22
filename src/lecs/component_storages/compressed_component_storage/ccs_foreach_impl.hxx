@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compressed_component_storage.h"
+#include "compressed_component_storage.hxx"
 
 namespace lecs::detail {
     template <typename ComponentType>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entityid.h"
+#include "entityid.hxx"
 
 #include <queue>
 #include <set>

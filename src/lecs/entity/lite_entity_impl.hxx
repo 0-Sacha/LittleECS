@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lite_entity.h"
+#include "lite_entity.hxx"
 
 namespace lecs {
     inline LiteEntity::LiteEntity() : registry_(nullptr), entityid_(EntityId::INVALID) {}

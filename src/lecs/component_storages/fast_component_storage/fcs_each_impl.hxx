@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fast_component_storage.h"
+#include "fast_component_storage.hxx"
 
 namespace lecs::detail {
     template <typename ComponentType>

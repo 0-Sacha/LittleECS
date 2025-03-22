@@ -1,8 +1,8 @@
 #pragma once
 
-#include "basic_view.h"
+#include "basic_view.hxx"
 
-#include "lecs/detail/iterable.h"
+#include "lecs/detail/iterable.hxx"
 
 namespace lecs::detail {
     template <typename BasicViewLinked, typename SubEntitiesIterator, typename SubEntitiesIteratorLast, typename... IteratorComponentTypes>

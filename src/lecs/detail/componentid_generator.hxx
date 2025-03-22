@@ -1,8 +1,8 @@
 #pragma once
 
-#include "lecs/core/core.h"
+#include "lecs/core/core.hxx"
 
-#include "componentid.h"
+#include "componentid.hxx"
 
 #include <string_view>
 

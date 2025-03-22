@@ -1,9 +1,9 @@
 #pragma once
 
-#include "basic_view.h"
-#include "basic_view_iterator.h"
+#include "basic_view.hxx"
+#include "basic_view_iterator.hxx"
 
-#include "lecs/detail/is_invocable.h"
+#include "lecs/detail/is_invocable.hxx"
 
 namespace lecs {
     // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lecs/core/core.h"
+#include "lecs/core/core.hxx"
 
 #include <limits>
 

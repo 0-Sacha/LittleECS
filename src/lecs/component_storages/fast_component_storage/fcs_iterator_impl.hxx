@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fast_component_storage.h"
+#include "fast_component_storage.hxx"
 
-#include "lecs/detail/iterable.h"
+#include "lecs/detail/iterable.hxx"
 
 namespace lecs::detail {
     template <typename FastComponentStorage, typename ContainerIterator>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "basic_view.h"
+#include "basic_view.hxx"
 
-#include "lecs/registry/registry.h"
+#include "lecs/registry/registry.hxx"
 
 namespace lecs {
     template <typename... ViewComponentTypes>

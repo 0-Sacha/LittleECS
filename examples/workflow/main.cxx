@@ -1,4 +1,4 @@
-#include "lecs/lecs.h"
+#include "lecs/lecs.hxx"
 #include "StreamFormat/FLog.h"
 
 StreamFormat::FLog::BasicLogger Logger("Workflow");

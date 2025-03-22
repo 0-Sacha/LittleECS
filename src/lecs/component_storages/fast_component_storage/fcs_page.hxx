@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lecs/registry/component_storage.h"
+#include "lecs/registry/component_storage.hxx"
 
 #include <array>
 

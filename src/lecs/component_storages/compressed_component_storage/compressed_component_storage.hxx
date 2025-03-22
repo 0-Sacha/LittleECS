@@ -1,12 +1,12 @@
 #pragma once
 
-#include "lecs/registry/component_storage.h"
-#include "lecs/detail/exception.h"
+#include "lecs/registry/component_storage.hxx"
+#include "lecs/detail/exception.hxx"
 
-#include "ccs_page.h"
+#include "ccs_page.hxx"
 
-#include "ccs_entity_to_component_map.h"
-#include "ccs_entity_to_component_inline.h"
+#include "ccs_entity_to_component_map.hxx"
+#include "ccs_entity_to_component_inline.hxx"
 
 #include <memory>
 #include <any>
@@ -156,5 +156,6 @@ namespace lecs::detail {
     };
 }  // namespace lecs::detail
 
-#include "ccs_foreach-inl.h"
-#include "ccs_iterator-inl.h"
+#include "ccs_foreach_impl.hxx"
+#include "ccs_iterator_impl.hxx"
+#include "ccs_page_foreach_impl.hxx"

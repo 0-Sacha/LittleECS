@@ -1,12 +1,13 @@
-#include "base_lecs_tests.h"
+#include "base_lecs_tests.hxx"
 
-#include "lecs/lecs.h"
+#include "lecs/lecs.hxx"
 
 #include "StreamFormat/ProfilerManager.h"
 
 #include <set>
 
 // NOLINTBEGIN(misc-const-correctness)
+// NOLINTBEGIN(readability-magic-numbers)
 PCT_TEST_GROUP(LITTLE_ECS, BASIC_WORKFLOW);
 
 struct BasicFloatComponent {
@@ -175,4 +176,5 @@ BasicWorkflow(FC);
 BasicWorkflow(FCNREF);
 BasicWorkflow(CC);
 BasicWorkflow(RC);
+// NOLINTEND(readability-magic-numbers)
 // NOLINTEND(misc-const-correctness)

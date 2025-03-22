@@ -1,9 +1,9 @@
 #pragma once
 
-#include "lecs/detail/componentid.h"
-#include "lecs/detail/entityid.h"
+#include "lecs/detail/componentid.hxx"
+#include "lecs/detail/entityid.hxx"
 
-#include "lecs/detail/componentid_generator.h"
+#include "lecs/detail/componentid_generator.hxx"
 
 #include <any>
 

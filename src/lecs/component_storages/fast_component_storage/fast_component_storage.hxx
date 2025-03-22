@@ -1,9 +1,9 @@
 #pragma once
 
-#include "lecs/registry/component_storage.h"
-#include "lecs/detail/exception.h"
+#include "lecs/registry/component_storage.hxx"
+#include "lecs/detail/exception.hxx"
 
-#include "fcs_page.h"
+#include "fcs_page.hxx"
 
 #include <memory>
 #include <any>
@@ -168,5 +168,5 @@ namespace lecs::detail {
     };
 }  // namespace lecs::detail
 
-#include "fcs_each-inl.h"
-#include "fcs_iterator-inl.h"
+#include "fcs_each_impl.hxx"
+#include "fcs_iterator_impl.hxx"

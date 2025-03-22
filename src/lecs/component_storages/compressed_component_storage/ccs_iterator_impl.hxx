@@ -1,8 +1,8 @@
 #pragma once
 
-#include "compressed_component_storage.h"
+#include "compressed_component_storage.hxx"
 
-#include "lecs/detail/iterable.h"
+#include "lecs/detail/iterable.hxx"
 
 namespace lecs::detail {
     namespace CustomIterator {

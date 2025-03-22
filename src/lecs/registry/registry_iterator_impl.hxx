@@ -1,8 +1,8 @@
 #pragma once
 
-#include "registry.h"
+#include "registry.hxx"
 
-#include "lecs/detail/iterable.h"
+#include "lecs/detail/iterable.hxx"
 
 namespace lecs {
     template <typename ComponentType>

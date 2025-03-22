@@ -1,7 +1,7 @@
-#include "base_lecs_tests.h"
+#include "base_lecs_tests.hxx"
 
-#include "lecs/detail/componentid.h"
-#include "lecs/detail/componentid_generator.h"
+#include "lecs/detail/componentid.hxx"
+#include "lecs/detail/componentid_generator.hxx"
 
 // NOLINTBEGIN(misc-const-correctness)
 PCT_TEST_GROUP(LITTLE_ECS, DETAIL);

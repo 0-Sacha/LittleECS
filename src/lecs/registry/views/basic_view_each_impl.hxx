@@ -1,7 +1,7 @@
 #pragma once
 
-#include "basic_view.h"
-#include "basic_view_iterator.h"
+#include "basic_view.hxx"
+#include "basic_view_iterator.hxx"
 
 namespace lecs {
     template <typename... ViewComponentTypes>

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "lecs/detail/entityid_generator.h"
+#include "lecs/detail/entityid_generator.hxx"
 
-#include "component_storage.h"
+#include "component_storage.hxx"
 
-#include "lecs/entity/entity.h"
-#include "lecs/entity/lite_entity.h"
+#include "lecs/entity/entity.hxx"
+#include "lecs/entity/lite_entity.hxx"
 
-#include "views/basic_view.h"
+#include "views/basic_view.hxx"
 
 #include <unordered_map>
 #include <memory>
@@ -150,11 +150,13 @@ namespace lecs {
     };
 }  // namespace lecs
 
-#include "registry-inl.h"
-#include "registry_foreach-inl.h"
-#include "registry_iterator-inl.h"
+#include "registry_impl.hxx"
+#include "registry_foreach_impl.hxx"
+#include "registry_iterator_impl.hxx"
 
-#include "views/basic_view-inl-r.h"
+#include "views/basic_view_impl.hxx"
+#include "views/basic_view_each_impl.hxx"
+#include "views/basic_view_foreach_impl.hxx"
 
-#include "lecs/entity/entity-inl-r.h"
-#include "lecs/entity/lite_entity-inl-r.h"
+#include "lecs/entity/entity_impl.hxx"
+#include "lecs/entity/lite_entity_impl.hxx"

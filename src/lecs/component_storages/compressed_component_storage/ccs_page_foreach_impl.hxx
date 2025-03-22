@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ccs_page.h"
+#include "ccs_page.hxx"
 
 namespace lecs::detail {
     template <typename ComponentType, std::size_t PAGE_SIZE>

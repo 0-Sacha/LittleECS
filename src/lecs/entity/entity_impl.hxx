@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.h"
+#include "entity.hxx"
 
 namespace lecs {
     inline ConstEntity::ConstEntity() : registry_(nullptr), entityid_(EntityId::INVALID), components_container() {}

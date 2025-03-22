@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lecs/registry/component_storage.h"
+#include "lecs/registry/component_storage.hxx"
 
 #include <array>
 
@@ -209,5 +209,3 @@ namespace lecs::detail {
         }
     };
 }  // namespace lecs::detail
-
-#include "ccs_page_foreach-inl.h"

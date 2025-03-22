@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ccs_page.h"
+#include "ccs_page.hxx"
 
 namespace lecs::detail {
     template <bool HAS_ENTITIES_REF, std::size_t PAGE_SIZE>

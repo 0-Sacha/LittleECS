@@ -1,6 +1,6 @@
 #pragma once
 
-#include "registry.h"
+#include "registry.hxx"
 
 namespace lecs {
     // Function = std::function<void(EntityId, ComponentType& component)>

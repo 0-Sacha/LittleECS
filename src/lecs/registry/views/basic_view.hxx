@@ -1,10 +1,10 @@
 #pragma once
 
-#include "lecs/registry/component_storage.h"
+#include "lecs/registry/component_storage.hxx"
 
-#include "lecs/detail/type_traits.h"
-#include "lecs/detail/is_invocable.h"
-#include "lecs/detail/iterable.h"
+#include "lecs/detail/type_traits.hxx"
+#include "lecs/detail/is_invocable.hxx"
+#include "lecs/detail/iterable.hxx"
 
 #include <array>
 #include <tuple>
@@ -228,6 +228,3 @@ namespace lecs {
         decltype(auto) each_components();
     };
 }  // namespace lecs
-
-#include "basic_view_each-inl.h"
-#include "basic_view_foreach-inl.h"

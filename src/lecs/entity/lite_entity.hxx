@@ -1,7 +1,7 @@
 #pragma once
 
-#include "lecs/detail/componentid.h"
-#include "lecs/detail/entityid.h"
+#include "lecs/detail/componentid.hxx"
+#include "lecs/detail/entityid.hxx"
 
 namespace lecs {
     class Registry;
