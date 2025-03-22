@@ -8,6 +8,16 @@ refresh_compile_commands(
     exclude_external_sources = True,
     exclude_headers = "external",
     targets = {
-        "//:LittleECS": "",
+        "//:lecs": "",
+    },
+)
+
+refresh_compile_commands(
+    name = "compile_commands_tests",
+    exclude_external_sources = True,
+    exclude_headers = "external",
+    targets = {
+        "//tests:units": "",
+        "//tests:perf": "",
     },
 )

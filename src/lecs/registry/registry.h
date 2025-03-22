@@ -84,7 +84,7 @@ namespace lecs {
 
     public:
         template <typename ComponentType, typename... Args>
-        ComponentType& Add(EntityId entity, Args&&... args);
+        ComponentType& add(EntityId entity, Args&&... args);
 
         template <typename ComponentType>
         bool has(EntityId entity);
@@ -99,9 +99,9 @@ namespace lecs {
         ComponentType& get(EntityId entity);
 
         template <typename ComponentType>
-        const ComponentType* GetPtr(EntityId entity) const;
+        const ComponentType* get_ptr(EntityId entity) const;
         template <typename ComponentType>
-        ComponentType* GetPtr(EntityId entity);
+        ComponentType* get_ptr(EntityId entity);
 
         template <typename... ComponentTypes>
         std::tuple<const ComponentTypes&...> get_all(EntityId entity) const;

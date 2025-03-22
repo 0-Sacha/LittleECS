@@ -31,15 +31,15 @@ int main()
     lecs::EntityId alice = registry.create_entityid();
     lecs::EntityId bob = registry.create_entityid();
 
-    /****** Add Components ******/
-    registry.Add<int>(alice, 42);
-    registry.Add<int>(bob, 7);
+    /****** add Components ******/
+    registry.add<int>(alice, 42);
+    registry.add<int>(bob, 7);
 
     /**
      * Constructor parameters are forwarded
     */
-    registry.Add<Name>(alice, "Alice");
-    registry.Add<Name>(bob, "Bob");
+    registry.add<Name>(alice, "Alice");
+    registry.add<Name>(bob, "Bob");
 
     /****** get Components ******/
     std::cout << std::endl;
@@ -61,9 +61,9 @@ int main()
     */
     Logger.Info("foreach_unique_component (With Entity id_):");
     registry.foreach_unique_component<Name>(
-        [](lecs::EntityId entityId, const Name& name)
+        [](lecs::EntityId entityid, const Name& name)
         {
-            Logger.Info("    {} -> {}", entityId, name);
+            Logger.Info("    {} -> {}", entityid, name);
         }
     );
 
@@ -76,14 +76,14 @@ int main()
         }
     );
 
-    /****** Add Custom Components ******/
+    /****** add Custom Components ******/
     std::cout << std::endl;
     /**
      * You can add any custom component like any other type. These components do not need to inherit from anything.
     */
-    registry.Add<ABigComponent>(alice);
-    registry.Add<ASmallComponent>(alice);
-    registry.Add<ABigComponent>(bob);
+    registry.add<ABigComponent>(alice);
+    registry.add<ASmallComponent>(alice);
+    registry.add<ABigComponent>(bob);
 
     /****** foreach_components ******/
     std::cout << std::endl;
@@ -113,9 +113,9 @@ int main()
     Logger.Info("foreach_components (With Entity id_) on <Name, int, ABigComponent>:");
     Logger.Debug("Both Alice and Bob have <Name>, <int>, and <ABigComponent>");
     registry.foreach_components<Name, int, ABigComponent>(
-        [](lecs::EntityId entityId, const Name& name, const int k, const ABigComponent&)
+        [](lecs::EntityId entityid, const Name& name, const int k, const ABigComponent&)
         {
-            Logger.Info("    {} ({}) -> {}", name, entityId, k);
+            Logger.Info("    {} ({}) -> {}", name, entityid, k);
         }
     );
 
@@ -127,9 +127,9 @@ int main()
     Logger.Info("foreach_components (With Entity id_) on <Name, ASmallComponent, int, ABigComponent>:");
     Logger.Debug("Only Alice has <ASmallComponent>, so Bob is not printed. Alice appears since she has all required components");
     registry.foreach_components<Name, ASmallComponent, int, ABigComponent>(
-        [](lecs::EntityId entityId, const Name& name, const ASmallComponent&, const int k, const ABigComponent&)
+        [](lecs::EntityId entityid, const Name& name, const ASmallComponent&, const int k, const ABigComponent&)
         {
-            Logger.Info("    {} ({}) -> {}", name, entityId, k);
+            Logger.Info("    {} ({}) -> {}", name, entityid, k);
         }
     );
 
@@ -139,10 +139,10 @@ int main()
      * each_entities_with will loop over every entity that has all required components (here only <Name>).
     */
     Logger.Info("each_entities_with <Name>:");
-    for (lecs::EntityId entityId : registry.each_entities_with<Name>())
+    for (lecs::EntityId entityid : registry.each_entities_with<Name>())
     {
-        Logger.Info("    {} -> {}", registry.get<Name>(entityId),
-            registry.has<ASmallComponent>(entityId) ? "has <ASmallComponent>" : "Does NOT have <ASmallComponent>"
+        Logger.Info("    {} -> {}", registry.get<Name>(entityid),
+            registry.has<ASmallComponent>(entityid) ? "has <ASmallComponent>" : "Does NOT have <ASmallComponent>"
         );
     }
 
@@ -162,19 +162,19 @@ int main()
      * but this time you cannot reference components that were not present in the constructor.
     */
     Logger.Info("View: Entity with the component <Name>");
-    for (lecs::EntityId entityId : view.each_entities_with<Name>())
+    for (lecs::EntityId entityid : view.each_entities_with<Name>())
     {
-        Logger.Info("    {} ({})", registry.get<Name>(entityId), entityId);
+        Logger.Info("    {} ({})", registry.get<Name>(entityid), entityid);
     }
 
     lecs::EntityId eve = registry.create_entityid();
-    registry.Add<Name>(eve, "Eve");
+    registry.add<Name>(eve, "Eve");
 
     std::cout << std::endl;
     Logger.Info("View doesn't need to be recreated; it is always up to date (After adding Eve):");
-    for (lecs::EntityId entityId : view.each_entities_with<Name>())
+    for (lecs::EntityId entityid : view.each_entities_with<Name>())
     {
-        Logger.Info("    {} ({})", registry.get<Name>(entityId), entityId);
+        Logger.Info("    {} ({})", registry.get<Name>(entityid), entityid);
     }
 
     std::cout << std::endl;
@@ -189,7 +189,7 @@ int main()
         Logger.Info("    {} -> {}", name, intComponent);
     }
 
-    registry.Add<int>(eve, 123);
+    registry.add<int>(eve, 123);
 
     /**
      * Again, no need to recreate the view; a view is always up to date.

@@ -164,14 +164,14 @@ namespace lecs::detail {
 
         ComponentType& get_component_at_index(Index::ComponentPageIndex index) {
             LECS_ASSERT(has_component_at_index(index) == true, "There are no component at this index")
-            LECS_ASSERT(entityid_linked_[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
+            LECS_ASSERT(entityid_linked_[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityid")
 
             return *reinterpret_cast<ComponentType*>(&page_[index]);
         }
 
         const ComponentType& get_component_at_index(Index::ComponentPageIndex index) const {
             LECS_ASSERT(has_component_at_index(index) == true, "There are no component at this index")
-            LECS_ASSERT(entityid_linked_[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityId")
+            LECS_ASSERT(entityid_linked_[index] != EntityId::INVALID, "Not supposed to have a valid component linked to a non valid entityid")
 
             return *reinterpret_cast<const ComponentType*>(&page_[index]);
         }

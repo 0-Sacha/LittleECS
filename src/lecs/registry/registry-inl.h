@@ -33,7 +33,7 @@ namespace lecs {
     }
 
     template <typename ComponentType, typename... Args>
-    ComponentType& Registry::Add(EntityId entity, Args&&... args) {
+    ComponentType& Registry::add(EntityId entity, Args&&... args) {
         typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = GetComponentStorageOrCreateIt<ComponentType>();
         LECS_ASSERT(component_storage != nullptr, "This ComponentStorage is not part of this registry")
         return component_storage->add_component_to_entity(entity, std::forward<Args>(args)...);
@@ -78,13 +78,13 @@ namespace lecs {
     }
 
     template <typename ComponentType>
-    const ComponentType* Registry::GetPtr(EntityId entity) const {
+    const ComponentType* Registry::get_ptr(EntityId entity) const {
         const typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
         if (component_storage == nullptr) return nullptr;
         return component_storage->get_entity_componenttype_ptr(entity);
     }
     template <typename ComponentType>
-    ComponentType* Registry::GetPtr(EntityId entity) {
+    ComponentType* Registry::get_ptr(EntityId entity) {
         typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
         if (component_storage == nullptr) return nullptr;
         return component_storage->get_entity_componenttype_ptr(entity);

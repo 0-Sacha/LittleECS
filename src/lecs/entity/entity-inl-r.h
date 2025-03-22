@@ -5,7 +5,7 @@
 namespace lecs {
     inline ConstEntity::ConstEntity() : registry_(nullptr), entityid_(EntityId::INVALID), components_container() {}
 
-    inline ConstEntity::ConstEntity(const Registry* registry, EntityId entityId) : registry_(registry), entityid_(entityId), components_container() {
+    inline ConstEntity::ConstEntity(const Registry* registry, EntityId entityid) : registry_(registry), entityid_(entityid), components_container() {
         LECS_ASSERT(entityid_ != EntityId::INVALID)
         LECS_ASSERT(registry_ != nullptr)
         LECS_ASSERT(registry_->registry_has(entityid_))
@@ -25,7 +25,7 @@ namespace lecs {
     }
 
     template <typename ComponentType>
-    const ComponentType* ConstEntity::GetComponentPtr() const {
+    const ComponentType* ConstEntity::get_component_ptr() const {
         LECS_ASSERT(is_valid())
 
         ComponentId componentId = Registry::ComponentIdGenerator::get_typeid<ComponentType>();
@@ -42,7 +42,7 @@ namespace lecs {
         LECS_ASSERT(is_valid())
 
         if constexpr (detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID) {
-            return GetComponentPtr<ComponentType>() != nullptr;
+            return get_component_ptr<ComponentType>() != nullptr;
         } else {
             return registry_->has<ComponentType>(entityid_);
         }
@@ -53,19 +53,19 @@ namespace lecs {
         LECS_ASSERT(is_valid())
 
         if constexpr (detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID) {
-            return *GetComponentPtr<ComponentType>();
+            return *get_component_ptr<ComponentType>();
         } else {
             return registry_->get<ComponentType>(entityid_);
         }
     }
     template <typename ComponentType>
-    const ComponentType* ConstEntity::GetPtr() const {
+    const ComponentType* ConstEntity::get_ptr() const {
         LECS_ASSERT(is_valid())
 
         if constexpr (detail::ComponentStorageInfo<ComponentType>::PTR_TO_COMPONENT_VALID) {
-            return GetComponentPtr<ComponentType>();
+            return get_component_ptr<ComponentType>();
         } else {
-            return registry_->GetPtr<ComponentType>(entityid_);
+            return registry_->get_ptr<ComponentType>(entityid_);
         }
     }
     template <typename... ComponentTypes>
@@ -79,7 +79,7 @@ namespace lecs {
 namespace lecs {
     inline Entity::Entity() : ConstEntity() {}
 
-    inline Entity::Entity(Registry* registry, EntityId entityId) : ConstEntity(registry, entityId) {}
+    inline Entity::Entity(Registry* registry, EntityId entityid) : ConstEntity(registry, entityid) {}
 
     template <typename... ComponentTypes>
     std::tuple<ComponentTypes&...> Entity::get_all() {
@@ -89,12 +89,12 @@ namespace lecs {
     }
 
     template <typename ComponentType, typename... Args>
-    ComponentType& Entity::Add(Args&&... args) {
+    ComponentType& Entity::add(Args&&... args) {
         LECS_ASSERT(is_valid())
 
         ComponentId componentId = Registry::ComponentIdGenerator::get_typeid<ComponentType>();
 
-        ComponentType& res = registry_->Add<ComponentType>(entityid_, std::forward<Args>(args)...);
+        ComponentType& res = registry_->add<ComponentType>(entityid_, std::forward<Args>(args)...);
         components_container.insert({componentId, &res});
         return res;
     }

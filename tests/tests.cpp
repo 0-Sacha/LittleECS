@@ -3,5 +3,5 @@
 
 int main() {
     StreamFormat::Tester::TestSuitesManager::Verbose = false;
-    return StreamFormat::Tester::TestSuitesManager::ExecAllTestSuites();
+    return static_cast<int>(StreamFormat::Tester::TestSuitesManager::ExecAllTestSuites());
 }

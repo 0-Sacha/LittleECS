@@ -8,7 +8,7 @@ namespace lecs {
     class LiteEntity {
     public:
         LiteEntity();
-        LiteEntity(Registry* registry, EntityId entityId);
+        LiteEntity(Registry* registry, EntityId entityid);
 
     protected:
         Registry* registry_;
@@ -47,6 +47,6 @@ namespace lecs {
         template <typename... ComponentTypes>
         std::tuple<ComponentTypes&...> get_all();
         template <typename ComponentType, typename... Args>
-        ComponentType& Add(Args&&... args);
+        ComponentType& add(Args&&... args);
     };
 }  // namespace lecs

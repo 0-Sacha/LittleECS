@@ -6,6 +6,7 @@
 
 #include <set>
 
+// NOLINTBEGIN(misc-const-correctness)
 PCT_TEST_GROUP(LITTLE_ECS, BASIC_WORKFLOW);
 
 struct BasicFloatComponent {
@@ -58,17 +59,17 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         PCT_NEQ(entity1.id_, entity3.id_);                                                                                                                                     \
         PCT_NEQ(entity2.id_, entity3.id_);                                                                                                                                     \
                                                                                                                                                                                \
-        registry.Add<BasicIntComponent##Postfix_ComponentToUse>(entity1, 7ull);                                                                                                \
-        registry.Add<BasicIntComponent##Postfix_ComponentToUse>(entity2, 101ull);                                                                                              \
-        registry.Add<int>(entity2, 101);                                                                                                                                       \
-        registry.Add<float>(entity2, 101.0f);                                                                                                                                  \
+        registry.add<BasicIntComponent##Postfix_ComponentToUse>(entity1, 7ull);                                                                                                \
+        registry.add<BasicIntComponent##Postfix_ComponentToUse>(entity2, 101ull);                                                                                              \
+        registry.add<int>(entity2, 101);                                                                                                                                       \
+        registry.add<float>(entity2, 101.0f);                                                                                                                                  \
                                                                                                                                                                                \
         PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                                                                                  \
         PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                                                                                \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
                                                                                                                                                                                \
-        registry.Add<BasicFloatComponent>(entity1, 171.0f);                                                                                                                    \
-        registry.Add<BasicFloatComponent>(entity3, 5.0f);                                                                                                                      \
+        registry.add<BasicFloatComponent>(entity1, 171.0f);                                                                                                                    \
+        registry.add<BasicFloatComponent>(entity3, 5.0f);                                                                                                                      \
                                                                                                                                                                                \
         PCT_EQ(registry.get<BasicFloatComponent>(entity1).Value, 171.0f);                                                                                                      \
         PCT_EQ(registry.get<BasicFloatComponent>(entity3).Value, 5.0f);                                                                                                        \
@@ -174,3 +175,4 @@ BasicWorkflow(FC);
 BasicWorkflow(FCNREF);
 BasicWorkflow(CC);
 BasicWorkflow(RC);
+// NOLINTEND(misc-const-correctness)

@@ -14,7 +14,7 @@ namespace lecs {
 
     public:
         ConstEntity();
-        ConstEntity(const Registry* registry, EntityId entityId);
+        ConstEntity(const Registry* registry, EntityId entityid);
 
     protected:
         const Registry*     registry_;
@@ -36,7 +36,7 @@ namespace lecs {
 
     protected:
         template <typename ComponentType>
-        const ComponentType* GetComponentPtr() const;
+        const ComponentType* get_component_ptr() const;
 
     public:
         inline EntityId GetEntityId() {
@@ -56,7 +56,7 @@ namespace lecs {
         template <typename ComponentType>
         const ComponentType& get() const;
         template <typename ComponentType>
-        const ComponentType* GetPtr() const;
+        const ComponentType* get_ptr() const;
         template <typename... ComponentTypes>
         std::tuple<const ComponentTypes&...> get_all() const;
     };
@@ -67,17 +67,17 @@ namespace lecs {
 
     public:
         Entity();
-        Entity(Registry* registry, EntityId entityId);
+        Entity(Registry* registry, EntityId entityid);
 
     protected:
         template <typename ComponentType>
-        const ComponentType* GetComponentPtr() const {
-            return ConstEntity::template GetComponentPtr<ComponentType>();
+        const ComponentType* get_component_ptr() const {
+            return ConstEntity::template get_component_ptr<ComponentType>();
         }
 
         template <typename ComponentType>
-        ComponentType* GetComponentPtr() {
-            return const_cast<ComponentType*>(ConstEntity::template GetComponentPtr<ComponentType>());
+        ComponentType* get_component_ptr() {
+            return const_cast<ComponentType*>(ConstEntity::template get_component_ptr<ComponentType>());
         }
 
 
@@ -97,12 +97,12 @@ namespace lecs {
         }
 
         template <typename ComponentType>
-        const ComponentType* GetPtr() const {
-            return ConstEntity::template GetPtr<ComponentType>();
+        const ComponentType* get_ptr() const {
+            return ConstEntity::template get_ptr<ComponentType>();
         }
         template <typename ComponentType>
-        ComponentType* GetPtr() {
-            return const_cast<ComponentType*>(ConstEntity::template GetPtr<ComponentType>());
+        ComponentType* get_ptr() {
+            return const_cast<ComponentType*>(ConstEntity::template get_ptr<ComponentType>());
         }
 
         template <typename... ComponentTypes>
@@ -114,6 +114,6 @@ namespace lecs {
 
     public:
         template <typename ComponentType, typename... Args>
-        ComponentType& Add(Args&&... args);
+        ComponentType& add(Args&&... args);
     };
 }  // namespace lecs

@@ -1,9 +1,9 @@
 ""
 
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "LittleECS",
+    name = "lecs",
     srcs = glob([ "src/**/*.h" ]),
     hdrs = glob([ "src/**/*.h" ]),
     includes = [ "src/" ],
@@ -14,29 +14,5 @@ cc_library(
     strip_include_prefix = "src",
     include_prefix = "LittleECS",
     linkstatic = True,
-    visibility = ["//visibility:public"],
-)
-
-cc_test(
-    name = "LittleECSTests",
-    srcs = glob([ "tests/**/*.h", "tests/**/*.cpp" ], exclude=["tests/Perf/**"]),
-    includes = [ "src/" ],
-    copts = select({
-        "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
-        "//conditions:default": ["-std=c++20"],
-    }),
-    deps = [ "@streamformat//:StreamFormat", ":LittleECS" ],
-    visibility = ["//visibility:public"],
-)
-
-cc_test(
-    name = "LittleECSTestsPerf",
-    srcs = glob([ "tests/**/*.h", "tests/**/*.cpp" ]),
-    includes = [ "src/" ],
-    copts = select({
-        "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
-        "//conditions:default": ["-std=c++20"],
-    }),
-    deps = [ "@streamformat//:StreamFormat", ":LittleECS" ],
     visibility = ["//visibility:public"],
 )

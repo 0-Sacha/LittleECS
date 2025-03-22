@@ -69,7 +69,7 @@ namespace lecs {
             return storage->get_entity_componenttype(entity);
         }
         template <typename ComponentType>
-        const ComponentType* GetPtr(EntityId entity) const {
+        const ComponentType* get_ptr(EntityId entity) const {
             auto storage = get_component_storage_at<TypeIndex<ComponentType>::index>();
             LECS_ASSERT(storage, "This entity doesn't have this component")
             return storage->get_entity_componenttype_ptr(entity);
@@ -158,11 +158,11 @@ namespace lecs {
         }
 
         template <typename ComponentType>
-        const ComponentType& GetPtr(EntityId entity) const {
-            return Base::template GetPtr<ComponentType>(entity);
+        const ComponentType& get_ptr(EntityId entity) const {
+            return Base::template get_ptr<ComponentType>(entity);
         }
         template <typename ComponentType>
-        ComponentType* GetPtr(EntityId entity) {
+        ComponentType* get_ptr(EntityId entity) {
             auto storage = get_component_storage_at<TypeIndex<ComponentType>::index>();
             LECS_ASSERT(storage, "This entity doesn't have this component")
             return &storage->get_entity_componenttype(entity);

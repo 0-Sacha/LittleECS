@@ -5,7 +5,7 @@
 namespace lecs {
     inline LiteEntity::LiteEntity() : registry_(nullptr), entityid_(EntityId::INVALID) {}
 
-    inline LiteEntity::LiteEntity(Registry* registry, EntityId entityId) : registry_(registry), entityid_(entityId) {
+    inline LiteEntity::LiteEntity(Registry* registry, EntityId entityid) : registry_(registry), entityid_(entityid) {
         LECS_ASSERT(entityid_ != EntityId::INVALID)
         LECS_ASSERT(registry_ != nullptr)
         LECS_ASSERT(registry_->registry_has(entityid_))
@@ -47,9 +47,9 @@ namespace lecs {
     }
 
     template <typename ComponentType, typename... Args>
-    ComponentType& LiteEntity::Add(Args&&... args) {
+    ComponentType& LiteEntity::add(Args&&... args) {
         LECS_ASSERT(is_valid())
 
-        return registry_->Add<ComponentType>(entityid_, std::forward<Args>(args)...);
+        return registry_->add<ComponentType>(entityid_, std::forward<Args>(args)...);
     }
 }  // namespace lecs

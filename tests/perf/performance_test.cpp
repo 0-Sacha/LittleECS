@@ -6,6 +6,7 @@
 
 #include <set>
 
+// NOLINTBEGIN(misc-const-correctness)
 PCT_TEST_GROUP(LITTLE_ECS, PERFORMANCE);
 
 struct BasicIntComponent {
@@ -77,10 +78,10 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                 \
                                                                                                                           \
         {                                                                                                                 \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Add Component");                                 \
+            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "add Component");                                 \
                                                                                                                           \
             for (std::size_t i = 0; i < Size; ++i) {                                                                      \
-                registry.Add<BasicIntComponent>(entities[i], i);                                                          \
+                registry.add<BasicIntComponent>(entities[i], i);                                                          \
             }                                                                                                             \
         }                                                                                                                 \
                                                                                                                           \
@@ -112,7 +113,9 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
 
 BenchmarkTest(1'000, 1K);
 BenchmarkTest(10'000, 10K);
-BenchmarkTest(100'000, 1'00K);
+BenchmarkTest(100'000, 100K);
 BenchmarkTest(1'000'000, 1M);
 BenchmarkTest(10'000'000, 10M);
 // BenchmarkTest(100'000'000, 100M);
+
+// NOLINTEND(misc-const-correctness)
