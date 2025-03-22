@@ -1,4 +1,4 @@
-#include "LittleECS/LittleECS.h"
+#include "lecs/lecs.h"
 #include "StreamFormat/FLog.h"
 
 StreamFormat::FLog::BasicLogger Logger("Workflow");
@@ -25,11 +25,11 @@ STREAMFORMAT_AUTO_FORMATTER(Name, "{}", value.Name);
 int main()
 {
     /****** The Registry to use ******/
-    LECS::Registry registry;
+    lecs::Registry registry;
 
     /****** Entity IDs (trivially copiable) ******/
-    LECS::EntityId alice = registry.CreateEntityId();
-    LECS::EntityId bob = registry.CreateEntityId();
+    lecs::EntityId alice = registry.create_entityid();
+    lecs::EntityId bob = registry.create_entityid();
 
     /****** Add Components ******/
     registry.Add<int>(alice, 42);
@@ -41,16 +41,16 @@ int main()
     registry.Add<Name>(alice, "Alice");
     registry.Add<Name>(bob, "Bob");
 
-    /****** Get Components ******/
+    /****** get Components ******/
     std::cout << std::endl;
-    Logger.Info("Alice's int: {}", registry.Get<int>(alice));
-    Logger.Info("Bob's int: {}", registry.Get<int>(bob));
+    Logger.Info("Alice's int: {}", registry.get<int>(alice));
+    Logger.Info("Bob's int: {}", registry.get<int>(bob));
 
-    /****** ForEachUniqueComponent ******/
+    /****** foreach_unique_component ******/
     std::cout << std::endl;
     /**
-     * To ForEach on a specific component, use ForEachUniqueComponent.
-     * It takes a lambda which can optionally contain an `LECS::EntityId` as the first parameter; in that case, the EntityId will be sent to the lambda.
+     * To ForEach on a specific component, use foreach_unique_component.
+     * It takes a lambda which can optionally contain an `lecs::EntityId` as the first parameter; in that case, the EntityId will be sent to the lambda.
      * The component you want to loop over is specified as a template argument, and the lambda can take the component as:
      *  - value <int>
      *  - const value <const int>
@@ -59,17 +59,17 @@ int main()
      * 
      * It will loop over all entities that have the specified component.
     */
-    Logger.Info("ForEachUniqueComponent (With Entity Id):");
-    registry.ForEachUniqueComponent<Name>(
-        [](LECS::EntityId entityId, const Name& name)
+    Logger.Info("foreach_unique_component (With Entity id_):");
+    registry.foreach_unique_component<Name>(
+        [](lecs::EntityId entityId, const Name& name)
         {
             Logger.Info("    {} -> {}", entityId, name);
         }
     );
 
     std::cout << std::endl;
-    Logger.Info("ForEachUniqueComponent (Without Entity Id):");
-    registry.ForEachUniqueComponent<Name>(
+    Logger.Info("foreach_unique_component (Without Entity id_):");
+    registry.foreach_unique_component<Name>(
         [](const Name& name)
         {
             Logger.Info("    {}", name);
@@ -85,11 +85,11 @@ int main()
     registry.Add<ASmallComponent>(alice);
     registry.Add<ABigComponent>(bob);
 
-    /****** ForEachComponents ******/
+    /****** foreach_components ******/
     std::cout << std::endl;
     /**
-     * To ForEach on multiple components (only one included), use ForEachComponents.
-     * Like `ForEachUniqueComponent`, it takes a lambda which can optionally contain an `LECS::EntityId` as the first parameter; in that case, the EntityId will be sent to the lambda.
+     * To ForEach on multiple components (only one included), use foreach_components.
+     * Like `foreach_unique_component`, it takes a lambda which can optionally contain an `lecs::EntityId` as the first parameter; in that case, the EntityId will be sent to the lambda.
      * The component you want to loop over is specified as a template argument, and the lambda can take the component as:
      *  - value <int>
      *  - const value <const int>
@@ -98,8 +98,8 @@ int main()
      * 
      * It will loop over all entities that have **ALL** the specified components.
     */
-    Logger.Info("ForEachComponents (Without Entity Id) on <Name, int>:");
-    registry.ForEachComponents<Name, int>(
+    Logger.Info("foreach_components (Without Entity id_) on <Name, int>:");
+    registry.foreach_components<Name, int>(
         [](const Name& name, const int k)
         {
             Logger.Info("    {} -> {}", name, k);
@@ -110,10 +110,10 @@ int main()
     /**
      * Here, both Alice and Bob have <int> and <ABigComponent>, so they will both be printed.
     */
-    Logger.Info("ForEachComponents (With Entity Id) on <Name, int, ABigComponent>:");
+    Logger.Info("foreach_components (With Entity id_) on <Name, int, ABigComponent>:");
     Logger.Debug("Both Alice and Bob have <Name>, <int>, and <ABigComponent>");
-    registry.ForEachComponents<Name, int, ABigComponent>(
-        [](LECS::EntityId entityId, const Name& name, const int k, const ABigComponent&)
+    registry.foreach_components<Name, int, ABigComponent>(
+        [](lecs::EntityId entityId, const Name& name, const int k, const ABigComponent&)
         {
             Logger.Info("    {} ({}) -> {}", name, entityId, k);
         }
@@ -124,25 +124,25 @@ int main()
      * Here, only Alice has all three required components: <ASmallComponent>, <int>, <ABigComponent>, so only she will be printed.
      * Bob doesn't have an <ASmallComponent>, so he will not be printed.
     */
-    Logger.Info("ForEachComponents (With Entity Id) on <Name, ASmallComponent, int, ABigComponent>:");
+    Logger.Info("foreach_components (With Entity id_) on <Name, ASmallComponent, int, ABigComponent>:");
     Logger.Debug("Only Alice has <ASmallComponent>, so Bob is not printed. Alice appears since she has all required components");
-    registry.ForEachComponents<Name, ASmallComponent, int, ABigComponent>(
-        [](LECS::EntityId entityId, const Name& name, const ASmallComponent&, const int k, const ABigComponent&)
+    registry.foreach_components<Name, ASmallComponent, int, ABigComponent>(
+        [](lecs::EntityId entityId, const Name& name, const ASmallComponent&, const int k, const ABigComponent&)
         {
             Logger.Info("    {} ({}) -> {}", name, entityId, k);
         }
     );
 
-    /****** EachEntitiesWith ******/
+    /****** each_entities_with ******/
     std::cout << std::endl;
     /**
-     * EachEntitiesWith will loop over every entity that has all required components (here only <Name>).
+     * each_entities_with will loop over every entity that has all required components (here only <Name>).
     */
-    Logger.Info("EachEntitiesWith <Name>:");
-    for (LECS::EntityId entityId : registry.EachEntitiesWith<Name>())
+    Logger.Info("each_entities_with <Name>:");
+    for (lecs::EntityId entityId : registry.each_entities_with<Name>())
     {
-        Logger.Info("    {} -> {}", registry.Get<Name>(entityId),
-            registry.Has<ASmallComponent>(entityId) ? "Has <ASmallComponent>" : "Does NOT have <ASmallComponent>"
+        Logger.Info("    {} -> {}", registry.get<Name>(entityId),
+            registry.has<ASmallComponent>(entityId) ? "has <ASmallComponent>" : "Does NOT have <ASmallComponent>"
         );
     }
 
@@ -162,19 +162,19 @@ int main()
      * but this time you cannot reference components that were not present in the constructor.
     */
     Logger.Info("View: Entity with the component <Name>");
-    for (LECS::EntityId entityId : view.EachEntitiesWith<Name>())
+    for (lecs::EntityId entityId : view.each_entities_with<Name>())
     {
-        Logger.Info("    {} ({})", registry.Get<Name>(entityId), entityId);
+        Logger.Info("    {} ({})", registry.get<Name>(entityId), entityId);
     }
 
-    LECS::EntityId eve = registry.CreateEntityId();
+    lecs::EntityId eve = registry.create_entityid();
     registry.Add<Name>(eve, "Eve");
 
     std::cout << std::endl;
     Logger.Info("View doesn't need to be recreated; it is always up to date (After adding Eve):");
-    for (LECS::EntityId entityId : view.EachEntitiesWith<Name>())
+    for (lecs::EntityId entityId : view.each_entities_with<Name>())
     {
-        Logger.Info("    {} ({})", registry.Get<Name>(entityId), entityId);
+        Logger.Info("    {} ({})", registry.get<Name>(entityId), entityId);
     }
 
     std::cout << std::endl;
@@ -183,8 +183,8 @@ int main()
      * And use C++17 structural bindings.
      * Here Eve will not appear since she doesn't have an <int> component.
     */
-    Logger.Info("Views: EachComponents");
-    for (const auto& [name, intComponent] : view.EachComponents<Name, int>())
+    Logger.Info("Views: each_components");
+    for (const auto& [name, intComponent] : view.each_components<Name, int>())
     {
         Logger.Info("    {} -> {}", name, intComponent);
     }
@@ -196,19 +196,19 @@ int main()
     */
     std::cout << std::endl;
     Logger.Info("View after adding an <int> component to Eve");
-    for (const auto& [name, intComponent] : view.EachComponents<Name, int>())
+    for (const auto& [name, intComponent] : view.each_components<Name, int>())
     {
         Logger.Info("    {} -> {}", name, intComponent);
     }
 
     /**
-     * To destroy an entity, just use DestroyEntityId.
+     * To destroy an entity, just use destroy_entityid.
     */
     std::cout << std::endl;
-    registry.DestroyEntityId(bob);
+    registry.destroy_entityid(bob);
 
     Logger.Info("View after destroying Bob");
-    for (const auto& [name, intComponent] : view.EachComponents<Name, int>())
+    for (const auto& [name, intComponent] : view.each_components<Name, int>())
     {
         Logger.Info("    {} -> {}", name, intComponent);
     }

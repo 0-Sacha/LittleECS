@@ -1,9 +1,9 @@
 #pragma once
 
-#include "LittleECS/Registry/IComponentStorage.h"
-#include "LittleECS/Detail/Exception.h"
+#include "lecs/registry/component_storage.h"
+#include "lecs/detail/exception.h"
 
-#include "FastComponentStoragePage.h"
+#include "fcs_page.h"
 
 #include <memory>
 #include <any>
@@ -11,10 +11,10 @@
 #include <unordered_set>
 #include <vector>
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     class FastComponentStorage : public IComponentStorage
     {
     public:
@@ -30,11 +30,11 @@ namespace LECS::Detail
 
     public:
         FastComponentStorage()
-            : m_PageContainer()
-            , m_AliveEntitiesContainer()
+            : page_container_()
+            , alive_entities_container_()
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                m_AliveEntitiesContainer.reserve(PAGE_SIZE);
+                alive_entities_container_.reserve(PAGE_SIZE);
         }
 
         ~FastComponentStorage() override
@@ -42,69 +42,69 @@ namespace LECS::Detail
         }
 
     protected:
-        PagesContainer m_PageContainer;
-        AliveEntitiesContainer m_AliveEntitiesContainer;
+        PagesContainer page_container_;
+        AliveEntitiesContainer alive_entities_container_;
 
     protected:
-        inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
+        inline Index::IndexInfo get_entity_indexinfo(EntityId entity) const
         {
-            Index::IndexInfo indexInfo;
-            indexInfo.IndexOfPage = entity.Id / PAGE_SIZE;
-            indexInfo.PageIndexOfComponent = entity.Id % PAGE_SIZE;
-            return indexInfo;
+            Index::IndexInfo indexinfo;
+            indexinfo.index_of_page = entity.id_ / PAGE_SIZE;
+            indexinfo.component_pageindex = entity.id_ % PAGE_SIZE;
+            return indexinfo;
         }
 
     public:
-        bool HasThisComponent(EntityId entity) const
+        bool has_this_component(EntityId entity) const
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
 
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            if (indexinfo.index_of_page >= page_container_.size())
                 return false;
-            if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
+            if (page_container_[indexinfo.index_of_page] == nullptr)
                 return false;
 
-            return m_PageContainer[indexInfo.IndexOfPage]->HasEntityAtIndex(indexInfo.PageIndexOfComponent);
+            return page_container_[indexinfo.index_of_page]->has_entity_at_index(indexinfo.component_pageindex);
         }
 
-        bool HasThisComponentV(EntityId entity) const override
+        bool has_this_component_v(EntityId entity) const override
         {
-            return HasThisComponent(entity);
+            return has_this_component(entity);
         }
         
-        void RemoveComponentOfEntity(EntityId entity)
+        void remove_component_of_entity(EntityId entity)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
+            PageTypeRef& page = page_container_[indexinfo.index_of_page];
 
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
             {
-                Index::IndexInAliveList indexInAliveList = page->GetIndexInAliveListAtIndex(indexInfo.PageIndexOfComponent);
-                typename EntityId::Type lastEntity = m_AliveEntitiesContainer.back();
-                m_AliveEntitiesContainer[indexInAliveList] = lastEntity;
-                m_AliveEntitiesContainer.pop_back();
+                Index::index_in_alive_list index_in_alive_list = page->get_index_in_alive_list_at_index(indexinfo.component_pageindex);
+                typename EntityId::Type last_entity = alive_entities_container_.back();
+                alive_entities_container_[index_in_alive_list] = last_entity;
+                alive_entities_container_.pop_back();
             }
 
-            page->RemoveComponentAtIndex(indexInfo.PageIndexOfComponent);
+            page->remove_component_at_index(indexinfo.component_pageindex);
         }
 
-        void RemoveComponentOfEntityV(EntityId entity) override
+        void remove_component_of_entity_v(EntityId entity) override
         {
-            return RemoveComponentOfEntity(entity);
+            return remove_component_of_entity(entity);
         }
 
     public:
         template <typename... Args>
-        ComponentType& AddComponentToEntity(EntityId entity, Args&&... args)
+        ComponentType& add_component_to_entity(EntityId entity, Args&&... args)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
 
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            if (indexinfo.index_of_page >= page_container_.size())
             {
-                m_PageContainer.resize(indexInfo.IndexOfPage + 1);
+                page_container_.resize(indexinfo.index_of_page + 1);
             }
 
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
+            PageTypeRef& page = page_container_[indexinfo.index_of_page];
 
             if (page == nullptr)
             {
@@ -113,91 +113,89 @@ namespace LECS::Detail
 
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
             {
-                m_AliveEntitiesContainer.emplace_back(entity.Id);
-                return page->AddComponent(entity, indexInfo.PageIndexOfComponent, m_AliveEntitiesContainer.size() - 1, std::forward<Args>(args)...);
+                alive_entities_container_.emplace_back(entity.id_);
+                return page->add_component(entity, indexinfo.component_pageindex, alive_entities_container_.size() - 1, std::forward<Args>(args)...);
             }
             else
-                return page->AddComponent(entity, indexInfo.PageIndexOfComponent, std::forward<Args>(args)...);
+                return page->add_component(entity, indexinfo.component_pageindex, std::forward<Args>(args)...);
         }
 
-        ComponentType& GetComponentOfEntity(EntityId entity)
+        ComponentType& get_entity_componenttype(EntityId entity)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-            return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
+            LECS_ASSERT(indexinfo.index_of_page < page_container_.size(), "Entity doesn't have this component")
+            PageTypeRef& page = page_container_[indexinfo.index_of_page];
+            return page->get_component_at_index(indexinfo.component_pageindex);
+        }
+        const ComponentType& get_entity_componenttype(EntityId entity) const
+        {
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
+            LECS_ASSERT(indexinfo.index_of_page < page_container_.size(), "Entity doesn't have this component")
+            const PageTypeRef& page = page_container_[indexinfo.index_of_page];
+            return page->get_component_at_index(indexinfo.component_pageindex);
         }
 
-        const ComponentType& GetComponentOfEntity(EntityId entity) const
+        ComponentType* get_entity_componenttype_ptr(EntityId entity)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            LECS_ASSERT(indexInfo.IndexOfPage < m_PageContainer.size(), "Entity doesn't have this component")
-            const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-            return page->GetComponentAtIndex(indexInfo.PageIndexOfComponent);
-        }
-
-        ComponentType* GetComponentOfEntityPtr(EntityId entity)
-        {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
+            if (indexinfo.index_of_page >= page_container_.size())
                 return nullptr;
-            PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+            PageTypeRef& page = page_container_[indexinfo.index_of_page];
+            return page->get_component_at_indexptr(indexinfo.component_pageindex);
         }
-
-        const ComponentType* GetComponentOfEntityPtr(EntityId entity) const
+        const ComponentType* get_entity_componenttype_ptr(EntityId entity) const
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
+            if (indexinfo.index_of_page >= page_container_.size())
                 return nullptr;
-            const PageTypeRef& page = m_PageContainer[indexInfo.IndexOfPage];
-            return page->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+            const PageTypeRef& page = page_container_[indexinfo.index_of_page];
+            return page->get_component_at_indexptr(indexinfo.component_pageindex);
         }
 
-        const void* GetComponentAliasedPtrV(EntityId entity) const override
+        const void* get_entity_componenttype_aliasedptr_v(EntityId entity) const override
         {
-            return reinterpret_cast<const void*>(GetComponentOfEntityPtr(entity));
+            return reinterpret_cast<const void*>(get_entity_componenttype_ptr(entity));
         }
-        void* GetComponentAliasedPtrV(EntityId entity) override
+        void* get_entity_componenttype_aliasedptr_v(EntityId entity) override
         {
-            return reinterpret_cast<void*>(GetComponentOfEntityPtr(entity));
+            return reinterpret_cast<void*>(get_entity_componenttype_ptr(entity));
         }
     
     public:
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-        void ForEachStorage(Function&& function)
+        void foreach_storage(Function&& function)
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-        void ForEachStorage(Function&& function) const
+        void foreach_storage(Function&& function) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
         
         // Function = std::function<void(EntityId, ComponentType&)>
         template <typename Function>
-        void ForEachStorage(Function&& function, const auto& registryAliveEntities)
+        void foreach_storage(Function&& function, const auto& alive_entities_registry)
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
         // Function = std::function<void(EntityId, const ComponentType&)>
         template <typename Function>
-        void ForEachStorage(Function&& function, const auto& registryAliveEntities) const
+        void foreach_storage(Function&& function, const auto& alive_entities_registry) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
 
     public:
-        decltype(auto) EntitiesIteratorBegin() const
+        decltype(auto) entities_iterator_begin() const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
-        decltype(auto) EntitiesIteratorEnd() const
+        decltype(auto) entities_iterator_end() const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false);
 
-        decltype(auto) EntitiesIteratorBegin(const auto& registryAliveEntities) const
+        decltype(auto) entities_iterator_begin(const auto& alive_entities_registry) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
         
-        decltype(auto) EntitiesIteratorEnd(const auto& registryAliveEntities) const
+        decltype(auto) entities_iterator_end(const auto& alive_entities_registry) const
         requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH);
     };
 }
 
-#include "FCSEach-inl.h"
-#include "FCSIterator-inl.h"
+#include "fcs_each-inl.h"
+#include "fcs_iterator-inl.h"

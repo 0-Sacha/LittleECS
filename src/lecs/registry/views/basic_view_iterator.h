@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BasicView.h"
+#include "basic_view.h"
 
-#include "LittleECS/Detail/Iterable.h"
+#include "lecs/detail/iterable.h"
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     template <typename BasicViewLinked, typename SubEntitiesIterator, typename SubEntitiesIteratorLast, typename... IteratorComponentTypes>
     class ViewEntitiesIterator
@@ -18,25 +18,25 @@ namespace LECS::Detail
 
     public:
         ViewEntitiesIterator(const BasicViewLinked* basicViewLinked, SubEntitiesIterator subEntitiesIterator, SubEntitiesIteratorLast subEntitiesIteratorLast)
-            : m_BasicViewLinked(basicViewLinked)
-            , m_SubEntitiesIterator(subEntitiesIterator)
-            , m_SubEntitiesIteratorLast(subEntitiesIteratorLast)
+            : basic_view_linked_(basicViewLinked)
+            , sub_entities_iterator_(subEntitiesIterator)
+            , sub_entities_iterator_last_(subEntitiesIteratorLast)
         {}
 
     public:
         const BasicViewLinked* GetViewLinked() const
         {
-            return m_BasicViewLinked;
+            return basic_view_linked_;
         }
 
     public:
         reference operator*()
         {
-            return *m_SubEntitiesIterator;
+            return *sub_entities_iterator_;
         }
         pointer operator->()
         {
-            return m_SubEntitiesIterator.operator->();
+            return sub_entities_iterator_.operator->();
         }
 
         ViewEntitiesIterator& operator++()
@@ -44,52 +44,52 @@ namespace LECS::Detail
             bool currentEntityValid = false;
             do
             {
-                ++m_SubEntitiesIterator;
-                if (m_SubEntitiesIterator == m_SubEntitiesIteratorLast)
+                ++sub_entities_iterator_;
+                if (sub_entities_iterator_ == sub_entities_iterator_last_)
                     break;
 
                 if constexpr (sizeof...(IteratorComponentTypes) > 0)
-                    currentEntityValid = m_BasicViewLinked->template HasAll<IteratorComponentTypes...>(operator*());      
+                    currentEntityValid = basic_view_linked_->template has_all<IteratorComponentTypes...>(operator*());      
                 else
                     currentEntityValid = true;
             } while(currentEntityValid == false);
 
             if (currentEntityValid == false)
             {
-                m_BasicViewLinked = nullptr;
+                basic_view_linked_ = nullptr;
             }
 
             return *this;
         }
 
-        ViewEntitiesIterator operator++(int) { ViewEntitiesIterator res(m_BasicViewLinked, m_SubEntitiesIterator, m_SubEntitiesIteratorLast); ++(*this); return res; }
+        ViewEntitiesIterator operator++(int) { ViewEntitiesIterator res(basic_view_linked_, sub_entities_iterator_, sub_entities_iterator_last_); ++(*this); return res; }
 
         bool operator==(const ViewEntitiesIterator& rhs) const
         {
         #ifdef LECS_DEBUG
-            bool complexResult = m_BasicViewLinked != nullptr &&
-                m_BasicViewLinked == rhs.m_BasicViewLinked &&
-                m_SubEntitiesIterator == rhs.m_SubEntitiesIterator &&
-                m_SubEntitiesIteratorLast == rhs.m_SubEntitiesIteratorLast;
-            bool simpleResult = m_BasicViewLinked != nullptr;
+            bool complex_result = basic_view_linked_ != nullptr &&
+                basic_view_linked_ == rhs.basic_view_linked_ &&
+                sub_entities_iterator_ == rhs.sub_entities_iterator_ &&
+                sub_entities_iterator_last_ == rhs.sub_entities_iterator_last_;
+            bool simple_result = basic_view_linked_ != nullptr;
 
-            LECS_ASSERT(simpleResult == complexResult, "Operator== for Iterator is wrong")
+            LECS_ASSERT(simple_result == complex_result, "Operator== for Iterator is wrong")
 
-            return simpleResult;
+            return simple_result;
         #else
-            return m_BasicViewLinked != nullptr;
+            return basic_view_linked_ != nullptr;
         #endif
         }
 
         bool operator!=(const ViewEntitiesIterator& rhs) const { return !(*this == rhs); }
 
-        bool operator==(IterableEnd rhs) { return m_BasicViewLinked == nullptr; }
+        bool operator==(IterableEnd rhs) { return basic_view_linked_ == nullptr; }
         bool operator!=(IterableEnd rhs) { return !(*this == rhs); }
 
     private:
-        const BasicViewLinked* m_BasicViewLinked;
-        SubEntitiesIterator m_SubEntitiesIterator;
-        SubEntitiesIteratorLast m_SubEntitiesIteratorLast;
+        const BasicViewLinked* basic_view_linked_;
+        SubEntitiesIterator sub_entities_iterator_;
+        SubEntitiesIteratorLast sub_entities_iterator_last_;
     };
 
     template <typename BasicViewLinked, typename SubViewEntitiesIterator, typename SubViewEntitiesIteratorLast, bool INCLUDE_ENTITY, typename... IteratorComponentTypes>
@@ -108,26 +108,26 @@ namespace LECS::Detail
 
     public:
         ViewComponentsIterator(BasicViewLinked* basicViewLinked, SubViewEntitiesIterator subViewEntitiesIterator, SubViewEntitiesIteratorLast subViewEntitiesIteratorLast)
-            : m_BasicViewLinked(basicViewLinked)
-            , m_SubViewEntitiesIterator(subViewEntitiesIterator)
-            , m_SubViewEntitiesIteratorLast(subViewEntitiesIteratorLast)
+            : basic_view_linked_(basicViewLinked)
+            , sub_view_entities_iterator_(subViewEntitiesIterator)
+            , sub_view_entities_iterator_last_(subViewEntitiesIteratorLast)
         {}
 
     public:
         value_type operator*()
         {
-            EntityId entity = *m_SubViewEntitiesIterator;
+            EntityId entity = *sub_view_entities_iterator_;
             if constexpr (INCLUDE_ENTITY == true)
-                return std::tuple_cat(std::tuple<EntityId>(entity), m_BasicViewLinked->template GetAll<IteratorComponentTypes...>(entity));
+                return std::tuple_cat(std::tuple<EntityId>(entity), basic_view_linked_->template get_all<IteratorComponentTypes...>(entity));
             else
-                return std::tuple_cat(m_BasicViewLinked->template GetAll<IteratorComponentTypes...>(entity));
+                return std::tuple_cat(basic_view_linked_->template get_all<IteratorComponentTypes...>(entity));
         }
 
         ViewComponentsIterator& operator++()
         {
-            ++m_SubViewEntitiesIterator;
-            if (m_SubViewEntitiesIterator == m_SubViewEntitiesIteratorLast)
-                m_BasicViewLinked = nullptr;
+            ++sub_view_entities_iterator_;
+            if (sub_view_entities_iterator_ == sub_view_entities_iterator_last_)
+                basic_view_linked_ = nullptr;
             return *this;
         }
 
@@ -141,28 +141,28 @@ namespace LECS::Detail
         bool operator==(const ViewComponentsIterator& rhs)
         {
             #ifdef LECS_DEBUG
-                bool complexResult = m_BasicViewLinked != nullptr &&
-                    m_BasicViewLinked == rhs.m_BasicViewLinked &&
-                    m_SubViewEntitiesIterator == rhs.m_SubViewEntitiesIterator &&
-                    m_SubViewEntitiesIterator == m_SubViewEntitiesIteratorLast;
-                bool simpleResult = m_BasicViewLinked != nullptr;
+                bool complex_result = basic_view_linked_ != nullptr &&
+                    basic_view_linked_ == rhs.basic_view_linked_ &&
+                    sub_view_entities_iterator_ == rhs.sub_view_entities_iterator_ &&
+                    sub_view_entities_iterator_ == sub_view_entities_iterator_last_;
+                bool simple_result = basic_view_linked_ != nullptr;
 
-                LECS_ASSERT(simpleResult == complexResult, "Operator== for Iterator is wrong")
+                LECS_ASSERT(simple_result == complex_result, "Operator== for Iterator is wrong")
 
-                return simpleResult;
+                return simple_result;
             #else
-                return m_BasicViewLinked != nullptr;
+                return basic_view_linked_ != nullptr;
             #endif
         }
 
         bool operator!=(const ViewComponentsIterator& rhs) { return !(*this == rhs); }
 
-        bool operator==(IterableEnd rhs) { return m_BasicViewLinked == nullptr; }
+        bool operator==(IterableEnd rhs) { return basic_view_linked_ == nullptr; }
         bool operator!=(IterableEnd rhs) { return !(*this == rhs); }
 
     private:
-        BasicViewLinked* m_BasicViewLinked;
-        SubViewEntitiesIterator m_SubViewEntitiesIterator;
-        SubViewEntitiesIteratorLast m_SubViewEntitiesIteratorLast;
+        BasicViewLinked* basic_view_linked_;
+        SubViewEntitiesIterator sub_view_entities_iterator_;
+        SubViewEntitiesIteratorLast sub_view_entities_iterator_last_;
     };
 }

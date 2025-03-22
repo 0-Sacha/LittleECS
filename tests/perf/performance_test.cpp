@@ -1,6 +1,6 @@
-#include "../BaseLittleECSTest.h"
+#include "../base_lecs_tests.h"
 
-#include "LittleECS/LittleECS.h"
+#include "lecs/lecs.h"
 
 #include "StreamFormat/ProfilerManager.h"
 
@@ -27,7 +27,7 @@ struct BasicFloatComponent
 };
 
 template <>
-struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultComponentStorageInfo<BasicIntComponent>::FastComponent
+struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultComponentStorageInfo<BasicIntComponent>::FastComponent
 {
     static constexpr bool HAS_ENTITIES_REF = false;
     static constexpr bool SEND_ENTITIES_POOL_ON_EACH = true;
@@ -37,9 +37,9 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                             {                                                                                                   \
                                 StreamFormat::ProfilerManager::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                   \
                                                                                                                                 \
-                                LECS::Registry registry;                                                                        \
+                                lecs::Registry registry;                                                                        \
                                                                                                                                 \
-                                std::vector<LECS::EntityId> entities;                                                           \
+                                std::vector<lecs::EntityId> entities;                                                           \
                                 entities.reserve(Size);                                                                         \
                                                                                                                                 \
                                 {                                                                                               \
@@ -47,7 +47,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-                                        entities.emplace_back(registry.CreateEntityId());                                       \
+                                        entities.emplace_back(registry.create_entityid());                                       \
                                     }                                                                                           \
                                 }                                                                                               \
                                                                                                                                 \
@@ -58,7 +58,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-                                        if (entities[i].Id != i)                                                                \
+                                        if (entities[i].id_ != i)                                                                \
                                         {                                                                                       \
                                             uid = false;                                                                        \
                                             break;                                                                              \
@@ -69,16 +69,16 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                     {                                                                                           \
                                         uid = true;                                                                             \
                                                                                                                                 \
-                                        std::set<typename LECS::EntityId::Type> setUID;                                         \
+                                        std::set<typename lecs::EntityId::Type> setUID;                                         \
                                                                                                                                 \
                                         for (std::size_t i = 0; i < Size; ++i)                                                  \
                                         {                                                                                       \
-                                            if (setUID.contains(entities[i].Id))                                                \
+                                            if (setUID.contains(entities[i].id_))                                                \
                                             {                                                                                   \
                                                 uid = false;                                                                    \
                                                 break;                                                                          \
                                             }                                                                                   \
-                                            setUID.insert(entities[i].Id);                                                      \
+                                            setUID.insert(entities[i].id_);                                                      \
                                         }                                                                                       \
                                                                                                                                 \
                                         if (uid)                                                                                \
@@ -100,28 +100,28 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Get Component");                \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "get Component");                \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-                                        PCT_EQ(i, registry.Get<BasicIntComponent>(entities[i]).Value);                          \
+                                        PCT_EQ(i, registry.get<BasicIntComponent>(entities[i]).Value);                          \
                                     }                                                                                           \
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
-                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Has Component");                \
+                                    StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "has Component");                \
                                                                                                                                 \
                                     for (std::size_t i = 0; i < Size; ++i)                                                      \
                                     {                                                                                           \
-                                        PCT_ASSERT(registry.Has<BasicIntComponent>(entities[i]));                               \
-                                        PCT_ASSERT(registry.Has<BasicFloatComponent>(entities[i]) == false);                    \
+                                        PCT_ASSERT(registry.has<BasicIntComponent>(entities[i]));                               \
+                                        PCT_ASSERT(registry.has<BasicFloatComponent>(entities[i]) == false);                    \
                                     }                                                                                           \
                                 }                                                                                               \
                                                                                                                                 \
                                 {                                                                                               \
                                     StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "ForEach Component");            \
                                                                                                                                 \
-                                    registry.ForEachUniqueComponent<BasicIntComponent>([](LECS::EntityId, BasicIntComponent& k) \
+                                    registry.foreach_unique_component<BasicIntComponent>([](lecs::EntityId, BasicIntComponent& k) \
                                     {                                                                                           \
                                         k = 5ull;                                                                               \
                                     });                                                                                         \

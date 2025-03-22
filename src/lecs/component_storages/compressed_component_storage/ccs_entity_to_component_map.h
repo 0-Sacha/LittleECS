@@ -1,46 +1,46 @@
 #pragma once
 
-#include "CompressedComponentStoragePage.h"
+#include "ccs_page.h"
 
 #include <unordered_map>
 
-namespace LECS::Detail 
+namespace lecs::detail 
 {
-    class CompressedCSMapEntityToComponent
+    class CCS_EntityToComponent_Map
     {
     public:
         using Container = std::unordered_map<typename EntityId::Type, Index::IndexInfo>;
 
     private:
-        Container m_Container;
+        Container container_;
 
     public:
-        const Container& GetContainer()
+        const Container& get_container()
         {
-            return m_Container;
+            return container_;
         }
 
-        inline bool HasEntity(EntityId entity) const
+        inline bool has_entity(EntityId entity) const
         {
-            return m_Container.contains(entity.Id);
+            return container_.contains(entity.id_);
         }
 
-        inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
+        inline Index::IndexInfo get_entity_indexinfo(EntityId entity) const
         {
-            LECS_ASSERT(HasEntity(entity) == true)
-            return m_Container.at(entity.Id);
+            LECS_ASSERT(has_entity(entity) == true)
+            return container_.at(entity.id_);
         }
 
-        inline void AddIndexInfoForEntity(EntityId entity, Index::IndexInfo indexInfo)
+        inline void add_entity_indexinfo(EntityId entity, Index::IndexInfo indexinfo)
         {
-            LECS_ASSERT(HasEntity(entity) == false)
-            m_Container[entity.Id] = indexInfo;
+            LECS_ASSERT(has_entity(entity) == false)
+            container_[entity.id_] = indexinfo;
         }
 
-        inline void RemoveIndexInfoForEntity(EntityId entity)
+        inline void remove_entity_indexinfo(EntityId entity)
         {
-            LECS_ASSERT(HasEntity(entity) == true)
-            m_Container[entity.Id].SetInvalid();
+            LECS_ASSERT(has_entity(entity) == true)
+            container_[entity.id_].set_invalid();
         }
     };
 }

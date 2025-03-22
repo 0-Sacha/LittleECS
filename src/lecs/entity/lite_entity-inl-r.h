@@ -1,69 +1,69 @@
 #pragma once
 
-#include "LiteEntity.h"
+#include "lite_entity.h"
 
-namespace LECS
+namespace lecs
 {
     inline LiteEntity::LiteEntity()
-        : m_Registry(nullptr)
-        , m_EntityId(EntityId::INVALID)
+        : registry_(nullptr)
+        , entityid_(EntityId::INVALID)
     {
     }
 
     inline LiteEntity::LiteEntity(Registry* registry, EntityId entityId)
-        : m_Registry(registry)
-        , m_EntityId(entityId)
+        : registry_(registry)
+        , entityid_(entityId)
     {
-        LECS_ASSERT(m_EntityId != EntityId::INVALID)
-        LECS_ASSERT(m_Registry != nullptr)
-        LECS_ASSERT(m_Registry->RegistryHas(m_EntityId))
+        LECS_ASSERT(entityid_ != EntityId::INVALID)
+        LECS_ASSERT(registry_ != nullptr)
+        LECS_ASSERT(registry_->registry_has(entityid_))
     }
 
     template <typename ComponentType>
-    bool LiteEntity::Has() const
+    bool LiteEntity::has() const
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
 
-        return m_Registry->Has<ComponentType>(m_EntityId);
+        return registry_->has<ComponentType>(entityid_);
     }
 
     template <typename ComponentType>
-    const ComponentType& LiteEntity::Get() const
+    const ComponentType& LiteEntity::get() const
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
         
-        return m_Registry->Get<ComponentType>(m_EntityId);
+        return registry_->get<ComponentType>(entityid_);
     }
 
     template <typename ComponentType>
-    ComponentType& LiteEntity::Get()
+    ComponentType& LiteEntity::get()
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
 
-        return m_Registry->Get<ComponentType>(m_EntityId);
+        return registry_->get<ComponentType>(entityid_);
     }
 
     template <typename... ComponentTypes>
-    std::tuple<const ComponentTypes&...> LiteEntity::GetAll() const
+    std::tuple<const ComponentTypes&...> LiteEntity::get_all() const
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
 
-        return m_Registry->GetAll<ComponentTypes...>(m_EntityId);
+        return registry_->get_all<ComponentTypes...>(entityid_);
     }
 
     template <typename... ComponentTypes>
-    std::tuple<ComponentTypes&...> LiteEntity::GetAll()
+    std::tuple<ComponentTypes&...> LiteEntity::get_all()
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
         
-        return m_Registry->GetAll<ComponentTypes...>(m_EntityId);
+        return registry_->get_all<ComponentTypes...>(entityid_);
     }
 
     template <typename ComponentType, typename... Args>
     ComponentType& LiteEntity::Add(Args&&... args)
     {
-        LECS_ASSERT(IsValid())
+        LECS_ASSERT(is_valid())
         
-        return m_Registry->Add<ComponentType>(m_EntityId, std::forward<Args>(args)...);
+        return registry_->Add<ComponentType>(entityid_, std::forward<Args>(args)...);
     }
 }

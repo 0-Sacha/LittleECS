@@ -15,7 +15,7 @@ This project is mostly an educational project of mine that I have started to lea
 ## Docs / Comments
 Like said above, I have begun this project when learning C++, and at the time my projects where absolutely not documented. I am trying to fix this error whenever I got the time. A doc and comments will come one day...
 
-For now, at least, you have the [examples](examples/README.md) (and maybe the Tests/) folders to understand what you can do with it. More examples are coming, but again I am trying to do this whenever I have the time to do it.
+For now, at least, you have the [examples](examples/README.md) (and maybe the tests/) folders to understand what you can do with it. More examples are coming, but again I am trying to do this whenever I have the time to do it.
 
 ## Download
 ```

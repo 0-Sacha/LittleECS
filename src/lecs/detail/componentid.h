@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LittleECS/Core/Core.h"
+#include "lecs/core/core.h"
 
 #include <limits>
 
-namespace LECS
+namespace lecs
 {
     struct ComponentId
     {
@@ -15,36 +15,36 @@ namespace LECS
     
     public:
         inline constexpr ComponentId(Type id = FIRST)
-            : Id(id)
+            : id_(id)
         {}
 
         inline constexpr operator Type () const
         {
-            return Id;
+            return id_;
         }
 
         inline constexpr ComponentId& operator=(Type id)
         {
-            Id = id;
+            id_ = id;
             return *this;
         } 
 
     public:
-        Type Id;
+        Type id_;
     };
 
     inline bool constexpr operator==(ComponentId lhs, ComponentId rhs)
     {
-        return lhs.Id == rhs.Id;
+        return lhs.id_ == rhs.id_;
     }
 
     inline bool constexpr operator==(ComponentId lhs, ComponentId::Type rhs)
     {
-        return lhs.Id == rhs;
+        return lhs.id_ == rhs;
     }
 
     inline bool constexpr operator==(ComponentId::Type lhs, ComponentId rhs)
     {
-        return lhs == rhs.Id;
+        return lhs == rhs.id_;
     }
 }

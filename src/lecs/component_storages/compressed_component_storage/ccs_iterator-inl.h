@@ -1,10 +1,10 @@
 #pragma once
 
-#include "CompressedComponentStorage.h"
+#include "compressed_component_storage.h"
 
-#include "LittleECS/Detail/Iterable.h"
+#include "lecs/detail/iterable.h"
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     namespace CustomIterator
     {
@@ -20,92 +20,92 @@ namespace LECS::Detail
 
         public:
             CCSIteratorNoRefNoMap(const CompressedComponentStorage* compressedComponentStorage, std::size_t currentIndexOfPage = 0, std::size_t currentPageIndexOfCurrent = 0)
-                : m_CompressedComponentStorage(compressedComponentStorage)
-                , m_CurrentIndexOfPage(currentIndexOfPage)
-                , m_CurrentPageIndexOfCurrent(currentPageIndexOfCurrent)
+                : compressed_component_storage_(compressedComponentStorage)
+                , current_index_of_page_(currentIndexOfPage)
+                , current_page_index_(currentPageIndexOfCurrent)
             {
-                if (CurrentEntityIsValid() == false)
+                if (current_entity_is_valid() == false)
                 {
                     if (currentIndexOfPage == 0 && currentPageIndexOfCurrent == 0)
                         operator++();
                     else
-                        m_CompressedComponentStorage = nullptr;
+                        compressed_component_storage_ = nullptr;
                 }
             }
 
         private:
-            bool CurrentEntityIsValid() const
+            bool current_entity_is_valid() const
             {
-                if (m_CompressedComponentStorage == nullptr)
+                if (compressed_component_storage_ == nullptr)
                     return false;
 
-                if (m_CurrentIndexOfPage >= m_CompressedComponentStorage->GetPageContainer().size())
+                if (current_index_of_page_ >= compressed_component_storage_->get_page_container().size())
                     return false;
 
-                if (m_CurrentPageIndexOfCurrent >= CompressedComponentStorage::PAGE_SIZE)
+                if (current_page_index_ >= CompressedComponentStorage::PAGE_SIZE)
                     return false;
             
-                return m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->HasComponentAtIndex(m_CurrentPageIndexOfCurrent);
+                return compressed_component_storage_->get_page_container()[current_index_of_page_]->has_component_at_index(current_page_index_);
             }
 
 
         public:
             EntityId operator*() const
             {
-                LECS_ASSERT(CurrentEntityIsValid(), "Invalid Iterator")
-                return m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->GetEntityIdAtIndex(m_CurrentPageIndexOfCurrent);
+                LECS_ASSERT(current_entity_is_valid(), "Invalid Iterator")
+                return compressed_component_storage_->get_page_container()[current_index_of_page_]->get_entityid_at_index(current_page_index_);
             }
 
             CCSIteratorNoRefNoMap& operator++()
             {
                 bool found = false;
-                while (m_CurrentIndexOfPage < m_CompressedComponentStorage->GetPageContainer().size())
+                while (current_index_of_page_ < compressed_component_storage_->get_page_container().size())
                 {
-                    m_CurrentPageIndexOfCurrent = m_CompressedComponentStorage->GetPageContainer()[m_CurrentIndexOfPage]->GetNextValidIndex(m_CurrentPageIndexOfCurrent);
-                    if (m_CurrentPageIndexOfCurrent < CompressedComponentStorage::PAGE_SIZE)
+                    current_page_index_ = compressed_component_storage_->get_page_container()[current_index_of_page_]->get_next_valid_index(current_page_index_);
+                    if (current_page_index_ < CompressedComponentStorage::PAGE_SIZE)
                     {
                         found = true;
                         break;
                     }
-                    ++m_CurrentIndexOfPage;
+                    ++current_index_of_page_;
                 }
 
                 if (found == false)
                 {
-                    m_CompressedComponentStorage = nullptr;
+                    compressed_component_storage_ = nullptr;
                 }
 
                 return *this;
             }
 
-            CCSIteratorNoRefNoMap operator++(int) { CCSIteratorNoRefNoMap res(m_CompressedComponentStorage, m_CurrentIndexOfPage, m_CurrentPageIndexOfCurrent); ++(*this); return res; }
+            CCSIteratorNoRefNoMap operator++(int) { CCSIteratorNoRefNoMap res(compressed_component_storage_, current_index_of_page_, current_page_index_); ++(*this); return res; }
 
             bool operator==(const CCSIteratorNoRefNoMap& rhs) const
             {
             #ifdef LECS_DEBUG
-                bool complexResult = m_CompressedComponentStorage != nullptr &&
-                    m_CompressedComponentStorage == rhs.m_CompressedComponentStorage &&
-                    m_CurrentIndexOfPage == rhs.m_CurrentIndexOfPage &&
-                    m_CurrentPageIndexOfCurrent == rhs.m_CurrentPageIndexOfCurrent;
-                bool simpleResult = m_CompressedComponentStorage != nullptr;
+                bool complex_result = compressed_component_storage_ != nullptr &&
+                    compressed_component_storage_ == rhs.compressed_component_storage_ &&
+                    current_index_of_page_ == rhs.current_index_of_page_ &&
+                    current_page_index_ == rhs.current_page_index_;
+                bool simple_result = compressed_component_storage_ != nullptr;
 
-                LECS_ASSERT(simpleResult == complexResult, "Operator== for Iterator is wrong")
+                LECS_ASSERT(simple_result == complex_result, "Operator== for Iterator is wrong")
 
-                return simpleResult;
+                return simple_result;
             #else
-                return m_CompressedComponentStorage != nullptr;
+                return compressed_component_storage_ != nullptr;
             #endif
             }
 
             bool operator!=(const CCSIteratorNoRefNoMap& rhs) const { return !(*this == rhs); }
 
-            bool operator==(IterableEnd rhs) { return m_CompressedComponentStorage == nullptr; }
+            bool operator==(IterableEnd rhs) { return compressed_component_storage_ == nullptr; }
             bool operator!=(IterableEnd rhs) { return !(*this == rhs); }
 
         private:
-            const CompressedComponentStorage* m_CompressedComponentStorage;
-            std::size_t m_CurrentIndexOfPage;
-            std::size_t m_CurrentPageIndexOfCurrent;
+            const CompressedComponentStorage* compressed_component_storage_;
+            std::size_t current_index_of_page_;
+            std::size_t current_page_index_;
         };
 
         template <typename SubIterator>
@@ -119,69 +119,69 @@ namespace LECS::Detail
             using reference         = EntityId;
 
         public:
-            CCSIteratorNoRefMap(SubIterator mapRefIterator)
-                : m_MapRefIterator(mapRefIterator)
+            CCSIteratorNoRefMap(SubIterator map_ref_iterator)
+                : map_ref_iterator_(map_ref_iterator)
             {}
 
         public:
             reference operator*()
             {
-                return m_MapRefIterator->second;
+                return map_ref_iterator_->second;
             }
             pointer operator->()
             {
-                return &m_MapRefIterator->second;
+                return &map_ref_iterator_->second;
             }
 
             CCSIteratorNoRefMap& operator++()
             {
-                return ++m_MapRefIterator;
+                return ++map_ref_iterator_;
             }
 
             CCSIteratorNoRefMap& operator++(int)
             {
-                return m_MapRefIterator++;
+                return map_ref_iterator_++;
             }
 
             bool operator==(const CCSIteratorNoRefMap& rhs) const
             {
-                return m_MapRefIterator == rhs.m_MapRefIterator;
+                return map_ref_iterator_ == rhs.map_ref_iterator_;
             }
 
             bool operator!=(const CCSIteratorNoRefMap& rhs) const { return !(*this == rhs); }
 
         private:
-            SubIterator m_MapRefIterator;
+            SubIterator map_ref_iterator_;
         };
     }
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
-    decltype(auto) CompressedComponentStorage<ComponentType>::EntitiesIteratorBegin() const
+    requires (TypeValidForComponentStorage<ComponentType>::value)
+    decltype(auto) CompressedComponentStorage<ComponentType>::entities_iterator_begin() const
     {
         if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().cbegin();
+                return entity_to_component_.get_alive_container().cbegin();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
                 return CustomIterator::CCSIteratorNoRefNoMap<M_Type>(this);
         }
         else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
-            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().EntitiesIteratorBegin());
+            return CustomIterator::CCSIteratorNoRefMap(entity_to_component_.get_container().entities_iterator_begin());
     }
     
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
-    decltype(auto) CompressedComponentStorage<ComponentType>::EntitiesIteratorEnd() const
+    requires (TypeValidForComponentStorage<ComponentType>::value)
+    decltype(auto) CompressedComponentStorage<ComponentType>::entities_iterator_end() const
     {
        if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION == false)
         {
             if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF)
-                return m_EntityToComponent.GetAliveContainer().cend();
+                return entity_to_component_.get_alive_container().cend();
             else if constexpr (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false)
                 return IterableEnd();
         }
         else if constexpr (ComponentStorageInfo<ComponentType>::USE_MAP_VERSION)
-            return CustomIterator::CCSIteratorNoRefMap(m_EntityToComponent.GetContainer().EntitiesIteratorEnd());
+            return CustomIterator::CCSIteratorNoRefMap(entity_to_component_.get_container().entities_iterator_end());
     }
 }

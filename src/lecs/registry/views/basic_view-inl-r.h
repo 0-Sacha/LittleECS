@@ -1,29 +1,29 @@
 #pragma once
 
-#include "BasicView.h"
+#include "basic_view.h"
 
-#include "LittleECS/Registry/Registry.h"
+#include "lecs/registry/registry.h"
 
-namespace LECS
+namespace lecs
 {
     template <typename... ViewComponentTypes>
     template <std::size_t I, typename Component, typename... ComponentRest>
-    void BasicConstView<ViewComponentTypes...>::RefreshRegistryLink()
+    void BasicConstView<ViewComponentTypes...>::refresh_registry_link()
     {
-        m_LinkToComponentContainer[I] = m_LinkedRegistry.GetComponentStorage<Component>();
-        LECS_ASSERT(m_LinkToComponentContainer[I] != nullptr, "Can't create a view with an unreferenced storage");
+        link_to_component_container_[I] = linked_registry_.get_component_storage<Component>();
+        LECS_ASSERT(link_to_component_container_[I] != nullptr, "Can't create a view with an unreferenced storage");
         if constexpr (sizeof...(ComponentRest) > 0)
-            RefreshRegistryLink<I + 1, ComponentRest...>();
+            refresh_registry_link<I + 1, ComponentRest...>();
     }
 
     // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeEach, typename Function>
-    void BasicConstView<ViewComponentTypes...>::ForEachUniqueComponent(Function&& function) const
+    void BasicConstView<ViewComponentTypes...>::foreach_unique_component(Function&& function) const
     {
-        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function);
+        if constexpr (detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
+            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function);
         else
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function, m_LinkedRegistry.GetEntityIdGenerator().GetAlivesEntities());
+            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function, linked_registry_.get_entityid_generator().get_alives_entities());
     }
 }

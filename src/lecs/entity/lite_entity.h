@@ -1,9 +1,9 @@
 #pragma once
 
-#include "LittleECS/Detail/ComponentId.h"
-#include "LittleECS/Detail/EntityId.h"
+#include "lecs/detail/componentid.h"
+#include "lecs/detail/entityid.h"
 
-namespace LECS
+namespace lecs
 {
     class Registry;
     class LiteEntity
@@ -13,37 +13,37 @@ namespace LECS
         LiteEntity(Registry* registry, EntityId entityId);
         
     protected:
-        Registry* m_Registry;
-        EntityId m_EntityId;
+        Registry* registry_;
+        EntityId entityid_;
 
     public:
-        inline EntityId GetEntityId() { return m_EntityId; }
-        inline operator EntityId () { return m_EntityId; }
-        inline operator bool () { return m_EntityId != EntityId::INVALID; }
+        inline EntityId GetEntityId() { return entityid_; }
+        inline operator EntityId () { return entityid_; }
+        inline operator bool () { return entityid_ != EntityId::INVALID; }
 
     public:
-        bool IsValid() const
+        bool is_valid() const
         {
-            return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
+            return entityid_ != EntityId::INVALID && registry_ != nullptr;
         }
 
         void Invalidate()
         {
-            m_EntityId = EntityId::INVALID;
-            m_Registry = nullptr;
+            entityid_ = EntityId::INVALID;
+            registry_ = nullptr;
         }
 
     public:
         template <typename ComponentType>
-        bool Has() const;
+        bool has() const;
         template <typename ComponentType>
-        const ComponentType& Get() const;
+        const ComponentType& get() const;
         template <typename ComponentType>
-        ComponentType& Get();
+        ComponentType& get();
         template <typename... ComponentTypes>
-        std::tuple<const ComponentTypes&...> GetAll() const;
+        std::tuple<const ComponentTypes&...> get_all() const;
         template <typename... ComponentTypes>
-        std::tuple<ComponentTypes&...> GetAll();
+        std::tuple<ComponentTypes&...> get_all();
         template <typename ComponentType, typename... Args>
         ComponentType& Add(Args&&... args);
     };

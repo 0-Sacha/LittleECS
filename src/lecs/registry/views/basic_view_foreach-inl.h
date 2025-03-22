@@ -1,81 +1,81 @@
 #pragma once
 
-#include "BasicView.h"
-#include "BasicViewIterator.h"
+#include "basic_view.h"
+#include "basic_view_iterator.h"
 
-#include "LittleECS/Detail/ApplicableFunction.h"
+#include "lecs/detail/is_invocable.h"
 
-namespace LECS
+namespace lecs
 {
     // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
-    void BasicConstView<ViewComponentTypes...>::ForEachComponents(Function&& function) const
+    void BasicConstView<ViewComponentTypes...>::foreach_components(Function&& function) const
     {
         if constexpr (sizeof...(ComponentTypesEach) == 0)
-            return ForEachUniqueComponent<ComponentTypeRanged>(std::forward<Function>(function));
+            return foreach_unique_component<ComponentTypeRanged>(std::forward<Function>(function));
 
         auto dispatchFunction = [&](EntityId entity, const ComponentTypeRanged& componentRanged) {
-                if (HasAll<ComponentTypesEach...>(entity) == false)
+                if (has_all<ComponentTypesEach...>(entity) == false)
                     return;
                 
-                if constexpr (Detail::IsApplicable<Function, EntityId>::Value)
+                if constexpr (detail::is_invocable<Function, EntityId>::value)
                 {
                     std::apply(function, std::tuple<EntityId>(entity));
                 }
-                else if constexpr (Detail::IsApplicable<Function, EntityId, const ComponentTypeRanged&, const ComponentTypesEach&...>::Value)
+                else if constexpr (detail::is_invocable<Function, EntityId, const ComponentTypeRanged&, const ComponentTypesEach&...>::value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<const ComponentTypeRanged&>(componentRanged), get_all<ComponentTypesEach...>(entity)));
                 }
-                else if constexpr (Detail::IsApplicable<Function, const ComponentTypeRanged&, const ComponentTypesEach&...>::Value)
+                else if constexpr (detail::is_invocable<Function, const ComponentTypeRanged&, const ComponentTypesEach&...>::value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<const ComponentTypeRanged&>(componentRanged), get_all<ComponentTypesEach...>(entity)));
                 }
             };
 
-        return ForEachUniqueComponent<ComponentTypeRanged>(dispatchFunction);
+        return foreach_unique_component<ComponentTypeRanged>(dispatchFunction);
     }
 }
 
-namespace LECS
+namespace lecs
 {
     // Function = std::function<void(EntityId, ComponentTypeEach& component)>
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeEach, typename Function>
-    void BasicView<ViewComponentTypes...>::ForEachUniqueComponent(Function&& function)
+    void BasicView<ViewComponentTypes...>::foreach_unique_component(Function&& function)
     {
-        if constexpr (Detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function);
+        if constexpr (detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
+            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function);
         else
-            GetComponentStorageAt<TypeIndex<ComponentTypeEach>::Index>()->ForEachStorage(function, GetRegistry().GetEntityIdGenerator().GetAlivesEntities());
+            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function, GetRegistry().get_entityid_generator().get_alives_entities());
     }
 
     // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>
     template <typename... ViewComponentTypes>
     template <typename ComponentTypeRanged, typename... ComponentTypesEach, typename Function>
-    void BasicView<ViewComponentTypes...>::ForEachComponents(Function&& function)
+    void BasicView<ViewComponentTypes...>::foreach_components(Function&& function)
     {
         if constexpr (sizeof...(ComponentTypesEach) == 0)
-            return ForEachUniqueComponent<ComponentTypeRanged>(std::forward<Function>(function));
+            return foreach_unique_component<ComponentTypeRanged>(std::forward<Function>(function));
     
         auto dispatchFunction = [&](EntityId entity, ComponentTypeRanged& componentRanged) {
-                if (HasAll<ComponentTypesEach...>(entity) == false)
+                if (has_all<ComponentTypesEach...>(entity) == false)
                     return;
                 
-                if constexpr (Detail::IsApplicable<Function, EntityId>::Value)
+                if constexpr (detail::is_invocable<Function, EntityId>::value)
                 {
                     std::apply(function, std::tuple<EntityId>(entity));
                 }
-                else if constexpr (Detail::IsApplicable<Function, EntityId, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
+                else if constexpr (detail::is_invocable<Function, EntityId, ComponentTypeRanged&, ComponentTypesEach&...>::value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<EntityId>(entity), std::tuple<ComponentTypeRanged&>(componentRanged), get_all<ComponentTypesEach...>(entity)));
                 }
-                else if constexpr (Detail::IsApplicable<Function, ComponentTypeRanged&, ComponentTypesEach&...>::Value)
+                else if constexpr (detail::is_invocable<Function, ComponentTypeRanged&, ComponentTypesEach&...>::value)
                 {
-                    std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), GetAll<ComponentTypesEach...>(entity)));
+                    std::apply(function, std::tuple_cat(std::tuple<ComponentTypeRanged&>(componentRanged), get_all<ComponentTypesEach...>(entity)));
                 }
             };
 
-        return ForEachUniqueComponent<ComponentTypeRanged>(dispatchFunction);
+        return foreach_unique_component<ComponentTypeRanged>(dispatchFunction);
     }
 }

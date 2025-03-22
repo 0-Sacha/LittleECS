@@ -1,11 +1,11 @@
 #pragma once
 
-#include "LittleECS/Detail/ComponentId.h"
-#include "LittleECS/Detail/EntityId.h"
+#include "lecs/detail/componentid.h"
+#include "lecs/detail/entityid.h"
 
 #include <unordered_map>
 
-namespace LECS
+namespace lecs
 {
     class Registry;
 
@@ -19,44 +19,44 @@ namespace LECS
         ConstEntity(const Registry* registry, EntityId entityId);
         
     protected:
-        const Registry* m_Registry;
-        EntityId m_EntityId;
-        ComponentsContainer m_ComponentsContainer;
+        const Registry* registry_;
+        EntityId entityid_;
+        ComponentsContainer components_container;
     
     public:
-        bool IsValid() const
+        bool is_valid() const
         {
-            return m_EntityId != EntityId::INVALID && m_Registry != nullptr;
+            return entityid_ != EntityId::INVALID && registry_ != nullptr;
         }
 
         void Invalidate()
         {
-            m_EntityId = EntityId::INVALID;
-            m_Registry = nullptr;
+            entityid_ = EntityId::INVALID;
+            registry_ = nullptr;
         }
 
     public:
-        void Refresh();
+        void refresh();
 
     protected:
         template <typename ComponentType>
         const ComponentType* GetComponentPtr() const;
         
     public:
-        inline EntityId GetEntityId() { return m_EntityId; }
-        inline operator EntityId () { return m_EntityId; }
-        inline operator bool () { return m_EntityId != EntityId::INVALID; }
+        inline EntityId GetEntityId() { return entityid_; }
+        inline operator EntityId () { return entityid_; }
+        inline operator bool () { return entityid_ != EntityId::INVALID; }
 
     public:
         template <typename ComponentType>
-        bool Has() const;
+        bool has() const;
 
         template <typename ComponentType>
-        const ComponentType& Get() const;
+        const ComponentType& get() const;
         template <typename ComponentType>
         const ComponentType* GetPtr() const;
         template <typename... ComponentTypes>
-        std::tuple<const ComponentTypes&...> GetAll() const;
+        std::tuple<const ComponentTypes&...> get_all() const;
     };
 
     class Entity : public ConstEntity
@@ -84,20 +84,20 @@ namespace LECS
 
     public:
         template <typename ComponentType>
-        bool Has() const
+        bool has() const
         {
-            return ConstEntity::template Has<ComponentType>();
+            return ConstEntity::template has<ComponentType>();
         }
 
         template <typename ComponentType>
-        const ComponentType& Get() const
+        const ComponentType& get() const
         {
-            return ConstEntity::template Get<ComponentType>();
+            return ConstEntity::template get<ComponentType>();
         }
         template <typename ComponentType>
-        ComponentType& Get()
+        ComponentType& get()
         {
-            return const_cast<ComponentType&>(ConstEntity::template Get<ComponentType>());
+            return const_cast<ComponentType&>(ConstEntity::template get<ComponentType>());
         }
 
         template <typename ComponentType>
@@ -112,12 +112,12 @@ namespace LECS
         }
 
         template <typename... ComponentTypes>
-        std::tuple<const ComponentTypes&...> GetAll() const
+        std::tuple<const ComponentTypes&...> get_all() const
         {
-            return ConstEntity::template GetAll<ComponentTypes...>();
+            return ConstEntity::template get_all<ComponentTypes...>();
         }
         template <typename... ComponentTypes>
-        std::tuple<ComponentTypes&...> GetAll();
+        std::tuple<ComponentTypes&...> get_all();
 
     public:
         template <typename ComponentType, typename... Args>

@@ -4,68 +4,68 @@
 #include <type_traits>
 #include <limits>
 
-namespace LECS::Detail
+namespace lecs::detail
 {
-    template <typename T1, typename T2>
-    struct Same
-    {
-        static constexpr bool Value = std::is_same_v<std::remove_cvref_t<T1>, std::remove_cvref_t<T2>>;
-    };
-
-
     template <std::size_t I, typename... Types>
-    struct GetTypeAt
+    struct get_type_at
     {
-        using Type = void;
+        using type = void;
     };
 
     template <std::size_t I, typename CurrentType, typename... RestTypes>
     requires (I > 0)
-    struct GetTypeAt<I, CurrentType, RestTypes...>
+    struct get_type_at<I, CurrentType, RestTypes...>
     {
-        using Type = typename GetTypeAt<I - 1, RestTypes...>::Type;
+        using type = typename get_type_at<I - 1, RestTypes...>::type;
     };
 
     template <std::size_t I, typename CurrentType, typename... RestTypes>
     requires (I == 0)
-    struct GetTypeAt<I, CurrentType, RestTypes...>
+    struct get_type_at<I, CurrentType, RestTypes...>
     {
-        using Type = CurrentType;
+        using type = CurrentType;
     };
 
     template <std::size_t I, typename CurrentType>
     requires (I == 0)
-    struct GetTypeAt<I, CurrentType>
+    struct get_type_at<I, CurrentType>
     {
-        using Type = CurrentType;
+        using type = CurrentType;
     };
 
 
-    template <typename TypeSerach, std::size_t I, typename... Types>
-    struct GetTypeIndex
+    template <typename TypeSearch, std::size_t I, typename... Types>
+    struct get_type_index
     {
-        static constexpr std::size_t Index = std::numeric_limits<std::size_t>::max();
+        static constexpr std::size_t index = std::numeric_limits<std::size_t>::max();
     };
 
-    template <typename TypeSerach, std::size_t I, typename CurrentType, typename... RestTypes>
-    requires (std::is_same_v<TypeSerach, CurrentType> == false)
-    struct GetTypeIndex<TypeSerach, I, CurrentType, RestTypes...>
+    template <typename TypeSearch, std::size_t I, typename CurrentType, typename... RestTypes>
+    requires (std::is_same_v<TypeSearch, CurrentType> == false)
+    struct get_type_index<TypeSearch, I, CurrentType, RestTypes...>
     {
-        static constexpr std::size_t Index = GetTypeIndex<TypeSerach, I + 1, RestTypes...>::Index;
+        static constexpr std::size_t index = get_type_index<TypeSearch, I + 1, RestTypes...>::index;
     };
 
-    template <typename TypeSerach, std::size_t I, typename CurrentType, typename... RestTypes>
-    requires (Same<TypeSerach, CurrentType>::Value)
-    struct GetTypeIndex<TypeSerach, I, CurrentType, RestTypes...>
+
+    template <typename T1, typename T2>
+    struct same_cvref
     {
-        static constexpr std::size_t Index = I;
+        static constexpr bool value = std::is_same_v<std::remove_cvref_t<T1>, std::remove_cvref_t<T2>>;
     };
 
-    template <typename TypeSerach, std::size_t I, typename CurrentType>
-    requires (Same<TypeSerach, CurrentType>::Value)
-    struct GetTypeIndex<TypeSerach, I, CurrentType>
+    template <typename TypeSearch, std::size_t I, typename CurrentType, typename... RestTypes>
+    requires (same_cvref<TypeSearch, CurrentType>::value)
+    struct get_type_index<TypeSearch, I, CurrentType, RestTypes...>
     {
-        static constexpr std::size_t Index = I;
+        static constexpr std::size_t index = I;
+    };
+
+    template <typename TypeSearch, std::size_t I, typename CurrentType>
+    requires (same_cvref<TypeSearch, CurrentType>::value)
+    struct get_type_index<TypeSearch, I, CurrentType>
+    {
+        static constexpr std::size_t index = I;
     };
 
 }

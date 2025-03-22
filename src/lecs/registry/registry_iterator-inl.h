@@ -1,37 +1,37 @@
 #pragma once
 
-#include "Registry.h"
+#include "registry.h"
 
-#include "LittleECS/Detail/Iterable.h"
+#include "lecs/detail/iterable.h"
 
-namespace LECS
+namespace lecs
 {
     template<typename ComponentType>
-    decltype(auto) Registry::EachEntitiesWith()
+    decltype(auto) Registry::each_entities_with()
     {
-        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
 
-        LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
+        LECS_ASSERT(component_storage, "Component storage can't be non referenced when getting iterators")
         
-        if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(), componentStorage->EntitiesIteratorEnd());
+        if constexpr (detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+            return detail::Iterable(component_storage->entities_iterator_begin(), component_storage->entities_iterator_end());
         else
-            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(this->m_EntityIdGenerator.GetAlivesEntities()),
-                                    componentStorage->EntitiesIteratorEnd(this->m_EntityIdGenerator.GetAlivesEntities())
+            return detail::Iterable(component_storage->entities_iterator_begin(this->entityid_generator_.get_alives_entities()),
+                                    component_storage->entities_iterator_end(this->entityid_generator_.get_alives_entities())
                    );
     }
     template<typename ComponentType>
-    decltype(auto) Registry::EachEntitiesWith() const
+    decltype(auto) Registry::each_entities_with() const
     {
-        const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
+        const typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
 
-        LECS_ASSERT(componentStorage, "Component storage can't be non referenced when getting iterators")
+        LECS_ASSERT(component_storage, "Component storage can't be non referenced when getting iterators")
         
-        if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
-            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(), componentStorage->EntitiesIteratorEnd());
+        if constexpr (detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+            return detail::Iterable(component_storage->entities_iterator_begin(), component_storage->entities_iterator_end());
         else
-            return Detail::Iterable(componentStorage->EntitiesIteratorBegin(this->m_EntityIdGenerator.GetAlivesEntities()),
-                                    componentStorage->EntitiesIteratorEnd(this->m_EntityIdGenerator.GetAlivesEntities())
+            return detail::Iterable(component_storage->entities_iterator_begin(this->entityid_generator_.get_alives_entities()),
+                                    component_storage->entities_iterator_end(this->entityid_generator_.get_alives_entities())
                    );
     }
 }

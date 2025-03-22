@@ -1,8 +1,8 @@
 #pragma once
 
-#include "LittleECS/Core/Core.h"
+#include "lecs/core/core.h"
 
-#include "ComponentId.h"
+#include "componentid.h"
 
 #include <string_view>
 
@@ -16,13 +16,13 @@
     #define LECS_FUNCTION_SIGNATURE_ID_SUFFIX ']'
 #endif
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     class CompilerComponentIdGenerator
     {
     public:
         template <typename T>
-        static constexpr ComponentId GetTypeId()
+        static constexpr ComponentId get_typeid()
         {
             return typeid(T).hash_code();
         }
@@ -32,31 +32,31 @@ namespace LECS::Detail
     {
     public:
         template <typename T>
-        static ComponentId GetTypeId()
+        static ComponentId get_typeid()
         {
             static ComponentId id = ComponentId::INVALID;
             if (id != ComponentId::INVALID)
                 return id;
-            return id = Next();
+            return id = next();
         }
 
     private:
-        static ComponentId Next()
+        static ComponentId next()
         {
-            ComponentId res = m_NextGlobalComponentId;
-            m_NextGlobalComponentId.Id++;
+            ComponentId res = next_global_componentId_;
+            next_global_componentId_.id_++;
             return res;
         }
 
     private:
-        static inline ComponentId m_NextGlobalComponentId{ ComponentId::FIRST };
+        static inline ComponentId next_global_componentId_{ ComponentId::FIRST };
     };
 
     class SignatureComponentIdGenerator
     {
     public:
         template <typename T>
-        static constexpr ComponentId GetTypeId()
+        static constexpr ComponentId get_typeid()
         {
             std::string_view pretty_function{ LECS_FUNCTION_SIGNATURE_ID };
             auto first = pretty_function.find_first_not_of(' ', pretty_function.find_first_of(LECS_FUNCTION_SIGNATURE_ID_PREFIX) + 1);

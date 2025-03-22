@@ -1,6 +1,6 @@
-#include "BaseLittleECSTest.h"
+#include "base_lecs_tests.h"
 
-#include "LittleECS/LittleECS.h"
+#include "lecs/lecs.h"
 
 #include "StreamFormat/ProfilerManager.h"
 
@@ -26,7 +26,7 @@ struct BasicIntComponentFC
     std::size_t Value;
 };
 template <>
-struct LECS::Detail::ComponentStorageInfo<BasicIntComponentFC> : public DefaultComponentStorageInfo<BasicIntComponentFC>::FastComponent {};
+struct lecs::detail::ComponentStorageInfo<BasicIntComponentFC> : public DefaultComponentStorageInfo<BasicIntComponentFC>::FastComponent {};
 
 struct BasicIntComponentFCNREF
 {
@@ -37,7 +37,7 @@ struct BasicIntComponentFCNREF
     std::size_t Value;
 };
 template <>
-struct LECS::Detail::ComponentStorageInfo<BasicIntComponentFCNREF> : public DefaultComponentStorageInfo<BasicIntComponentFCNREF>::FastComponentWithoutREF {};
+struct lecs::detail::ComponentStorageInfo<BasicIntComponentFCNREF> : public DefaultComponentStorageInfo<BasicIntComponentFCNREF>::FastComponentWithoutREF {};
 
 struct BasicIntComponentCC
 {
@@ -48,7 +48,7 @@ struct BasicIntComponentCC
     std::size_t Value;
 };
 template <>
-struct LECS::Detail::ComponentStorageInfo<BasicIntComponentCC> : public DefaultComponentStorageInfo<BasicIntComponentCC>::CommonComponent {};
+struct lecs::detail::ComponentStorageInfo<BasicIntComponentCC> : public DefaultComponentStorageInfo<BasicIntComponentCC>::CommonComponent {};
 
 struct BasicIntComponentRC
 {
@@ -59,40 +59,40 @@ struct BasicIntComponentRC
     std::size_t Value;
 };
 template <>
-struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultComponentStorageInfo<BasicIntComponentRC>::RareComponent {};
+struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultComponentStorageInfo<BasicIntComponentRC>::RareComponent {};
 
 #define BasicWorkflow(Postfix_ComponentToUse) PCT_TEST_FUNC(BASIC_WORKFLOW, BASIC_WORK_FLOW_TEST##Postfix_ComponentToUse)   \
             {                                                                                                               \
-                LECS::Registry registry;                                                                                    \
-                const LECS::Registry& constRegistry = registry;                                                             \
+                lecs::Registry registry;                                                                                    \
+                const lecs::Registry& constRegistry = registry;                                                             \
                                                                                                                             \
-                LECS::EntityId entity1 = registry.CreateEntityId();                                                         \
-                LECS::EntityId entity2 = registry.CreateEntityId();                                                         \
-                LECS::EntityId entity3 = registry.CreateEntityId();                                                         \
-                PCT_NEQ(entity1.Id, entity2.Id);                                                                            \
-                PCT_NEQ(entity1.Id, entity3.Id);                                                                            \
-                PCT_NEQ(entity2.Id, entity3.Id);                                                                            \
+                lecs::EntityId entity1 = registry.create_entityid();                                                         \
+                lecs::EntityId entity2 = registry.create_entityid();                                                         \
+                lecs::EntityId entity3 = registry.create_entityid();                                                         \
+                PCT_NEQ(entity1.id_, entity2.id_);                                                                            \
+                PCT_NEQ(entity1.id_, entity3.id_);                                                                            \
+                PCT_NEQ(entity2.id_, entity3.id_);                                                                            \
                                                                                                                             \
                 registry.Add<BasicIntComponent##Postfix_ComponentToUse>(entity1, 7ull);                                     \
                 registry.Add<BasicIntComponent##Postfix_ComponentToUse>(entity2, 101ull);                                   \
                 registry.Add<int>(entity2, 101);                                                                            \
                 registry.Add<float>(entity2, 101.0f);                                                                       \
                                                                                                                             \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                       \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                     \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                       \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                     \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
                                                                                                                             \
                 registry.Add<BasicFloatComponent>(entity1, 171.0f);                                                         \
                 registry.Add<BasicFloatComponent>(entity3, 5.0f);                                                           \
                                                                                                                             \
-                PCT_EQ(registry.Get<BasicFloatComponent>(entity1).Value, 171.0f);                                           \
-                PCT_EQ(registry.Get<BasicFloatComponent>(entity3).Value, 5.0f);                                             \
-                PCT_ASSERT(registry.Has<BasicFloatComponent>(entity2) == false);                                            \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                       \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                     \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
+                PCT_EQ(registry.get<BasicFloatComponent>(entity1).Value, 171.0f);                                           \
+                PCT_EQ(registry.get<BasicFloatComponent>(entity3).Value, 5.0f);                                             \
+                PCT_ASSERT(registry.has<BasicFloatComponent>(entity2) == false);                                            \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                       \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                     \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
                                                                                                                             \
-                registry.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                 \
+                registry.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                 \
                     [](BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v)                                \
                     {                                                                                                       \
                         k = 325ull;                                                                                         \
@@ -100,7 +100,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                     }                                                                                                       \
                 );                                                                                                          \
                                                                                                                             \
-                constRegistry.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(            \
+                constRegistry.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(            \
                     [&link](const BasicIntComponent##Postfix_ComponentToUse& k, const BasicFloatComponent& v)               \
                     {                                                                                                       \
                         PCT_EQ(k.Value, 325ull);                                                                            \
@@ -108,58 +108,58 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                     }                                                                                                       \
                 );                                                                                                          \
                                                                                                                             \
-                registry.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse>(                                      \
+                registry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>(                                      \
                     [](BasicIntComponent##Postfix_ComponentToUse& k)                                                        \
                     {                                                                                                       \
                         k = 85ull;                                                                                          \
                     }                                                                                                       \
                 );                                                                                                          \
                                                                                                                             \
-                constRegistry.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse>(                                 \
+                constRegistry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>(                                 \
                     [&link](const BasicIntComponent##Postfix_ComponentToUse& k)                                             \
                     {                                                                                                       \
                         PCT_EQ(k.Value, 85ull);                                                                             \
                     }                                                                                                       \
                 );                                                                                                          \
                                                                                                                             \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 85ull);                      \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 85ull);                      \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
-                PCT_EQ(registry.Get<BasicFloatComponent>(entity1).Value, 22.0f);                                            \
-                PCT_EQ(registry.Get<BasicFloatComponent>(entity3).Value, 5.0f);                                             \
-                PCT_ASSERT(registry.Has<BasicFloatComponent>(entity2) == false);                                            \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 85ull);                      \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 85ull);                      \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
+                PCT_EQ(registry.get<BasicFloatComponent>(entity1).Value, 22.0f);                                            \
+                PCT_EQ(registry.get<BasicFloatComponent>(entity3).Value, 5.0f);                                             \
+                PCT_ASSERT(registry.has<BasicFloatComponent>(entity2) == false);                                            \
                                                                                                                             \
-                registry.ForEachUniqueComponent<BasicIntComponent##Postfix_ComponentToUse>(                                 \
-                    [](LECS::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k)                                 \
+                registry.foreach_unique_component<BasicIntComponent##Postfix_ComponentToUse>(                                 \
+                    [](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k)                                 \
                     {                                                                                                       \
-                        k = static_cast<std::size_t>(entity.Id);                                                            \
+                        k = static_cast<std::size_t>(entity.id_);                                                            \
                     }                                                                                                       \
                 );                                                                                                          \
                                                                                                                             \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, entity1.Id);                 \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == true);                       \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, entity1.id_);                 \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == true);                       \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                      \
                                                                                                                             \
                 int entityCount = 0;                                                                                        \
-                for (LECS::EntityId entity : registry.EachEntitiesWith<BasicIntComponent##Postfix_ComponentToUse>())        \
+                for (lecs::EntityId entity : registry.each_entities_with<BasicIntComponent##Postfix_ComponentToUse>())        \
                 {                                                                                                           \
                     ++entityCount;                                                                                          \
-                    PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity));                            \
+                    PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity));                            \
                 }                                                                                                           \
                 PCT_EQ(entityCount, 2);                                                                                     \
                                                                                                                             \
                 auto view = registry.View<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>();                \
                                                                                                                             \
                 entityCount = 0;                                                                                            \
-                for (LECS::EntityId entity : view.EachEntitiesWith<BasicIntComponent##Postfix_ComponentToUse>())            \
+                for (lecs::EntityId entity : view.each_entities_with<BasicIntComponent##Postfix_ComponentToUse>())            \
                 {                                                                                                           \
                     ++entityCount;                                                                                          \
-                    PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity));                            \
+                    PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity));                            \
                 }                                                                                                           \
                 PCT_EQ(entityCount, 2);                                                                                     \
                                                                                                                             \
                 entityCount = 0;                                                                                            \
-                for (auto [intComponent] : view.EachComponents<BasicIntComponent##Postfix_ComponentToUse>())                \
+                for (auto [intComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse>())                \
                 {                                                                                                           \
                     ++entityCount;                                                                                          \
                     intComponent = 52ull;                                                                                   \
@@ -167,11 +167,11 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                 PCT_EQ(entityCount, 2);                                                                                     \
                                                                                                                             \
                 entityCount = 0;                                                                                            \
-                view.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                     \
-                    [&entityCount, &link, &registry](LECS::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v)   \
+                view.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                     \
+                    [&entityCount, &link, &registry](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v)   \
                     {                                                                                                                               \
-                        PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity));                                                \
-                        PCT_ASSERT(registry.Has<BasicFloatComponent>(entity));                                                                      \
+                        PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity));                                                \
+                        PCT_ASSERT(registry.has<BasicFloatComponent>(entity));                                                                      \
                                                                                                                                                     \
                         ++entityCount;                                                                                                              \
                     }                                                                                                                               \
@@ -179,7 +179,7 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                 PCT_EQ(entityCount, 1);                                                                                     \
                                                                                                                             \
                 entityCount = 0;                                                                                            \
-                view.ForEachComponents<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                     \
+                view.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                     \
                     [&entityCount](BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v)                    \
                     {                                                                                                       \
                         ++entityCount;                                                                                      \
@@ -188,16 +188,16 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                 PCT_EQ(entityCount, 1);                                                                                     \
                                                                                                                             \
                 entityCount = 0;                                                                                            \
-                for (LECS::EntityId entity : view.EachEntitiesWithAll<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>())    \
+                for (lecs::EntityId entity : view.each_entities_with_all<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>())    \
                 {                                                                                                                           \
-                    PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity));                                            \
-                    PCT_ASSERT(registry.Has<BasicFloatComponent>(entity));                                                                  \
+                    PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity));                                            \
+                    PCT_ASSERT(registry.has<BasicFloatComponent>(entity));                                                                  \
                     ++entityCount;                                                                                                          \
                 }                                                                                                                           \
                 PCT_EQ(entityCount, 1);                                                                                                     \
                                                                                                                                             \
                 entityCount = 0;                                                                                                            \
-                for (auto [intComponent, floatComponent] : view.EachComponents<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>())   \
+                for (auto [intComponent, floatComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>())   \
                 {                                                                                                                                   \
                     PCT_EQ(intComponent.Value, 52ull);                                                                                              \
                     PCT_EQ(floatComponent.Value, 22.0f);                                                                                            \
@@ -205,13 +205,13 @@ struct LECS::Detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                 }                                                                                                                                   \
                 PCT_EQ(entityCount, 1);                                                                                                             \
                                                                                                                                                     \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                              \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 52ull);                                              \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                              \
-                registry.DestroyEntityId(entity2);                                                                                                  \
-                PCT_EQ(registry.Get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                              \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == false);                                              \
-                PCT_ASSERT(registry.Has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                              \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                              \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 52ull);                                              \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                              \
+                registry.destroy_entityid(entity2);                                                                                                  \
+                PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                              \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == false);                                              \
+                PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                              \
             }
 
 

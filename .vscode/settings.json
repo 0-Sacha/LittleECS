@@ -85,5 +85,8 @@
         "xlocmon": "cpp",
         "xloctime": "cpp",
         "xtree": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "lecs"
+    ]
 }

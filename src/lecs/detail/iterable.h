@@ -2,29 +2,29 @@
 
 #include <iterator>
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     template <typename Begin, typename End>
     struct Iterable
     {
         Iterable(Begin&& begin, End&& end)
-            : m_Begin(std::forward<Begin>(begin))
-            , m_End(std::forward<End>(end))
+            : begin_(std::forward<Begin>(begin))
+            , end_(std::forward<End>(end))
         {}
 
         Begin begin()
         {
-            return m_Begin;
+            return begin_;
         }
 
         End end()
         {
-            return m_End;
+            return end_;
         }
 
     private:
-        Begin m_Begin;
-        End m_End;
+        Begin begin_;
+        End end_;
     };
 
     struct IterableEnd {};

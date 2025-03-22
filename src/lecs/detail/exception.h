@@ -2,7 +2,7 @@
 
 #include <exception>
 
-namespace LECS
+namespace lecs
 {
     class LECSException : public std::exception {};
     class LECSNotImpl : public LECSException {};

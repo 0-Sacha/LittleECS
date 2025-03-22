@@ -1,70 +1,70 @@
 #pragma once
 
-#include "LittleECS/Detail/EntityIdGenerator.h"
+#include "lecs/detail/entityid_generator.h"
 
-#include "IComponentStorage.h"
+#include "component_storage.h"
 
-#include "LittleECS/Entity/Entity.h"
-#include "LittleECS/Entity/LiteEntity.h"
+#include "lecs/entity/entity.h"
+#include "lecs/entity/lite_entity.h"
 
-#include "Views/BasicView.h"
+#include "views/basic_view.h"
 
 #include <unordered_map>
 #include <memory>
 
-namespace LECS
+namespace lecs
 {
     class Registry
     {
     public:
         struct ComponentData
         {
-            std::unique_ptr<Detail::IComponentStorage> ComponentStorage;
-            std::function<void(EntityId)> OnConstruct;
-            std::function<void(EntityId)> OnDestruct;
+            std::unique_ptr<detail::IComponentStorage> component_storage;
+            std::function<void(EntityId)> on_construct;
+            std::function<void(EntityId)> on_destruct;
         };
         using ComponentIdToComponentData = std::unordered_map<ComponentId::Type, ComponentData>;
-        using ComponentIdGenerator = Detail::CompilerComponentIdGenerator;
+        using ComponentIdGenerator = detail::CompilerComponentIdGenerator;
 
     public:
         Registry() {}
 
     protected:
-        ComponentIdToComponentData m_ComponentIdToComponentData;
-        Detail::EntityIdGenerator m_EntityIdGenerator;
+        ComponentIdToComponentData componentid_to_component_data_;
+        detail::EntityIdGenerator entityid_generator_;
 
     // Entity Management
     public:
-        const Detail::EntityIdGenerator& GetEntityIdGenerator() const
+        const detail::EntityIdGenerator& get_entityid_generator() const
         {
-            return m_EntityIdGenerator;
+            return entityid_generator_;
         }
-        const ComponentIdToComponentData& GetComponentIdToComponentData() const
+        const ComponentIdToComponentData& get_componentid_to_componentdata() const
         {
-            return m_ComponentIdToComponentData;
+            return componentid_to_component_data_;
         }
 
-        bool RegistryHas(EntityId entity) const
+        bool registry_has(EntityId entity) const
         {
-            return m_EntityIdGenerator.HasEntityId(entity);
+            return entityid_generator_.has_entityid(entity);
         }
         
-        EntityId CreateEntityId()
+        EntityId create_entityid()
         {
-            return m_EntityIdGenerator.GetNewEntityId();
+            return entityid_generator_.get_new_entityid();
         }
 
-        void DestroyEntityId(EntityId entity)
+        void destroy_entityid(EntityId entity)
         {
-            for (auto& container : m_ComponentIdToComponentData)
+            for (auto& container : componentid_to_component_data_)
             {
-                if (container.second.ComponentStorage->HasThisComponentV(entity))
+                if (container.second.component_storage->has_this_component_v(entity))
                 {
-                    container.second.ComponentStorage->RemoveComponentOfEntityV(entity);
+                    container.second.component_storage->remove_component_of_entity_v(entity);
                 }
             }
 
-            m_EntityIdGenerator.EntityIdDelete(entity);
+            entityid_generator_.entityid_delete(entity);
         }
 
         Entity CreateEntityFrom(EntityId entity)
@@ -79,7 +79,7 @@ namespace LECS
 
     public:
         template <typename ComponentType>
-        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt();
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt();
 
         template <typename ComponentType>
         void CreateComponentStorage()
@@ -88,12 +88,12 @@ namespace LECS
         }
 
         template <typename ComponentType>
-        const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage() const;
+        const typename detail::ComponentStorageInfo<ComponentType>::StorageType* get_component_storage() const;
 
         template <typename ComponentType>
-        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorage()
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* get_component_storage()
         {
-            return const_cast<typename Detail::ComponentStorageInfo<ComponentType>::StorageType*>(const_cast<const Registry*>(this)->GetComponentStorage<ComponentType>());
+            return const_cast<typename detail::ComponentStorageInfo<ComponentType>::StorageType*>(const_cast<const Registry*>(this)->get_component_storage<ComponentType>());
         }
 
     public:
@@ -101,16 +101,16 @@ namespace LECS
         ComponentType& Add(EntityId entity, Args&&... args);
 
         template <typename ComponentType>
-        bool Has(EntityId entity);
+        bool has(EntityId entity);
 
         template <typename ComponentType, typename... ComponentTypes>
-        bool HasAll(EntityId entity);
+        bool has_all(EntityId entity);
 
     public:
         template <typename ComponentType>
-        const ComponentType& Get(EntityId entity) const;
+        const ComponentType& get(EntityId entity) const;
         template <typename ComponentType>
-        ComponentType& Get(EntityId entity);
+        ComponentType& get(EntityId entity);
 
         template <typename ComponentType>
         const ComponentType* GetPtr(EntityId entity) const;
@@ -118,9 +118,9 @@ namespace LECS
         ComponentType* GetPtr(EntityId entity);
 
         template <typename... ComponentTypes>
-        std::tuple<const ComponentTypes&...> GetAll(EntityId entity) const;
+        std::tuple<const ComponentTypes&...> get_all(EntityId entity) const;
         template <typename... ComponentTypes>
-        std::tuple<ComponentTypes&...> GetAll(EntityId entity);
+        std::tuple<ComponentTypes&...> get_all(EntityId entity);
 
     public:
         template<typename... ComponentTypes>
@@ -132,45 +132,45 @@ namespace LECS
     public:
         // Function = std::function<void(EntityId)>
         template<typename Function>
-        void ForEachEntities(Function&& function);
+        void foreach_entities(Function&& function);
 
         // Function = std::function<void(EntityId, ComponentType& component)>
         template<typename ComponentType, typename Function>
-        void ForEachUniqueComponent(Function&& function);
+        void foreach_unique_component(Function&& function);
         // Function = std::function<void(EntityId, ComponentType& component)>
         template<typename ComponentType, typename Function>
-        void ForEachUniqueComponent(Function&& function) const;
+        void foreach_unique_component(Function&& function) const;
         // Function = std::function<void(EntityId, ComponentTypes&... components)>
         template<typename... ComponentTypes, typename Function>
-        void ForEachComponents(Function&& function);
+        void foreach_components(Function&& function);
         // Function = std::function<void(EntityId, ComponentTypes&... components)>
         template<typename... ComponentTypes, typename Function>
-        void ForEachComponents(Function&& function) const;
+        void foreach_components(Function&& function) const;
 
     public:
-        const auto& EachEntities()
+        const auto& each_entities()
         {
-            return m_EntityIdGenerator.GetAlivesEntities();
+            return entityid_generator_.get_alives_entities();
         }
 
         template<typename ComponentType>
-        decltype(auto) EachEntitiesWith();
+        decltype(auto) each_entities_with();
         template<typename ComponentType>
-        decltype(auto) EachEntitiesWith() const;
+        decltype(auto) each_entities_with() const;
         
         // TODO
         // template<typename ComponentType>
-        // decltype(auto) EachUniqueComponent();
+        // decltype(auto) each_unique_component();
         // template<typename ComponentType>
-        // decltype(auto) EachUniqueComponent() const;
+        // decltype(auto) each_unique_component() const;
     };
 }
 
-#include "Registry-inl.h"
-#include "RegistryForEach-inl.h"
-#include "RegistryIterator-inl.h"
+#include "registry-inl.h"
+#include "registry_foreach-inl.h"
+#include "registry_iterator-inl.h"
 
-#include "Views/BasicView-inl-r.h"
+#include "views/basic_view-inl-r.h"
 
-#include "LittleECS/Entity/Entity-inl-r.h"
-#include "LittleECS/Entity/LiteEntity-inl-r.h"
+#include "lecs/entity/entity-inl-r.h"
+#include "lecs/entity/lite_entity-inl-r.h"

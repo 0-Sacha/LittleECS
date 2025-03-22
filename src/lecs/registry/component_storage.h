@@ -1,43 +1,38 @@
 #pragma once
 
-#include "LittleECS/Detail/ComponentId.h"
-#include "LittleECS/Detail/EntityId.h"
+#include "lecs/detail/componentid.h"
+#include "lecs/detail/entityid.h"
 
-#include "LittleECS/Detail/ComponentIdGenerator.h"
+#include "lecs/detail/componentid_generator.h"
 
 #include <any>
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     namespace Index
     {
         using GlobalIndexOfComponent = std::size_t;
-        using PageIndexOfComponent = std::size_t;
+        using ComponentPageIndex = std::size_t;
         using IndexOfPage = std::size_t;
 
-        using IndexInAliveList = std::size_t;
+        using index_in_alive_list = std::size_t;
 
         struct IndexInfo;
-
-        [[nodiscard]] inline constexpr bool IsPowerOfTwo(const std::size_t value) noexcept
-        {
-            return value && ((value & (value - 1)) == 0);
-        }
     };
 
     struct Index::IndexInfo
     {
-        Index::IndexOfPage IndexOfPage;
-        Index::PageIndexOfComponent PageIndexOfComponent;
+        Index::IndexOfPage index_of_page;
+        Index::ComponentPageIndex component_pageindex;
 
-        [[nodiscard]] inline constexpr bool IsValid()
+        [[nodiscard]] inline constexpr bool is_valid()
         {
-            return IndexOfPage != std::numeric_limits<std::size_t>::max();
+            return index_of_page != std::numeric_limits<std::size_t>::max();
         }
 
-        inline constexpr void SetInvalid()
+        inline constexpr void set_invalid()
         {
-            IndexOfPage = std::numeric_limits<std::size_t>::max();
+            index_of_page = std::numeric_limits<std::size_t>::max();
         }
     };
 
@@ -47,24 +42,24 @@ namespace LECS::Detail
         virtual ~IComponentStorage() = default;
 
     public:
-        virtual bool HasThisComponentV(EntityId entity) const = 0;
-        virtual void RemoveComponentOfEntityV(EntityId entity) = 0;
-        virtual const void* GetComponentAliasedPtrV(EntityId entity) const = 0;
-        virtual void* GetComponentAliasedPtrV(EntityId entity) = 0;
+        virtual bool has_this_component_v(EntityId entity) const = 0;
+        virtual void remove_component_of_entity_v(EntityId entity) = 0;
+        virtual const void* get_entity_componenttype_aliasedptr_v(EntityId entity) const = 0;
+        virtual void* get_entity_componenttype_aliasedptr_v(EntityId entity) = 0;
     };
 
     template <typename ComponentType>
     struct TypeValidForComponentStorage
     {
-        static constexpr bool Value = std::is_void_v<ComponentType> == false;
+        static constexpr bool value = std::is_void_v<ComponentType> == false;
     };
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     class FastComponentStorage;
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     class CompressedComponentStorage;
 
     template <typename ComponentType>

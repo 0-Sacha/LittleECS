@@ -1,22 +1,22 @@
 #pragma once
 
-#include "CompressedComponentStoragePage.h"
+#include "ccs_page.h"
 
-namespace LECS::Detail 
+namespace lecs::detail 
 {
     template <bool HAS_ENTITIES_REF, std::size_t PAGE_SIZE>
-    class CompressedCSInlineEntityToComponent
+    class CCS_EntityToComponent_Inline
     {
     public:
         struct BucketElementWithoutRef
         {
-            Index::IndexInfo IndexInfo;
+            Index::IndexInfo indexinfo;
         };
 
         struct BucketElementWithRef
         {
-            Index::IndexInfo IndexInfo;
-            Index::IndexInAliveList IndexInAliveList;
+            Index::IndexInfo indexinfo;
+            Index::index_in_alive_list index_in_alive_list;
         };
 
         using BucketElement = std::conditional_t<HAS_ENTITIES_REF, BucketElementWithRef, BucketElementWithoutRef>;
@@ -29,113 +29,113 @@ namespace LECS::Detail
         using AliveEntitiesContainer = std::conditional_t<HAS_ENTITIES_REF, AliveEntitiesContainerType, int>;
 
     public:
-        CompressedCSInlineEntityToComponent()
-            : m_BucketContainer()
-            , m_AliveEntitiesContainer()
+        CCS_EntityToComponent_Inline()
+            : bucket_container_()
+            , alive_entities_container_()
         {
             if constexpr (HAS_ENTITIES_REF)
-                m_AliveEntitiesContainer.reserve(PAGE_SIZE);
+                alive_entities_container_.reserve(PAGE_SIZE);
         }
 
     private:
-        BucketContainer m_BucketContainer;
-        AliveEntitiesContainer m_AliveEntitiesContainer;
+        BucketContainer bucket_container_;
+        AliveEntitiesContainer alive_entities_container_;
 
     private:
-        inline BucketIndexInfo GetBucketInfoOfEntity(EntityId entity) const
+        inline BucketIndexInfo get_entity_bucketinfo(EntityId entity) const
         {
             BucketIndexInfo bucketIndexInfo;
-            bucketIndexInfo.IndexOfPage = entity.Id / PAGE_SIZE;
-            bucketIndexInfo.PageIndexOfComponent = entity.Id % PAGE_SIZE;
+            bucketIndexInfo.index_of_page = entity.id_ / PAGE_SIZE;
+            bucketIndexInfo.component_pageindex = entity.id_ % PAGE_SIZE;
             return bucketIndexInfo;
         }
 
     public:
-        const AliveEntitiesContainer& GetAliveContainer() const
+        const AliveEntitiesContainer& get_alive_container() const
         {
-            return m_AliveEntitiesContainer;
+            return alive_entities_container_;
         }
 
     public:
-        inline bool HasEntity(EntityId entity) const
+        inline bool has_entity(EntityId entity) const
         {
-            BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
+            BucketIndexInfo bucketinfo = get_entity_bucketinfo(entity);
 
-            if (bucketInfo.IndexOfPage >= m_BucketContainer.size())
+            if (bucketinfo.index_of_page >= bucket_container_.size())
                 return false;
 
-            const BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
+            const BucketRef& bucketref = bucket_container_[bucketinfo.index_of_page];
 
-            if (bucketRef == nullptr)
+            if (bucketref == nullptr)
                 return false;
 
-            Index::IndexInfo indexInfo = (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInfo;
+            Index::IndexInfo indexinfo = (*bucketref)[bucketinfo.component_pageindex].indexinfo;
 
-            return indexInfo.IsValid();
+            return indexinfo.is_valid();
         }
 
-        inline Index::IndexInfo GetIndexInfoOfEntity(EntityId entity) const
+        inline Index::IndexInfo get_entity_indexinfo(EntityId entity) const
         {
-            BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
+            BucketIndexInfo bucketinfo = get_entity_bucketinfo(entity);
             
-            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity")
+            LECS_ASSERT(bucketinfo.index_of_page < bucket_container_.size(), "This container can have this entity")
 
-            const BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
+            const BucketRef& bucketref = bucket_container_[bucketinfo.index_of_page];
 
-            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity")
+            LECS_ASSERT(bucketref != nullptr, "This container can have this entity")
 
-            return (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInfo;
+            return (*bucketref)[bucketinfo.component_pageindex].indexinfo;
         }
 
-        inline void AddIndexInfoForEntity(EntityId entity, Index::IndexInfo indexInfo)
+        inline void add_entity_indexinfo(EntityId entity, Index::IndexInfo indexinfo)
         {
-            BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
+            BucketIndexInfo bucketinfo = get_entity_bucketinfo(entity);
 
-            if (bucketInfo.IndexOfPage >= m_BucketContainer.size())
+            if (bucketinfo.index_of_page >= bucket_container_.size())
             {
-                m_BucketContainer.resize(bucketInfo.IndexOfPage + 1);
+                bucket_container_.resize(bucketinfo.index_of_page + 1);
             }
 
-            BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
+            BucketRef& bucketref = bucket_container_[bucketinfo.index_of_page];
 
-            if (bucketRef == nullptr)
+            if (bucketref == nullptr)
             {
-                bucketRef = std::make_unique<Bucket>();
-                Bucket& bucket = *bucketRef;
+                bucketref = std::make_unique<Bucket>();
+                Bucket& bucket = *bucketref;
                 for (std::size_t i = 0; i < PAGE_SIZE; ++i)
-                    bucket[i].IndexInfo.SetInvalid();
+                    bucket[i].indexinfo.set_invalid();
             }
 
             if constexpr (HAS_ENTITIES_REF)
             {
-                m_AliveEntitiesContainer.emplace_back(entity.Id);
-                (*bucketRef)[bucketInfo.PageIndexOfComponent] = BucketElement { .IndexInfo = indexInfo, .IndexInAliveList = m_AliveEntitiesContainer.size() - 1 };
+                alive_entities_container_.emplace_back(entity.id_);
+                (*bucketref)[bucketinfo.component_pageindex] = BucketElement { .indexinfo = indexinfo, .index_in_alive_list = alive_entities_container_.size() - 1 };
             }
             else
             {
-                (*bucketRef)[bucketInfo.PageIndexOfComponent] = BucketElement { .IndexInfo = indexInfo };
+                (*bucketref)[bucketinfo.component_pageindex] = BucketElement { .indexinfo = indexinfo };
             }
         }
 
-        inline void RemoveIndexInfoForEntity(EntityId entity)
+        inline void remove_entity_indexinfo(EntityId entity)
         {
-            BucketIndexInfo bucketInfo = GetBucketInfoOfEntity(entity);
+            BucketIndexInfo bucketinfo = get_entity_bucketinfo(entity);
 
-            LECS_ASSERT(bucketInfo.IndexOfPage < m_BucketContainer.size(), "This container can have this entity")
+            LECS_ASSERT(bucketinfo.index_of_page < bucket_container_.size(), "This container can have this entity")
 
-            BucketRef& bucketRef = m_BucketContainer[bucketInfo.IndexOfPage];
+            BucketRef& bucketref = bucket_container_[bucketinfo.index_of_page];
 
-            LECS_ASSERT(bucketRef != nullptr, "This container can have this entity")
+            LECS_ASSERT(bucketref != nullptr, "This container can have this entity")
 
             if constexpr (HAS_ENTITIES_REF)
             {
-              Index::IndexInAliveList indexInAliveList = (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInAliveList;
-                typename EntityId::Type lastEntity = m_AliveEntitiesContainer.back();
-                m_AliveEntitiesContainer[indexInAliveList] = lastEntity;
-                m_AliveEntitiesContainer.pop_back();
+              Index::index_in_alive_list index_in_alive_list = (*bucketref)[bucketinfo.component_pageindex].index_in_alive_list;
+                typename EntityId::Type last_entity = alive_entities_container_.back();
+                alive_entities_container_[index_in_alive_list] = last_entity;
+                alive_entities_container_.pop_back();
             }
             
-            (*bucketRef)[bucketInfo.PageIndexOfComponent].IndexInfo.SetInvalid();
+            (*bucketref)[bucketinfo.component_pageindex].indexinfo.set_invalid();
         }
     };
 }

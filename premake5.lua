@@ -62,10 +62,10 @@ project "LittleECSTests"
 	objdir 		(Solution.Path.ProjectObjectDirectory)
 
 	files {
-		"Tests/**.h",
-		"Tests/**.hpp",
-		"Tests/**.inl",
-		"Tests/**.cpp",
+		"tests/**.h",
+		"tests/**.hpp",
+		"tests/**.inl",
+		"tests/**.cpp",
 	}
 
 	Solution.Project("LittleECSTests")

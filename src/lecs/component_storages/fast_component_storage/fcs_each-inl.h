@@ -1,18 +1,18 @@
 #pragma once
 
-#include "FastComponentStorage.h"
+#include "fast_component_storage.h"
 
-namespace LECS::Detail
+namespace lecs::detail
 {
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     template <typename Function>
-    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function)
+    void FastComponentStorage<ComponentType>::foreach_storage(Function&& function)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
-        for (EntityId entity : m_AliveEntitiesContainer)
+        for (EntityId entity : alive_entities_container_)
         {
-            ComponentType& component = GetComponentOfEntity(entity);
+            ComponentType& component = get_entity_componenttype(entity);
             
             if constexpr (requires { function(entity, component); })
                 function(entity, component);
@@ -22,14 +22,14 @@ namespace LECS::Detail
     }
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     template <typename Function>
-    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function) const
+    void FastComponentStorage<ComponentType>::foreach_storage(Function&& function) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
     {
-        for (EntityId entity : m_AliveEntitiesContainer)
+        for (EntityId entity : alive_entities_container_)
         {
-            const ComponentType& component = GetComponentOfEntity(entity);
+            const ComponentType& component = get_entity_componenttype(entity);
             
             if constexpr (requires { function(entity, component); })
                 function(entity, component);
@@ -40,21 +40,21 @@ namespace LECS::Detail
 
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     template <typename Function>
-    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities)
+    void FastComponentStorage<ComponentType>::foreach_storage(Function&& function, const auto& alive_entities_registry)
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
-        for (EntityId entity : registryAliveEntities)
+        for (EntityId entity : alive_entities_registry)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
 
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            if (indexinfo.index_of_page >= page_container_.size())
                 continue;
-            if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
+            if (page_container_[indexinfo.index_of_page] == nullptr)
                 continue;
 
-            ComponentType* component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+            ComponentType* component = page_container_[indexinfo.index_of_page]->get_component_at_indexptr(indexinfo.component_pageindex);
 
             if (component == nullptr)
                 continue;
@@ -67,21 +67,21 @@ namespace LECS::Detail
     }
 
     template <typename ComponentType>
-    requires (TypeValidForComponentStorage<ComponentType>::Value)
+    requires (TypeValidForComponentStorage<ComponentType>::value)
     template <typename Function> // FuWnction = std::function<void(EntityId, const ComponentType&)>
-    void FastComponentStorage<ComponentType>::ForEachStorage(Function&& function, const auto& registryAliveEntities) const
+    void FastComponentStorage<ComponentType>::foreach_storage(Function&& function, const auto& alive_entities_registry) const
     requires (ComponentStorageInfo<ComponentType>::HAS_ENTITIES_REF == false && ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH)
     {
-        for (EntityId entity : registryAliveEntities)
+        for (EntityId entity : alive_entities_registry)
         {
-            Index::IndexInfo indexInfo = GetIndexInfoOfEntity(entity);
+            Index::IndexInfo indexinfo = get_entity_indexinfo(entity);
 
-            if (indexInfo.IndexOfPage >= m_PageContainer.size())
+            if (indexinfo.index_of_page >= page_container_.size())
                 continue;
-            if (m_PageContainer[indexInfo.IndexOfPage] == nullptr)
+            if (page_container_[indexinfo.index_of_page] == nullptr)
                 continue;
 
-            const ComponentType* component = m_PageContainer[indexInfo.IndexOfPage]->GetComponentAtIndexPtr(indexInfo.PageIndexOfComponent);
+            const ComponentType* component = page_container_[indexinfo.index_of_page]->get_component_at_indexptr(indexinfo.component_pageindex);
 
             if (component == nullptr)
                 continue;

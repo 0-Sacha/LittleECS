@@ -1,72 +1,72 @@
 #pragma once
 
-#include "Registry.h"
+#include "registry.h"
 
-namespace LECS
+namespace lecs
 {
     // Function = std::function<void(EntityId, ComponentType& component)>
     template<typename ComponentType, typename Function>
-    void Registry::ForEachUniqueComponent(Function&& function)
+    void Registry::foreach_unique_component(Function&& function)
     {
-        typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-        if (componentStorage == nullptr)
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
+        if (component_storage == nullptr)
             return;
         
-        if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        if constexpr (detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            componentStorage->ForEachStorage(std::forward<Function>(function));
+            component_storage->foreach_storage(std::forward<Function>(function));
         }
         else
         {
-            componentStorage->ForEachStorage(std::forward<Function>(function), m_EntityIdGenerator.GetAlivesEntities());
+            component_storage->foreach_storage(std::forward<Function>(function), entityid_generator_.get_alives_entities());
         }
     }
 
     // Function = std::function<void(EntityId, ComponentType& component)>
     template<typename ComponentType, typename Function>
-    void Registry::ForEachUniqueComponent(Function&& function) const
+    void Registry::foreach_unique_component(Function&& function) const
     {
-        const typename Detail::ComponentStorageInfo<ComponentType>::StorageType* componentStorage = GetComponentStorage<ComponentType>();
-        if (componentStorage == nullptr)
+        const typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage<ComponentType>();
+        if (component_storage == nullptr)
             return;
         
-        if constexpr (Detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
+        if constexpr (detail::ComponentStorageInfo<ComponentType>::SEND_ENTITIES_POOL_ON_EACH == false)
         {
-            componentStorage->ForEachStorage(std::forward<Function>(function));
+            component_storage->foreach_storage(std::forward<Function>(function));
         }
         else
         {
-            componentStorage->ForEachStorage(std::forward<Function>(function), m_EntityIdGenerator.GetAlivesEntities());
+            component_storage->foreach_storage(std::forward<Function>(function), entityid_generator_.get_alives_entities());
         }
     }   
 
     // Function = std::function<void(EntityId, ComponentTypes&... components)>
     template<typename... ComponentTypes, typename Function>
-    void Registry::ForEachComponents(Function&& function)
+    void Registry::foreach_components(Function&& function)
     {
         if constexpr (sizeof...(ComponentTypes) == 1)
         {
-            return ForEachUniqueComponent<ComponentTypes...>(std::forward<Function>(function));
+            return foreach_unique_component<ComponentTypes...>(std::forward<Function>(function));
         }
         else
         {
             BasicView<ComponentTypes...> view(*this);
-            view.template ForEachComponents<ComponentTypes...>(std::forward<Function>(function));
+            view.template foreach_components<ComponentTypes...>(std::forward<Function>(function));
         }
     }
 
     // Function = std::function<void(EntityId, RangeComponent& component, ComponentTypes&... components)>
     template<typename... ComponentTypes, typename Function>
-    void Registry::ForEachComponents(Function&& function) const
+    void Registry::foreach_components(Function&& function) const
     {
         if constexpr (sizeof...(ComponentTypes) == 1)
         {
-            return ForEachUniqueComponent<ComponentTypes...>(std::forward<Function>(function));
+            return foreach_unique_component<ComponentTypes...>(std::forward<Function>(function));
         }
         else
         {
             BasicConstView<ComponentTypes...> view(*this);
-            view.template ForEachComponents<ComponentTypes...>(std::forward<Function>(function));
+            view.template foreach_components<ComponentTypes...>(std::forward<Function>(function));
         }
     }
 }

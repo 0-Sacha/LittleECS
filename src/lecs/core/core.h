@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CompilerInfo.h"
+#include "compiler_info.h"
 
 #include <utility>
 
