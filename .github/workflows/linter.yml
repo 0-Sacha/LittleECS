@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Install clang-format...
       run: sudo apt install clang-format
     - run: ./conf/linter/clang-format.sh
@@ -21,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: true
     - uses: bazelbuild/setup-bazelisk@v3
     - uses: actions/cache@v4
       with:
