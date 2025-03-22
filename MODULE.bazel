@@ -6,9 +6,9 @@ module(
     version = "0.1",
 )
 
-git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="7f6c3585c41278918428ed48d45b12413c197fc0")
-git_override(module_name="bazel_buildbuddy", remote="https://github.com/0-Sacha/bazel_buildbuddy.git", commit="b60314cac7826edb87efe285b032b877ad725f84")
-git_override(module_name="bazel_winlibs", remote="https://github.com/0-Sacha/bazel_winlibs.git", commit="e2cc97b61cb9115fbc2b7169dc9d1cb36b351935")
+git_override(module_name="bazel_utilities", remote="https://github.com/0-Sacha/bazel_utilities.git", commit="1c3c6c01dcccc6c922c4955c92aa7c3c015a9d1c")
+git_override(module_name="bazel_buildbuddy", remote="https://github.com/0-Sacha/bazel_buildbuddy.git", commit="cbcefed87e2baf56a6f74ad3e0613ce8ab0fdcf3")
+git_override(module_name="bazel_winlibs", remote="https://github.com/0-Sacha/bazel_winlibs.git", commit="8c6a667fcb08c1b479db28562fa724c7f666504c")
 git_override(module_name="streamformat", remote="https://github.com/0-Sacha/StreamFormat.git", commit="6faa20c9176b14e81903d0d65ad06e6a6e36332b")
 
 bazel_dep(name = "rules_cc", version = "0.0.10")
