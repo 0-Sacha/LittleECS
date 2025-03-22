@@ -3,32 +3,34 @@
 #include "lecs/detail/componentid.h"
 #include "lecs/detail/entityid.h"
 
-namespace lecs
-{
+namespace lecs {
     class Registry;
-    class LiteEntity
-    {
+    class LiteEntity {
     public:
         LiteEntity();
         LiteEntity(Registry* registry, EntityId entityId);
-        
+
     protected:
         Registry* registry_;
-        EntityId entityid_;
+        EntityId  entityid_;
 
     public:
-        inline EntityId GetEntityId() { return entityid_; }
-        inline operator EntityId () { return entityid_; }
-        inline operator bool () { return entityid_ != EntityId::INVALID; }
+        inline EntityId GetEntityId() {
+            return entityid_;
+        }
+        inline operator EntityId() {
+            return entityid_;
+        }
+        inline operator bool() {
+            return entityid_ != EntityId::INVALID;
+        }
 
     public:
-        bool is_valid() const
-        {
+        bool is_valid() const {
             return entityid_ != EntityId::INVALID && registry_ != nullptr;
         }
 
-        void Invalidate()
-        {
+        void Invalidate() {
             entityid_ = EntityId::INVALID;
             registry_ = nullptr;
         }
@@ -47,4 +49,4 @@ namespace lecs
         template <typename ComponentType, typename... Args>
         ComponentType& Add(Args&&... args);
     };
-}
+}  // namespace lecs
