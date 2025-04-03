@@ -87,6 +87,8 @@
         "xtree": "cpp"
     },
     "cSpell.words": [
+        "bazel",
+        "bazelisk",
         "lecs"
     ]
 }

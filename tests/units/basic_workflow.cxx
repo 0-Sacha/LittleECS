@@ -1,4 +1,4 @@
-#include "base_lecs_tests.hxx"
+#include "../base_lecs_tests.hxx"
 
 #include "lecs/lecs.hxx"
 
@@ -8,42 +8,48 @@
 
 // NOLINTBEGIN(misc-const-correctness)
 // NOLINTBEGIN(readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
+// NOLINTBEGIN(hicpp-avoid-c-arrays)
+// NOLINTBEGIN(modernize-avoid-c-arrays)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+
 PCT_TEST_GROUP(LITTLE_ECS, BASIC_WORKFLOW);
 
 struct BasicFloatComponent {
-    BasicFloatComponent(float value = 0.0f) : Value(value) {}
+    explicit BasicFloatComponent(float value_arg = 0.0f) : value(value_arg) {}
 
-    float Value;
+    float value;
 };
 
 struct BasicIntComponentFC {
-    BasicIntComponentFC(std::size_t value = 0) : Value(value) {}
+    explicit BasicIntComponentFC(std::size_t value_arg = 0) : value(value_arg) {}
 
-    std::size_t Value;
+    std::size_t value;
 };
 template <>
 struct lecs::detail::ComponentStorageInfo<BasicIntComponentFC> : public DefaultComponentStorageInfo<BasicIntComponentFC>::FastComponent {};
 
 struct BasicIntComponentFCNREF {
-    BasicIntComponentFCNREF(std::size_t value = 0) : Value(value) {}
+    explicit BasicIntComponentFCNREF(std::size_t value_arg = 0) : value(value_arg) {}
 
-    std::size_t Value;
+    std::size_t value;
 };
 template <>
 struct lecs::detail::ComponentStorageInfo<BasicIntComponentFCNREF> : public DefaultComponentStorageInfo<BasicIntComponentFCNREF>::FastComponentWithoutREF {};
 
 struct BasicIntComponentCC {
-    BasicIntComponentCC(std::size_t value = 0) : Value(value) {}
+    explicit BasicIntComponentCC(std::size_t value_arg = 0) : value(value_arg) {}
 
-    std::size_t Value;
+    std::size_t value;
 };
 template <>
 struct lecs::detail::ComponentStorageInfo<BasicIntComponentCC> : public DefaultComponentStorageInfo<BasicIntComponentCC>::CommonComponent {};
 
 struct BasicIntComponentRC {
-    BasicIntComponentRC(std::size_t value = 0) : Value(value) {}
+    explicit BasicIntComponentRC(std::size_t value_arg = 0) : value(value_arg) {}
 
-    std::size_t Value;
+    std::size_t value;
 };
 template <>
 struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultComponentStorageInfo<BasicIntComponentRC>::RareComponent {};
@@ -65,46 +71,47 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         registry.add<int>(entity2, 101);                                                                                                                                       \
         registry.add<float>(entity2, 101.0f);                                                                                                                                  \
                                                                                                                                                                                \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                                                                                  \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                                                                                \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, 7ull);                                                                                  \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).value, 101ull);                                                                                \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
                                                                                                                                                                                \
         registry.add<BasicFloatComponent>(entity1, 171.0f);                                                                                                                    \
         registry.add<BasicFloatComponent>(entity3, 5.0f);                                                                                                                      \
                                                                                                                                                                                \
-        PCT_EQ(registry.get<BasicFloatComponent>(entity1).Value, 171.0f);                                                                                                      \
-        PCT_EQ(registry.get<BasicFloatComponent>(entity3).Value, 5.0f);                                                                                                        \
+        PCT_EQ(registry.get<BasicFloatComponent>(entity1).value, 171.0f);                                                                                                      \
+        PCT_EQ(registry.get<BasicFloatComponent>(entity3).value, 5.0f);                                                                                                        \
         PCT_ASSERT(registry.has<BasicFloatComponent>(entity2) == false);                                                                                                       \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 7ull);                                                                                  \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 101ull);                                                                                \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, 7ull);                                                                                  \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).value, 101ull);                                                                                \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
                                                                                                                                                                                \
         registry.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>([](BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v) { \
-            k = 325ull;                                                                                                                                                        \
-            v = 22.0f;                                                                                                                                                         \
+            k = BasicIntComponent##Postfix_ComponentToUse{325ull};                                                                                                             \
+            v = BasicFloatComponent{22.0f};                                                                                                                                    \
         });                                                                                                                                                                    \
                                                                                                                                                                                \
         constRegistry.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                                                                      \
             [&link](const BasicIntComponent##Postfix_ComponentToUse& k, const BasicFloatComponent& v) {                                                                        \
-            PCT_EQ(k.Value, 325ull);                                                                                                                                           \
-            PCT_EQ(v.Value, 22.0f);                                                                                                                                            \
+            PCT_EQ(k.value, 325ull);                                                                                                                                           \
+            PCT_EQ(v.value, 22.0f);                                                                                                                                            \
         });                                                                                                                                                                    \
                                                                                                                                                                                \
-        registry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>([](BasicIntComponent##Postfix_ComponentToUse& k) { k = 85ull; });                               \
+        registry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>(                                                                                                \
+            [](BasicIntComponent##Postfix_ComponentToUse& k) { k = BasicIntComponent##Postfix_ComponentToUse{85ull}; });                                                       \
                                                                                                                                                                                \
-        constRegistry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>([&link](const BasicIntComponent##Postfix_ComponentToUse& k) { PCT_EQ(k.Value, 85ull); });  \
+        constRegistry.foreach_components<BasicIntComponent##Postfix_ComponentToUse>([&link](const BasicIntComponent##Postfix_ComponentToUse& k) { PCT_EQ(k.value, 85ull); });  \
                                                                                                                                                                                \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 85ull);                                                                                 \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 85ull);                                                                                 \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, 85ull);                                                                                 \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).value, 85ull);                                                                                 \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
-        PCT_EQ(registry.get<BasicFloatComponent>(entity1).Value, 22.0f);                                                                                                       \
-        PCT_EQ(registry.get<BasicFloatComponent>(entity3).Value, 5.0f);                                                                                                        \
+        PCT_EQ(registry.get<BasicFloatComponent>(entity1).value, 22.0f);                                                                                                       \
+        PCT_EQ(registry.get<BasicFloatComponent>(entity3).value, 5.0f);                                                                                                        \
         PCT_ASSERT(registry.has<BasicFloatComponent>(entity2) == false);                                                                                                       \
                                                                                                                                                                                \
         registry.foreach_unique_component<BasicIntComponent##Postfix_ComponentToUse>(                                                                                          \
-            [](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k) { k = static_cast<std::size_t>(entity.id_); });                                            \
+            [](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k) { k = BasicIntComponent##Postfix_ComponentToUse{static_cast<std::size_t>(entity.id_)}; }); \
                                                                                                                                                                                \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, entity1.id_);                                                                           \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, entity1.id_);                                                                           \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == true);                                                                                  \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
                                                                                                                                                                                \
@@ -127,13 +134,13 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         entityCount = 0;                                                                                                                                                       \
         for (auto [intComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse>()) {                                                                        \
             ++entityCount;                                                                                                                                                     \
-            intComponent = 52ull;                                                                                                                                              \
+            intComponent = BasicIntComponent##Postfix_ComponentToUse{52ull};                                                                                                   \
         }                                                                                                                                                                      \
         PCT_EQ(entityCount, 2);                                                                                                                                                \
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
         view.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                                                                               \
-            [&entityCount, &link, &registry](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v) {                                    \
+            [&entityCount, &link, &registry](lecs::EntityId entity, BasicIntComponent##Postfix_ComponentToUse&, BasicFloatComponent&) {                                        \
             PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity));                                                                                       \
             PCT_ASSERT(registry.has<BasicFloatComponent>(entity));                                                                                                             \
                                                                                                                                                                                \
@@ -143,7 +150,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
         view.foreach_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>(                                                                               \
-            [&entityCount](BasicIntComponent##Postfix_ComponentToUse& k, BasicFloatComponent& v) { ++entityCount; });                                                          \
+            [&entityCount](BasicIntComponent##Postfix_ComponentToUse&, BasicFloatComponent&) { ++entityCount; });                                                              \
         PCT_EQ(entityCount, 1);                                                                                                                                                \
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
@@ -156,17 +163,17 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
         for (auto [intComponent, floatComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>()) {                                   \
-            PCT_EQ(intComponent.Value, 52ull);                                                                                                                                 \
-            PCT_EQ(floatComponent.Value, 22.0f);                                                                                                                               \
+            PCT_EQ(intComponent.value, 52ull);                                                                                                                                 \
+            PCT_EQ(floatComponent.value, 22.0f);                                                                                                                               \
             ++entityCount;                                                                                                                                                     \
         }                                                                                                                                                                      \
         PCT_EQ(entityCount, 1);                                                                                                                                                \
                                                                                                                                                                                \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                                                                 \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).Value, 52ull);                                                                                 \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, 52ull);                                                                                 \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity2).value, 52ull);                                                                                 \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
         registry.destroy_entityid(entity2);                                                                                                                                    \
-        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).Value, 52ull);                                                                                 \
+        PCT_EQ(registry.get<BasicIntComponent##Postfix_ComponentToUse>(entity1).value, 52ull);                                                                                 \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity2) == false);                                                                                 \
         PCT_ASSERT(registry.has<BasicIntComponent##Postfix_ComponentToUse>(entity3) == false);                                                                                 \
     }
@@ -176,5 +183,11 @@ BasicWorkflow(FC);
 BasicWorkflow(FCNREF);
 BasicWorkflow(CC);
 BasicWorkflow(RC);
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(modernize-avoid-c-arrays)
+// NOLINTEND(hicpp-avoid-c-arrays)
+// NOLINTEND(cppcoreguidelines-avoid-c-arrays)
 // NOLINTEND(readability-magic-numbers)
 // NOLINTEND(misc-const-correctness)

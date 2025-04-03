@@ -1,4 +1,4 @@
-#include "base_lecs_tests.hxx"
+#include "../base_lecs_tests.hxx"
 
 #include "lecs/detail/componentid.hxx"
 #include "lecs/detail/componentid_generator.hxx"

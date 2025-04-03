@@ -2,7 +2,7 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 
 cc_test(
     name = "units",
-    srcs = glob([ "**/*.hxx", "**/*.cxx" ], exclude=["Perf/**"]),
+    srcs = [ "base_lecs_tests.hxx", "tests.cxx" ] + glob([ "units/**/*.cxx" ],),
     includes = [ "tests/" ],
     copts = select({
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
@@ -14,7 +14,7 @@ cc_test(
 
 cc_test(
     name = "perf",
-    srcs = glob([ "**/*.hxx", "**/*.cxx" ]),
+    srcs = [ "base_lecs_tests.hxx", "tests.cxx" ] + glob([ "perf/**/*.cxx" ]),
     includes = [ "tests/" ],
     copts = select({
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],

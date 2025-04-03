@@ -18,6 +18,5 @@ refresh_compile_commands(
     exclude_headers = "external",
     targets = {
         "//tests:units": "",
-        "//tests:perf": "",
     },
 )
