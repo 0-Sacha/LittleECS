@@ -7,7 +7,7 @@ module(
 )
 
 # libs-deps
-git_override(module_name="streamformat", remote="https://github.com/0-Sacha/StreamFormat.git", commit="6faa20c9176b14e81903d0d65ad06e6a6e36332b")
+git_override(module_name="streamformat", remote="https://github.com/0-Sacha/StreamFormat.git", commit="72073258f10db79ddf59bcd63e22882ae1a61093")
 #
 bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_cc", version = "0.0.17")

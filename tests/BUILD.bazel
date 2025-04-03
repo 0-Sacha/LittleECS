@@ -8,7 +8,7 @@ cc_test(
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
         "//conditions:default": ["-std=c++20"],
     }),
-    deps = [ "@streamformat//:StreamFormat", "//:lecs" ],
+    deps = [ "@streamformat//:stream", "//:lecs" ],
     visibility = ["//visibility:public"],
 )
 
@@ -20,6 +20,6 @@ cc_test(
         "@rules_cc//cc/compiler:msvc-cl": ["/std:c++20"],
         "//conditions:default": ["-std=c++20"],
     }),
-    deps = [ "@streamformat//:StreamFormat", "//:lecs" ],
+    deps = [ "@streamformat//:stream", "//:lecs" ],
     visibility = ["//visibility:public"],
 )

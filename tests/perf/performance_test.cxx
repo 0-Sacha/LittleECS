@@ -2,7 +2,7 @@
 
 #include "lecs/lecs.hxx"
 
-#include "StreamFormat/ProfilerManager.h"
+#include "stream/profiler.hxx"
 
 #include <set>
 
@@ -14,7 +14,7 @@
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 
-PCT_TEST_GROUP(LITTLE_ECS, PERFORMANCE);
+SFT_TEST_GROUP(LITTLE_ECS, PERFORMANCE);
 
 struct BasicIntComponent {
     explicit BasicIntComponent(std::size_t value = 0) : Value(value) {}
@@ -35,7 +35,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
 };
 
 #define BenchmarkTest(Size, Name)                                                                                                            \
-    PCT_TEST_FUNC(PERFORMANCE, ADD_MANY_COMPONENT_##Name) {                                                                                  \
+    SFT_TEST_FUNC(PERFORMANCE, ADD_MANY_COMPONENT_##Name) {                                                                                  \
         StreamFormat::ProfilerManager::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                                                       \
                                                                                                                                              \
         lecs::Registry registry;                                                                                                             \
@@ -81,7 +81,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
                 }                                                                                                                            \
             }                                                                                                                                \
                                                                                                                                              \
-            PCT_ASSERT(uid);                                                                                                                 \
+            SFT_ASSERT(uid);                                                                                                                 \
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
@@ -96,7 +96,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
             StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "get Component");                                                    \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
-                PCT_EQ(i, registry.get<BasicIntComponent>(entities[i]).Value);                                                               \
+                SFT_EQ(i, registry.get<BasicIntComponent>(entities[i]).Value);                                                               \
             }                                                                                                                                \
         }                                                                                                                                    \
                                                                                                                                              \
@@ -104,8 +104,8 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
             StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "has Component");                                                    \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
-                PCT_ASSERT(registry.has<BasicIntComponent>(entities[i]));                                                                    \
-                PCT_ASSERT(registry.has<BasicFloatComponent>(entities[i]) == false);                                                         \
+                SFT_ASSERT(registry.has<BasicIntComponent>(entities[i]));                                                                    \
+                SFT_ASSERT(registry.has<BasicFloatComponent>(entities[i]) == false);                                                         \
             }                                                                                                                                \
         }                                                                                                                                    \
                                                                                                                                              \

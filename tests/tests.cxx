@@ -1,7 +1,7 @@
 
-#include "StreamFormat/Tester/TestSuite/AllTestSuite.h"
+#include "stream/tester/test_suite/all_test_suite.hxx"
 
 int main() {
-    StreamFormat::Tester::TestSuitesManager::Verbose = false;
-    return static_cast<int>(StreamFormat::Tester::TestSuitesManager::ExecAllTestSuites());
+    stream::tester::TestSuitesManager::verbose = false;
+    return static_cast<int>(stream::tester::TestSuitesManager::exec_all_test_suites());
 }
