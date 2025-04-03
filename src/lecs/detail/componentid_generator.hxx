@@ -5,6 +5,7 @@
 #include "componentid.hxx"
 
 #include <string_view>
+#include <typeinfo>
 
 #ifdef LECS_COMPILER_MSVC
 #define LECS_FUNCTION_SIGNATURE_ID __FUNCSIG__
