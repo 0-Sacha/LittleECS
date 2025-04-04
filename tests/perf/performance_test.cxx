@@ -36,7 +36,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
 
 #define BenchmarkTest(Size, Name)                                                                                                            \
     SFT_TEST_FUNC(PERFORMANCE, ADD_MANY_COMPONENT_##Name) {                                                                                  \
-        StreamFormat::ProfilerManager::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                                                       \
+        stream::profiler::Profiler profiler("ADD_MANY_COMPONENT_" #Name);                                                                    \
                                                                                                                                              \
         lecs::Registry registry;                                                                                                             \
                                                                                                                                              \
@@ -44,7 +44,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         entities.reserve(Size);                                                                                                              \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Create Entities");                                                  \
+            stream::profiler::ScopeProfile scope(profiler, "Create Entities");                                                               \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
                 entities.emplace_back(registry.create_entityid());                                                                           \
@@ -52,7 +52,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "Check Entities Ids");                                               \
+            stream::profiler::ScopeProfile scope(profiler, "Check Entities Ids");                                                            \
                                                                                                                                              \
             bool uid = true;                                                                                                                 \
                                                                                                                                              \
@@ -85,7 +85,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "add Component");                                                    \
+            stream::profiler::ScopeProfile scope(profiler, "add Component");                                                                 \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
                 registry.add<BasicIntComponent>(entities[i], i);                                                                             \
@@ -93,7 +93,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "get Component");                                                    \
+            stream::profiler::ScopeProfile scope(profiler, "get Component");                                                                 \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
                 SFT_EQ(i, registry.get<BasicIntComponent>(entities[i]).Value);                                                               \
@@ -101,7 +101,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "has Component");                                                    \
+            stream::profiler::ScopeProfile scope(profiler, "has Component");                                                                 \
                                                                                                                                              \
             for (std::size_t i = 0; i < (Size); ++i) {                                                                                       \
                 SFT_ASSERT(registry.has<BasicIntComponent>(entities[i]));                                                                    \
@@ -110,12 +110,12 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponent> : public DefaultCom
         }                                                                                                                                    \
                                                                                                                                              \
         {                                                                                                                                    \
-            StreamFormat::ProfilerManager::ScopeProfile scope(profiler, "ForEach Component");                                                \
+            stream::profiler::ScopeProfile scope(profiler, "ForEach Component");                                                             \
                                                                                                                                              \
             registry.foreach_unique_component<BasicIntComponent>([](lecs::EntityId, BasicIntComponent& k) { k = BasicIntComponent{5ull}; }); \
         }                                                                                                                                    \
                                                                                                                                              \
-        StreamFormat::ProfilerManager::ProfilerFactory::ToJson(profiler);                                                                    \
+        stream::profiler::ProfilerFactory::to_json(profiler);                                                                                \
     }
 
 BenchmarkTest(1'000, 1K);
