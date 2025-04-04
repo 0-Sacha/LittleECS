@@ -4,7 +4,7 @@
             "name": "Default Windows",
             "includePath": [
                 "src/",
-                "bazel-littleecs/external/_main~_repo_rules~StreamFormat/src/"
+                "bazel-littleecs/external/streamformat+/src/"
             ],
             "cStandard": "c17",
             "cppStandard": "c++20",

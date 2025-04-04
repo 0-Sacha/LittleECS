@@ -1,12 +1,10 @@
 # Bazel
-MODULE.bazel.lock
-bazel-bin
-bazel-out
-bazel-littleecs
-bazel-LittleECS
-bazel-examples
-bazel-Examples
-bazel-testlogs
+*.lock
+bazel-*
+
+.coverage
+.codechecker
+compile_commands.json
 
 # VS
 .vs
