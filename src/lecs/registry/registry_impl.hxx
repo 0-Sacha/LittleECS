@@ -4,7 +4,7 @@
 
 namespace lecs {
     template <typename ComponentType>
-    typename detail::ComponentStorageInfo<ComponentType>::StorageType* Registry::GetComponentStorageOrCreateIt() {
+    typename detail::ComponentStorageInfo<ComponentType>::StorageType* Registry::get_component_storage_or_create_it() {
         ComponentId componentId = ComponentIdGenerator::get_typeid<ComponentType>();
 
         if (componentid_to_component_data_.contains(componentId) == true) {
@@ -34,7 +34,7 @@ namespace lecs {
 
     template <typename ComponentType, typename... Args>
     ComponentType& Registry::add(EntityId entity, Args&&... args) {
-        typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = GetComponentStorageOrCreateIt<ComponentType>();
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* component_storage = get_component_storage_or_create_it<ComponentType>();
         LECS_ASSERT(component_storage != nullptr, "This ComponentStorage is not part of this registry")
         return component_storage->add_component_to_entity(entity, std::forward<Args>(args)...);
     }

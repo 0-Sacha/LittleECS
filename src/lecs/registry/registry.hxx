@@ -57,21 +57,21 @@ namespace lecs {
             entityid_generator_.entityid_delete(entity);
         }
 
-        Entity CreateEntityFrom(EntityId entity) {
+        Entity create_entity_from(EntityId entity) {
             return Entity(this, entity);
         }
 
-        LiteEntity CreateLiteEntityFrom(EntityId entity) {
+        LiteEntity create_lite_entity_from(EntityId entity) {
             return LiteEntity(this, entity);
         }
 
     public:
         template <typename ComponentType>
-        typename detail::ComponentStorageInfo<ComponentType>::StorageType* GetComponentStorageOrCreateIt();
+        typename detail::ComponentStorageInfo<ComponentType>::StorageType* get_component_storage_or_create_it();
 
         template <typename ComponentType>
-        void CreateComponentStorage() {
-            GetComponentStorageOrCreateIt<ComponentType>();
+        void create_component_storage() {
+            get_component_storage_or_create_it<ComponentType>();
         }
 
         template <typename ComponentType>
@@ -110,7 +110,7 @@ namespace lecs {
 
     public:
         template <typename... ComponentTypes>
-        BasicView<ComponentTypes...> View() {
+        BasicView<ComponentTypes...> view() {
             return BasicView<ComponentTypes...>(*this);
         }
 

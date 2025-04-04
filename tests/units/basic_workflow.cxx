@@ -122,7 +122,7 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         }                                                                                                                                                                      \
         SFT_EQ(entityCount, 2);                                                                                                                                                \
                                                                                                                                                                                \
-        auto view = registry.View<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>();                                                                           \
+        auto view = registry.view<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>();                                                                           \
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
         for (lecs::EntityId entity : view.each_entities_with<BasicIntComponent##Postfix_ComponentToUse>()) {                                                                   \
@@ -132,9 +132,9 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         SFT_EQ(entityCount, 2);                                                                                                                                                \
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
-        for (auto [intComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse>()) {                                                                        \
+        for (auto [int_component] : view.each_components<BasicIntComponent##Postfix_ComponentToUse>()) {                                                                        \
             ++entityCount;                                                                                                                                                     \
-            intComponent = BasicIntComponent##Postfix_ComponentToUse{52ull};                                                                                                   \
+            int_component = BasicIntComponent##Postfix_ComponentToUse{52ull};                                                                                                   \
         }                                                                                                                                                                      \
         SFT_EQ(entityCount, 2);                                                                                                                                                \
                                                                                                                                                                                \
@@ -162,8 +162,8 @@ struct lecs::detail::ComponentStorageInfo<BasicIntComponentRC> : public DefaultC
         SFT_EQ(entityCount, 1);                                                                                                                                                \
                                                                                                                                                                                \
         entityCount = 0;                                                                                                                                                       \
-        for (auto [intComponent, floatComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>()) {                                   \
-            SFT_EQ(intComponent.value, 52ull);                                                                                                                                 \
+        for (auto [int_component, floatComponent] : view.each_components<BasicIntComponent##Postfix_ComponentToUse, BasicFloatComponent>()) {                                   \
+            SFT_EQ(int_component.value, 52ull);                                                                                                                                 \
             SFT_EQ(floatComponent.value, 22.0f);                                                                                                                               \
             ++entityCount;                                                                                                                                                     \
         }                                                                                                                                                                      \

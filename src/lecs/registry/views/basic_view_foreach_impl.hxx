@@ -36,7 +36,7 @@ namespace lecs {
         if constexpr (detail::ComponentStorageInfo<ComponentTypeEach>::SEND_ENTITIES_POOL_ON_EACH == false)
             get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function);
         else
-            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function, GetRegistry().get_entityid_generator().get_alives_entities());
+            get_component_storage_at<TypeIndex<ComponentTypeEach>::index>()->foreach_storage(function, get_registry().get_entityid_generator().get_alives_entities());
     }
 
     // Function = std::function<void(EntityId, ComponentTypeRanged& component, ComponentTypesEach&... components)>

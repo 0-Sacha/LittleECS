@@ -129,7 +129,7 @@ namespace lecs {
             return const_cast<typename detail::ComponentStorageInfo<TypeAt<I>>::StorageType*>(Base::template get_component_storage_at<I>());
         }
 
-        Registry& GetRegistry() {
+        Registry& get_registry() {
             return const_cast<Registry&>(Base::linked_registry_);
         }
 

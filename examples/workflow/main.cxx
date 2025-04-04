@@ -137,7 +137,7 @@ int main() {
      * Here, a view on <int> and <ABigComponent>.
      * It will only be able to view those components; any reference to another component will result in a 'constraint was not satisfied' error.
      */
-    auto view = registry.View<Name, int>();
+    auto view = registry.view<Name, int>();
 
     /**
      * With views, you have access to all previously defined For and Each functions,
@@ -164,8 +164,8 @@ int main() {
      * Here Eve will not appear since she doesn't have an <int> component.
      */
     logger.info("Views: each_components");
-    for (const auto& [name, intComponent] : view.each_components<Name, int>()) {
-        logger.info("    {} -> {}", name, intComponent);
+    for (const auto& [name, int_component] : view.each_components<Name, int>()) {
+        logger.info("    {} -> {}", name, int_component);
     }
 
     registry.add<int>(eve, 123);
@@ -175,8 +175,8 @@ int main() {
      */
     std::cout << std::endl;
     logger.info("View after adding an <int> component to Eve");
-    for (const auto& [name, intComponent] : view.each_components<Name, int>()) {
-        logger.info("    {} -> {}", name, intComponent);
+    for (const auto& [name, int_component] : view.each_components<Name, int>()) {
+        logger.info("    {} -> {}", name, int_component);
     }
 
     /**
@@ -186,7 +186,7 @@ int main() {
     registry.destroy_entityid(bob);
 
     logger.info("View after destroying Bob");
-    for (const auto& [name, intComponent] : view.each_components<Name, int>()) {
-        logger.info("    {} -> {}", name, intComponent);
+    for (const auto& [name, int_component] : view.each_components<Name, int>()) {
+        logger.info("    {} -> {}", name, int_component);
     }
 }
