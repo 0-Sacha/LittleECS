@@ -1,9 +1,12 @@
-[![Build status](https://badge.buildkite.com/0cf82389a7a3436a623ce9a61e15bdd701d29c73ffbb6ecaf0.svg)](https://buildkite.com/sacha/littleecs)
-[![LittleECS](https://github.com/0-Sacha/LittleECS/actions/workflows/LittleECS.yml/badge.svg)](https://github.com/0-Sacha/LittleECS/actions/workflows/LittleECS.yml)
+[![Buildkite](https://badge.buildkite.com/c74bfd00e5543dcb5645acecbfd9d1fc3a0487bc5de13db0b9.svg)](https://buildkite.com/sacha/littleecs)
+
+[![](https://github.com/0-Sacha/littleecs/actions/workflows/linter.yml/badge.svg)](https://github.com/0-Sacha/littleecs/actions/workflows/linter.yml)
+[![](https://github.com/0-Sacha/littleecs/actions/workflows/tests_linux.yml/badge.svg)](https://github.com/0-Sacha/littleecs/actions/workflows/tests_linux.yml)
+[![](https://github.com/0-Sacha/littleecs/actions/workflows/tests_windows.yml/badge.svg)](https://github.com/0-Sacha/littleecs/actions/workflows/tests_windows.yml)
 
 # LittleECS
 
-LittleECS is a C++ Entity Component System.
+LittleECS is a C++20 Entity Component System.
 The API is mostly inspired from [entt](https://github.com/skypjack/entt)
 
 I highly encourage you to check out the Workflow [documentation](Docs/Workflow.md) and [example](examples/Workflow/main.cpp) to see what it can do and how to use it.
@@ -14,13 +17,21 @@ This project is mostly an educational project of mine that I have started to lea
 
 ## Download
 ```
-git clone git@github.com:0-Sacha/LittleECS.git --recurse-submodules -c core.symlinks=true
+git clone git@github.com:0-Sacha/littleecs.git
 ```
 
-## Using the Lib
-It can be used using [Bazel](https://bazel.build/).
-A `cc_library` rule has been created: `@littleecs//:littleecs`.
-You need to add the module `littleecs` to your dependencies.
+## Integration
+### [Bazel](https://bazel.build/)
+`MODULE.bazel`
+```python
+git_override(module_name="littleecs", remote="https://github.com/0-Sacha/StreamFormat.git")
+bazel_dep(name = "littleecs")
+```
+
+`BUILD.bazel`: In your `cc_binary` / `cc_library`
+```python
+deps = [ "@littleecs//:lecs" ],
+```
 
 
 ## Docs / Comments
